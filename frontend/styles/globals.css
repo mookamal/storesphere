@@ -9,7 +9,15 @@ body {
     background-color: #E9E9EB;
 }
 
+.bg-color-primary {
+    background-color: var(--color-primary);
+}
+
 .my-btn-secondary {
     background-color: var(--color-secondary);
     color: #fff;
+}
+
+.my-text-secondary {
+    color: var(--color-text-primary);
 }
