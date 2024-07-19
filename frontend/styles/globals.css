@@ -2,6 +2,7 @@
     --color-primary: #E2EAFB;
     --color-secondary: #204876;
     --color-text-primary: #204876;
+    --color-bg-white: #ffffff;
 }
 
 
@@ -20,4 +21,8 @@ body {
 
 .my-text-secondary {
     color: var(--color-text-primary);
+}
+
+.bg-color-white {
+    background-color: var(--color-bg-white);
 }

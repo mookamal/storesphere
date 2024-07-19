@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image'
+import Image from 'next/image';
 import styles from './Navbar.module.css';
 export default  function MainNavbar({info}) {
 
