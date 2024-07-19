@@ -1,0 +1,15 @@
+:root {
+    --color-primary: #E2EAFB;
+    --color-secondary: #204876;
+    --color-text-primary: #204876;
+}
+
+
+body {
+    background-color: #E9E9EB;
+}
+
+.my-btn-secondary {
+    background-color: var(--color-secondary);
+    color: #fff;
+}

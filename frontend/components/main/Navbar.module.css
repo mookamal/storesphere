@@ -1,0 +1,18 @@
+.bg-navbar {
+    background-color: var(--color-primary);
+    padding: 10px;
+    color: var(--color-text-primary);
+}
+
+.navbar-custom-buttons {
+    position: absolute;
+    right: 1rem;
+    top: 50%; 
+    transform: translateY(-50%); 
+}
+
+@media (min-width: 992px) {
+    .navbar-custom-buttons {
+        display: none;
+    }
+}
