@@ -1,4 +1,4 @@
-import MainNavbar from "../../components/main/navbar";
+import MainNavbar from "../../components/main/Nav";
 import BootstrapJS from "../../helper/BootstrapJS";
 import SiteInfo from "../../helper/core";
 

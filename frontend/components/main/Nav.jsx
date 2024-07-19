@@ -1,16 +1,20 @@
 import Link from 'next/link';
+import Image from 'next/image'
 import styles from './Navbar.module.css';
 export default  function MainNavbar({info}) {
-
 
     return (
         <nav className={`navbar navbar-expand-lg  ${styles['bg-navbar']}`}>
             <div className="container">
 
-                <Link href="/" legacyBehavior>
-                    <a className="navbar-brand" href="/">
-                        <img src={info.logo} alt="Logo" width="30" height="24" className="d-inline-block align-text-top"/>
-                    </a>
+                <Link href="/" className="navbar-brand">
+                        <Image 
+                            src={info.logo}
+                            className="d-inline-block align-text-top"
+                            width={30}
+                            height={24}
+                            alt={info.name}
+                        />
                 </Link>
 
                 <div className="collapse navbar-collapse" id="navbarNav">
