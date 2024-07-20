@@ -1,4 +1,5 @@
-import MainNavbar from "../../components/main/Nav";
+import Footer from "../../components/main/Footer";
+import Navbar from "../../components/main/Nav";
 import BootstrapJS from "../../helper/BootstrapJS";
 import SiteInfo from "../../helper/core";
 
@@ -15,8 +16,9 @@ export default async function MainLayout ({ children }) {
         </head>
         <body>
             <BootstrapJS />
-            <MainNavbar info={info} />
+            <Navbar info={info} />
             {children}
+            <Footer info={info} />
         </body>
       </html>
     )

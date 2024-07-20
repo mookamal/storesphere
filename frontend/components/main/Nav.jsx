@@ -5,7 +5,7 @@ import Image from 'next/image';
 import styles from './Navbar.module.css';
 import { useState } from 'react';
 
-export default function MainNavbar({ info }) {
+export default function Navbar({ info }) {
     const [userIsLogin, setUserIsLogin] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
