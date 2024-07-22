@@ -20,6 +20,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     image = models.ImageField(default='assets/images/blog.jpg',upload_to='blog_posts/%y/%m/%d')
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     content = CKEditor5Field('Content', config_name='extends')
     category = models.ForeignKey(Category, related_name="posts", on_delete=models.SET_NULL, null=True, blank=True)
     created_date = models.DateTimeField(default=timezone.now)

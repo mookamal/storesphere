@@ -20,7 +20,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     category = CategoryListSerializer()
     class Meta:
         model = Post
-        fields = ('image', 'title', 'content', 'published_date', 'slug', 'category')
+        fields = ('image', 'title', 'description','content', 'published_date', 'slug', 'category')
 
 class PostListSerializer(serializers.ModelSerializer):
     category = CategoryListSerializer()
