@@ -25,7 +25,10 @@ export default function PostCard({ post }) {
         </div>
         <div className="card-footer d-flex justify-content-between text-center border-0 bg-transparent">
             <p className='text-muted'>{formattedDate}</p>
-            <p className='text-muted'>{post.category.name}</p>
+            
+            <Link href={`/blog/topics/${post.category.slug}`} className='text-decoration-none'>
+              <p className='text-muted'>{post.category.name}</p>
+            </Link>
         </div>
       </div>
     </>
