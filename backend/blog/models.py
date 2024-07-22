@@ -7,6 +7,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
+    image = models.ImageField(default='assets/images/blog.jpg',upload_to='blog_categories/%y/%m/%d')
     slug = models.CharField(max_length=200 , blank=True, null=True,unique=True)
 
     def save(self, *args, **kwargs):

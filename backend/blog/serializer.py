@@ -4,13 +4,13 @@ from .models import Post,Category
 class CategoryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name','slug', )
+        fields = ('name', 'image','description','slug')
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
     posts = serializers.SerializerMethodField()
     class Meta:
         model = Category
-        fields = ('name', 'description', 'posts','slug')
+        fields = ('name', 'image','description', 'posts','slug')
     
     def get_posts(self,obj):
         posts = obj.posts.filter(is_published=True)
@@ -26,4 +26,4 @@ class PostListSerializer(serializers.ModelSerializer):
     category = CategoryListSerializer()
     class Meta:
         model = Post
-        fields = ('image','title', 'published_date', 'category','slug', )
+        fields = ('image','title', 'description','published_date', 'category','slug', )
