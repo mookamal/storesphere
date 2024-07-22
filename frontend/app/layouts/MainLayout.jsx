@@ -10,10 +10,6 @@ export default async function MainLayout ({ children }) {
 
     return (
       <html lang="en">
-        <head>
-          <title>{info.name}</title>
-          <meta name="description" content={info.desc} />
-        </head>
         <body>
             <BootstrapJS />
             <Navbar info={info} />
