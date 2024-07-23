@@ -1,9 +1,9 @@
 import PostCard from "../../components/main/blog/PostCard";
 import { fetchPosts } from "../api/main/blog/post";
 import StructureMetadata from '../../helper/structureMetadata';
-import SiteInfo from "../../helper/core"
-export async function generateMetadata() {
-    const siteInfo = await SiteInfo()
+import siteInfo from "../../data/site.json";
+export  function generateMetadata() {
+
     return StructureMetadata({
       title: `Ecommerce Growth Strategies - Tips, Tools, and Techniques for Expanding Your Online Store - ${siteInfo.name}`,
       description: "Explore essential strategies and tools for growing your e-commerce store. Get actionable tips on expanding your online presence, boosting sales, and leveraging the latest trends in e-commerce.",

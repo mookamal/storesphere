@@ -1,20 +1,19 @@
 import Footer from "../../components/main/Footer";
 import Navbar from "../../components/main/Nav";
 import BootstrapJS from "../../helper/BootstrapJS";
-import SiteInfo from "../../helper/core";
+import siteInfo from "../../data/site.json";
 
 
 
-export default async function MainLayout ({ children }) {
-  const info = await SiteInfo()
+export default function MainLayout ({ children }) {
 
     return (
       <html lang="en">
         <body>
             <BootstrapJS />
-            <Navbar info={info} />
+            <Navbar info={siteInfo} />
             {children}
-            <Footer info={info} />
+            <Footer info={siteInfo} />
         </body>
       </html>
     )

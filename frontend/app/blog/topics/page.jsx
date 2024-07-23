@@ -2,10 +2,9 @@ import { fetchCategories } from '../../api/main/blog/category';
 import Link from 'next/link';
 import Image from 'next/image';
 import StructureMetadata from '../../../helper/structureMetadata';
-import SiteInfo from "../../../helper/core";
+import siteInfo from "../../../data/site.json";
 
-export async function generateMetadata() {
-    const siteInfo = await SiteInfo()
+export function generateMetadata() {
     return StructureMetadata({
         title: `Trending Topics from the Ecommerce Marketing Blog - ${siteInfo.name}`,
         description: 'Discover the latest trends and insights in ecommerce marketing. Stay updated with our popular topics and expert advice to boost your online business success.',
