@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: http://www.nour.com
+
+# Sitemaps
+Sitemap: http://www.nour.com/sitemap.xml
