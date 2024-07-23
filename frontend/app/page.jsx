@@ -16,10 +16,10 @@ export async function generateMetadata({ params }) {
 export default async function  Home() {
     const siteInfo = await SiteInfo()
     return (
-        <>
+        <main>
             <Hero info={siteInfo} />
             <FeatureBanner />
             <HomeSupport />
-        </>
+        </main>
     )
 }

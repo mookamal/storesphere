@@ -26,3 +26,9 @@ body {
 .bg-color-white {
     background-color: var(--color-bg-white);
 }
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
