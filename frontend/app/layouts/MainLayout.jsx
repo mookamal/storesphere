@@ -10,7 +10,7 @@ export default async function MainLayout ({ children }) {
 
     return (
       <html lang="en">
-        <body className="d-flex flex-column">
+        <body>
             <BootstrapJS />
             <Navbar info={info} />
             {children}

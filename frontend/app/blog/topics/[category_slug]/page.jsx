@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
 export default async function CategoryBySlug({ params }) {
     const category = await fetchCategoryBySlug(params.category_slug);
   return (
-    <main className='flex-fill'>
+    <main>
         <section className="bg-white p-5 border-top">
             <div className="container text-center">
                 <h1>{category.name}</h1>
