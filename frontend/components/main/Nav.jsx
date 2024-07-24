@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import Logo from './Logo';
 
-export default function Navbar({ info }) {
+
+export default function Navbar() {
     const [userIsLogin, setUserIsLogin] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -14,15 +16,7 @@ export default function Navbar({ info }) {
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container">
-                <Link href="/" className="navbar-brand">
-                    <Image
-                        src={info.logo}
-                        className="d-inline-block align-text-top"
-                        width={30}
-                        height={24}
-                        alt={info.name}
-                    />
-                </Link>
+                <Logo />
                 {/* Desktop */}
                 <div className="ml-auto d-none d-lg-flex">
                     {!userIsLogin ? (

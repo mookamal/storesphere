@@ -1,9 +1,6 @@
 import Footer from "../../components/main/Footer";
 import Navbar from "../../components/main/Nav";
 import BootstrapJS from "../../helper/BootstrapJS";
-import siteInfo from "../../data/site.json";
-
-
 
 export default function MainLayout ({ children }) {
 
@@ -11,9 +8,9 @@ export default function MainLayout ({ children }) {
       <html lang="en">
         <body>
             <BootstrapJS />
-            <Navbar info={siteInfo} />
+            <Navbar />
             {children}
-            <Footer info={siteInfo} />
+            <Footer />
         </body>
       </html>
     )
