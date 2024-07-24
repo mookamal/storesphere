@@ -30,12 +30,11 @@ html, body {
 }
 
 body {
-  overflow: hidden;
   background-color: var(--app-container);
 }
 
 .bg-color-primary {
-    background-color: var(--color-primary);
+    background-color: var(--projects-section);
 }
 
 .my-btn-secondary {
@@ -44,11 +43,12 @@ body {
 }
 
 .my-text-secondary {
-    color: var(--color-text-primary);
+    color: var(--secondary-color);
 }
 
 .bg-color-white {
-    background-color: var(--color-bg-white);
+    background-color: #FFF;
+    color: var(--main-color);
 }
 
 .app-section {

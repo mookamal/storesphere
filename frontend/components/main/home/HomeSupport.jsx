@@ -10,7 +10,7 @@ export default function HomeSupport() {
             <div className="row row-cols-1 row-cols-md-3 g-4 mt-3">
                 <div className="col">
                     <Link href="/blog" className="text-decoration-none">
-                        <div className="card p-4">
+                        <div className="card p-4 app-section">
                             <h3 className="mb-4">Blog</h3>
                             <Image
                             src="/assets/icons/blog.png"

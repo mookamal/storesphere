@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import styles from './Navbar.module.css';
 import { useState } from 'react';
 
 export default function Navbar({ info }) {
@@ -13,7 +12,7 @@ export default function Navbar({ info }) {
     const handleCloseModal = () => setShowModal(false);
 
     return (
-        <nav className={`navbar navbar-expand-lg ${styles['bg-navbar']}`}>
+        <nav className="navbar navbar-expand-lg">
             <div className="container">
                 <Link href="/" className="navbar-brand">
                     <Image

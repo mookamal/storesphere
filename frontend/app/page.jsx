@@ -1,8 +1,8 @@
-import Hero from "../components/main/home/hero"
 import FeatureBanner from "../components/main/home/FeatureBanner"
 import StructureMetadata from '../helper/structureMetadata';
 import HomeSupport from "../components/main/home/HomeSupport";
 import siteInfo from "../data/site.json";
+import Hero from "../components/main/home/Hero";
 export  function generateMetadata({ params }) {
   
     return StructureMetadata({
@@ -15,7 +15,7 @@ export  function generateMetadata({ params }) {
 export default  function  Home() {
     return (
         <main>
-            <Hero info={siteInfo} />
+            <Hero />
             <FeatureBanner />
             <HomeSupport />
         </main>
