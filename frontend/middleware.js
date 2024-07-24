@@ -1,0 +1,23 @@
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const url = request.nextUrl.clone();
+  const host = request.headers.get('host') || '';
+  const subdomain = host.split('.')[0];
+  
+  if (url.pathname.startsWith('/_next')) {
+    return NextResponse.next();
+  }
+
+  if (url.pathname.startsWith('/admin') && subdomain !== 'admin') {
+    const newUrl = `http://admin.nour.com${url.pathname.replace('/admin', '')}`;
+    return NextResponse.redirect(newUrl);
+  }
+
+  if (subdomain === 'admin') {
+    url.pathname = `/admin${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
+  return NextResponse.next();
+}
