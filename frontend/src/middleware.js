@@ -9,13 +9,21 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
+  // admin
   if (url.pathname.startsWith('/admin') && subdomain !== 'admin') {
     const newUrl = `http://admin.nour.com${url.pathname.replace('/admin', '')}`;
     return NextResponse.redirect(newUrl);
   }
-
   if (subdomain === 'admin') {
     url.pathname = `/admin${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+  // accounts
+  if (url.pathname.startsWith('/accounts') && subdomain!== 'accounts') {
+    return NextResponse.error();
+  }
+  if (subdomain === 'accounts') {
+    url.pathname = `/accounts${url.pathname}`;
     return NextResponse.rewrite(url);
   }
 
