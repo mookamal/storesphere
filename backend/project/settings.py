@@ -41,16 +41,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    # Django-allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     # my apps
     'django_hosts',
-    'rest_framework',
     'django_ckeditor_5',
     'core',
     'api',
     'blog',
 ]
-
+REST_USE_JWT = True
 
 customColorPalette = [
         {
@@ -159,8 +166,32 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django_hosts.middleware.HostsResponseMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+SITE_ID = 1
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGOUT_ON_GET = True
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+	'allauth.account.auth_backends.AuthenticationBackend',
+    ]
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '347007352501-s0tckmebihlua8acb0996uqq1dfbq4h8.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
 
 ROOT_URLCONF = 'project.urls'
 
