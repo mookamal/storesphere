@@ -1,80 +1,30 @@
-'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState } from 'react';
-import Logo from './Logo';
+import {
+  Button,
+  Navbar,
+  NavbarBrand,
+  NavbarCollapse,
+  NavbarLink,
+  NavbarToggle,
+  DarkThemeToggle,
+} from "flowbite-react";
 
-
-export default function Navbar() {
-    const [userIsLogin, setUserIsLogin] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-
-    return (
-        <nav className="navbar navbar-expand-lg">
-            <div className="container">
-                <Logo />
-                {/* Desktop */}
-                <div className="ml-auto d-none d-lg-flex">
-                    {!userIsLogin ? (
-                        <ul className="nav">
-                            <Link href="/login" legacyBehavior>
-                                <button className="btn fw-bold mx-2">Login</button>
-                            </Link>
-                            <Link href="http://accounts.nour.com/signup" legacyBehavior>
-                                <button className="btn mx-2 fw-bold my-btn-secondary">Register</button>
-                            </Link>
-                        </ul>
-                    ) : (
-                        <Link href="/logout" legacyBehavior>
-                            <button className="btn mx-2 btn-dark">Logout</button>
-                        </Link>
-                    )}
-                </div>
-                {/* End Desktop */}
-
-                {/* Mobile */}
-                <button
-                    type="button"
-                    className="btn btn-light d-lg-none"
-                    onClick={handleShowModal}
-                >
-                    <span className="navbar-toggler-icon"></span>
-                </button>
-
-                {showModal && (
-                    <div className="modal fade show d-block" id="mobileNav"  aria-labelledby="mobileNavLabel" aria-hidden="true">
-                        <div className="modal-dialog modal-xl">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="mobileNavLabel">Menu</h5>
-                                    <button type="button" className="btn-close" aria-label="Close" onClick={handleCloseModal}></button>
-                                </div>
-                                <div className="modal-body">
-                                    {!userIsLogin ? (
-                                        <ul className="nav flex-column">
-                                            <Link href="/login" legacyBehavior>
-                                                <button className="btn fw-bold my-2 btn-light">Login</button>
-                                            </Link>
-                                            <Link href="/register" legacyBehavior>
-                                                <button className="btn fw-bold my-2 my-btn-secondary">Register</button>
-                                            </Link>
-                                        </ul>
-                                    ) : (
-                                        <Link href="/register" legacyBehavior>
-                                            <button className="btn btn-dark my-2">Logout</button>
-                                        </Link>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {/* End Mobile */}
-            </div>
-        </nav>
-    );
+export default function MainNavbar() {
+  return (
+    <Navbar container>
+      <NavbarBrand href="/">
+        <img src="/assets/site/logo.jpeg" className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
+      </NavbarBrand>
+      <NavbarCollapse>
+        <NavbarLink href="#" active>
+          Home
+        </NavbarLink>
+        <NavbarLink href="#">About</NavbarLink>
+        <NavbarLink href="#">Services</NavbarLink>
+        <NavbarLink href="#">Pricing</NavbarLink>
+        <NavbarLink href="#">Contact</NavbarLink>
+      </NavbarCollapse>
+      <DarkThemeToggle />
+    </Navbar>
+  );
 }
