@@ -5,7 +5,7 @@ export function middleware(request) {
   const host = request.headers.get('host') || '';
   const subdomain = host.split('.')[0];
   
-  if (url.pathname.startsWith('/_next')) {
+  if (url.pathname.startsWith('/_next') || url.pathname.startsWith('/assets')|| url.pathname.startsWith('/static')) {
     return NextResponse.next();
   }
 
