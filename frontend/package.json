@@ -1,7 +1,5 @@
 {
   "dependencies": {
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
     "date-fns": "^3.6.0",
     "next": "^14.2.5",
     "next-sitemap": "^4.2.3",

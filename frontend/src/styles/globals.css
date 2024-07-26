@@ -4,22 +4,211 @@
 }
 
 :root {
-  --app-container: #f3f6fd;
-  --main-color: #1f1c2e;
-  --secondary-color: #4A4A4A;
-  --link-color: #1f1c2e;
-  --link-color-hover: #c3cff4;
-  --link-color-active: #fff;
-  --link-color-active-bg: #1f1c2e;
-  --projects-section: #fff;
-  --message-box-hover: #fafcff;
-  --message-box-border: #e9ebf0;
-  --more-list-bg: #fff;
-  --more-list-bg-hover:  #f6fbff;
-  --more-list-shadow: rgba(209, 209, 209, 0.4);
-  --button-bg: #1f1c24;
-  --search-area-bg: #fff;
-  --message-btn: #fff;
+  --n-uplift-bg-primary: #303030;
+  --n-uplift-bg-primary-hover: #1A1A1A;
+  --n-uplift-text-interactive: #005BD3;
+  --n-uplift-text-interactive-hover: #005BD3;
+  --n-uplift-text-interactive-active: #002E6A;
+  --n-uplift-border-interactive-focus: #005BD3;
+  --n-uplift-button-border-radius: 8px;
+  --n-uplift-avatar-border-radius: 10px;
+  --n-uplift-badge-bg-success: #A1EDD0;
+  --n-uplift-avatar-bg-1: #FBCFFB;
+  --n-uplift-avatar-primary-1: #791A79;
+  --n-uplift-avatar-bg-2: #38FAA3;
+  --n-uplift-avatar-primary-2: #0C5132;
+  --n-uplift-avatar-bg-3: #92EDDE;
+  --n-uplift-avatar-primary-3: #095346;
+  --n-uplift-avatar-bg-4: #C0E1FF;
+  --n-uplift-avatar-primary-4: #0C5132;
+  --n-uplift-avatar-bg-5: #FED1DD;
+  --n-uplift-avatar-primary-5: #8D0448;
+  --k-color-bg-surface: #FFFFFF;
+  --k-color-bg-surface-hover: #F7F7F7;
+  --k-color-bg-surface-active: #F3F3F3;
+  --k-color-bg-surface-disabled: rgba(0, 0, 0, 0.05);
+  --k-color-surface-secondary: #F7F7F7;
+  --k-color-bg-surface-brand: #E3E3E3;
+  --k-color-bg-inverse: #1A1A1A;
+  --k-color-bg-surface-inverse: #303030;
+  --k-color-bg-surface-critical: #fee9e8;
+  --k-color-surface-success: #CDFEE1;
+  --background-bg-transparent-subdued: rgba(26, 26, 26, 0.05);
+  --k-color-bg-surface-caution: #FFF8DB;
+  --k-color-bg-fill: #FFFFFF;
+  --k-color-bg-fill-active: #F7F7F7;
+  --k-color-bg-fill-brand: #303030;
+  --k-color-bg-fill-brand-hover: #1A1A1A;
+  --k-color-bg-fill-brand-active: #1A1A1A;
+  --k-color-bg-fill-brand-selected: #303030;
+  --k-color-bg-fill-brand-disabled: rgba(0, 0, 0, 0.17);
+  --k-color-text-brand-on-bg-fill: #FFFFFF;
+  --k-color-text-brand-on-bg-fill-hover: #E3E3E3;
+  --k-color-text-brand-on-bg-fill-active: #CCC;
+  --k-color-bg-fill-secondary: #F1F1F1;
+  --k-color-bg-fill-secondary-hover: #EBEBEB;
+  --k-color-bg-fill-secondary-active: #E3E3E3;
+  --k-color-bg-fill-tertiary-active: #CCCCCC;
+  --k-color-bg-fill-tertiary-hover: rgb(0, 0, 0, 0.08);
+  --k-color-bg-fill-critical: #E51B00;
+  --k-color-bg-fill-critical-hover: #B5270B;
+  --k-color-bg-fill-critical-active: #8E1F0B;
+  --k-color-bg-fill-success: #29845A;
+  --k-color-bg-fill-caution: #FFE600;
+  --k-color-text: #303030;
+  --k-color-text-disabled: #B5B5B5;
+  --k-color-text-secondary: #616161;
+  --k-color-text-critical: #8E1F0B;
+  --k-color-text-critical-hover: #5F1507;
+  --k-color-text-critical-active: #2F0A04;
+  --k-color-text-critical-on-bg-fill: #FFFBFB;
+  --k-color-text-brand-on-bg-fill-active: #CCCCCC;
+  --k-color-text-brand-on-bg-fill-disabled: #FFFFFF;
+  --k-color-text-success-on-bg-fill: #F8FFFB;
+  --k-color-text-emphasis: #FCFDFF;
+  --k-color-text-emphasis-hover: #004299;
+  --k-color-text-link: #005BD3;
+  --k-color-input-bg-surface: #FDFDFD;
+  --k-color-input-bg-surface-hover: #FAFAFA;
+  --k-color-input-bg-surface-active: #F7F7F7;
+  --color-avatar-two-text-on-bg-fill: #0C5132;
+  --k-color-text-success: #0C5132;
+  --k-color-text-caution: #4F4700;
+  --k-color-icon: #4A4A4A;
+  --k-color-icon-disabled: #CCCCCC;
+  --k-color-icon-emphasis: #002E6A;
+  --k-color-icon-emphasis-hover: #004299;
+  --k-color-icon-success: #29845A;
+  --k-color-icon-critical: #EF4D2F;
+  --k-color-icon-caution: #998A00;
+  --k-border-radius-button: 8px;
+  --k-border-radius-0: 0rem;
+  --k-border-radius-050: 2px;
+  --k-border-radius-100: 4px;
+  --k-border-radius-150: 6px;
+  --k-border-radius-200: 8px;
+  --k-border-radius-300: 12px;
+  --k-border-radius-400: 16px;
+  --k-border-radius-500: 20px;
+  --k-border-radius-750: 30px;
+  --k-border-radius-full: 9999px;
+  --k-color-border: #E3E3E3;
+  --k-color-border-focus: #005BD3;
+  --k-color-border-inverse: #616161;
+  --k-color-border-disabled: #EBEBEB;
+  --k-color-input-border-active: #1A1A1A;
+  --k-color-border-critical: #fec3c1;
+  --k-color-border-critical-secondary: #8e1f0b;
+  --k-border-width-0165: 0.66px;
+  --k-border-width-025: 1px;
+  --k-border-width-050: 2px;
+  --k-space-025: 1px;
+  --k-space-050: 2px;
+  --k-space-100: 4px;
+  --k-space-150: 6px;
+  --k-space-200: 8px;
+  --k-space-300: 12px;
+  --k-space-350: 14px;
+  --k-space-400: 16px;
+  --k-space-500: 20px;
+  --k-space-600: 24px;
+  --k-space-800: 32px;
+  --k-space-1000: 40px;
+  --k-space-1200: 48px;
+  --k-space-1600: 64px;
+  --k-space-2400: 96px;
+  --k-space-2800: 112px;
+  --k-space-3200: 128px;
+  --k-shadow-button: 0px 1px 0px 0px #E3E3E3 inset, 1px 0px 0px 0px #E3E3E3 inset, -1px 0px 0px 0px #E3E3E3 inset, 0px -1px 0px 0px #B5B5B5 inset;
+  --k-shadow-button-primary: 0px 2px 0px 0px rgba(255, 255, 255, 0.2) inset, 2px 0px 0px 0px rgba(255, 255, 255, 0.2) inset, -2px 0px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px -1px 0px 1px #000 inset, 0px 1px 0px 0px #000 inset;
+  --k-shadow-button-primary-inset: 0px 3px 0px 0px #000 inset;
+  --k-shadow-inset-200: 0px 2px 1px 0px rgba(26, 26, 26, 0.20) inset, 1px 0px 1px 0px rgba(26, 26, 26, 0.12) inset, -1px 0px 1px 0px rgba(26, 26, 26, 0.12) inset;
+  --k-shadow-200: 0px 3px 1px -1px rgba(26, 26, 26, 0.07);
+  --k-shadow-button-primary-critical: 0px 1px 0px 0px rgba(255, 255, 255, 0.48) inset, -1px 0px 0px 0px rgba(255, 255, 255, 0.20) inset, 1px 0px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px -1.5px 0px 0px rgba(0, 0, 0, 0.25) inset;
+  --k-shadow-button-primary-critical-inset: 0px 2px 0px 0px rgba(0, 0, 0, 0.60) inset, 1px 0px 1px 0px rgba(0, 0, 0, 0.20) inset, -1px 0px 1px 0px rgba(0, 0, 0, 0.20) inset;
+  --k-shadow-button-primary-critical-hover: 0px 1px 0px 0px rgba(255, 255, 255, 0.48) inset, 1px 0px 0px 0px rgba(255, 255, 255, 0.20) inset, -1px 0px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px -1.5px 0px 0px rgba(0, 0, 0, 0.25) inset;
+  --k-font-size-275: 11px;
+  --k-font-size-300: 12px;
+  --k-font-size-325: 13px;
+  --k-font-size-350: 14px;
+  --k-font-size-400: 16px;
+  --k-font-size-500: 20px;
+  --k-font-size-600: 24px;
+  --k-font-size-750: 30px;
+  --k-font-size-900: 36px;
+  --k-font-size-1000: 40px;
+  --k-font-weight-regular: 450;
+  --k-font-weight-medium: 550;
+  --k-font-weight-semibold: 650;
+  --k-font-weight-bold: 700;
+  --k-font-line-height-300: 12px;
+  --k-font-line-height-400: 16px;
+  --k-font-line-height-500: 20px;
+  --k-font-line-height-600: 24px;
+  --k-font-line-height-700: 28px;
+  --k-font-line-height-800: 32px;
+  --k-font-line-height-1000: 40px;
+  --k-font-line-height-1200: 48px;
+  --k-font-letter-spacing-densest: -0.54px;
+  --k-font-letter-spacing-denser: -0.3px;
+  --k-font-letter-spacing-dense: -0.2px;
+  --k-font-letter-spacing-normal: 0px;
+  --k-motion-ease-out: cubic-bezier(0.19, 0.91, 0.38, 1);
+  --k-motion-ease-out-back: cubic-bezier(0.18, 0.89, 0.32, 1.27);
+  --k-motion-ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+  --k-motion-keyframes-spin: p-motion-keyframes-spin;
+  --k-motion-duration-0: 0ms;
+  --k-motion-duration-50: 50ms;
+  --k-motion-duration-100: 100ms;
+  --k-motion-duration-150: 150ms;
+  --k-motion-duration-200: 200ms;
+  --k-motion-duration-250: 250ms;
+  --k-motion-duration-300: 300ms;
+  --k-motion-duration-350: 350ms;
+  --k-motion-duration-400: 400ms;
+  --k-motion-duration-450: 450ms;
+  --k-motion-duration-500: 500ms;
+  --k-motion-duration-5000: 5000ms;
+  --k-width-0: 0px;
+  --k-width-025: 1px;
+  --k-width-050: 2px;
+  --k-width-100: 4px;
+  --k-width-150: 6px;
+  --k-width-200: 8px;
+  --k-width-300: 12px;
+  --k-width-400: 16px;
+  --k-width-500: 20px;
+  --k-width-600: 24px;
+  --k-width-700: 28px;
+  --k-width-800: 32px;
+  --k-width-900: 36px;
+  --k-width-1000: 40px;
+  --k-width-1200: 48px;
+  --k-width-1600: 64px;
+  --k-width-2000: 80px;
+  --k-width-2400: 96px;
+  --k-width-2800: 112px;
+  --k-width-3200: 128px;
+  --k-height-0: 0px;
+  --k-height-025: 1px;
+  --k-height-050: 2px;
+  --k-height-100: 4px;
+  --k-height-150: 6px;
+  --k-height-200: 8px;
+  --k-height-300: 12px;
+  --k-height-400: 16px;
+  --k-height-500: 20px;
+  --k-height-600: 24px;
+  --k-height-700: 28px;
+  --k-height-800: 32px;
+  --k-height-900: 36px;
+  --k-height-1000: 40px;
+  --k-height-1200: 48px;
+  --k-height-1600: 64px;
+  --k-height-2000: 80px;
+  --k-height-2400: 96px;
+  --k-height-2800: 112px;
+  --k-height-3200: 128px;
 }
 
 
@@ -30,7 +219,7 @@ html, body {
 }
 
 body {
-  background-color: var(--app-container);
+  background-color: var(--k-color-bg-surface);
 }
 
 .bg-color-primary {
@@ -38,7 +227,7 @@ body {
 }
 
 .my-btn-secondary {
-    background-color: var(--main-color);
+    background-color: var(--n-uplift-bg-primary);
     color: #fff;
 }
 
@@ -52,7 +241,6 @@ body {
 }
 
 .app-section {
-  background-color: var(--projects-section);
   border-radius: 32px;
   padding: 32px 32px 0 32px;
 }

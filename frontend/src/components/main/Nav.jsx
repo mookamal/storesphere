@@ -24,12 +24,12 @@ export default function Navbar() {
                             <Link href="/login" legacyBehavior>
                                 <button className="btn fw-bold mx-2">Login</button>
                             </Link>
-                            <Link href="/register" legacyBehavior>
+                            <Link href="http://accounts.nour.com/signup" legacyBehavior>
                                 <button className="btn mx-2 fw-bold my-btn-secondary">Register</button>
                             </Link>
                         </ul>
                     ) : (
-                        <Link href="/register" legacyBehavior>
+                        <Link href="/logout" legacyBehavior>
                             <button className="btn mx-2 btn-dark">Logout</button>
                         </Link>
                     )}
