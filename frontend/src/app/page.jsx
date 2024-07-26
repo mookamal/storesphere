@@ -16,13 +16,9 @@ export function generateMetadata({ params }) {
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main>
-        <Hero />
-        <FeatureBanner />
-        <HomeSupport />
-      </main>
-      <Footer />
+      {/* <Navbar /> */}
+        
+      {/* <Footer /> */}
     </>
   );
 }
