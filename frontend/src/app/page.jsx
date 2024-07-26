@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <>
       <MainNavbar />
-        
+      <Hero />
       <MainFooter />
     </>
   );
