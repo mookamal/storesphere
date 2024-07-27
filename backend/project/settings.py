@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'core',
     'api',
     'blog',
+    'accounts',
 ]
 REST_USE_JWT = True
 REST_AUTH = {
@@ -192,7 +193,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 	'allauth.account.auth_backends.AuthenticationBackend',
