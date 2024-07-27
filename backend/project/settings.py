@@ -196,6 +196,9 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://accounts.nour.com/email/confirm/"
+PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://accounts.nour.com/password-reset/confirm/"
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 	'allauth.account.auth_backends.AuthenticationBackend',

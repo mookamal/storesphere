@@ -3,7 +3,15 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenVerifyView
 from dj_rest_auth.jwt_auth import get_refresh_view
 from dj_rest_auth.views import LoginView,LogoutView
-from accounts.views import ResendConfirmationEmail
+from dj_rest_auth.registration.views import (
+    ResendEmailVerificationView,
+    VerifyEmailView,
+)
+from dj_rest_auth.views import (
+    PasswordResetConfirmView,
+    PasswordResetView,
+)
+from accounts.views import email_confirm_redirect, password_reset_confirm_redirect
 # from core.views import InfoViewSet
 from blog.views import PostViewSet,CategoryViewSet
 router = DefaultRouter()
@@ -21,6 +29,14 @@ urlpatterns = [
     path("auth/logout/", LogoutView.as_view(), name="rest_logout"), 
     path('auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path("auth/token/refresh/", get_refresh_view().as_view(), name="token_refresh"),
-    path('auth/resend-confirmation/', ResendConfirmationEmail.as_view(), name='resend-confirmation-email'),
 
+    path("auth/register/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    path("auth/register/resend-email/", ResendEmailVerificationView.as_view(), name="rest_resend_email"),
+    path("auth/account-confirm-email/<str:key>/", email_confirm_redirect, name="account_confirm_email"),
+ 
+    path("auth/password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
+    path("auth/password/reset/confirm/<str:uidb64>/<str:token>/",password_reset_confirm_redirect,name="password_reset_confirm",),
+    path("auth/password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
 ]
+
+
