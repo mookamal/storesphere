@@ -6,22 +6,66 @@ import Link from "next/link";
 import { Button , Label , TextInput} from "flowbite-react";
 import { useState } from "react";
 import { ImGoogle3 } from "react-icons/im";
+
+function formatErrors(errors) {
+  const formattedErrors = {};
+
+  for (const [field, messages] of Object.entries(errors)) {
+      formattedErrors[field] = messages.join(' ');
+  }
+
+  return formattedErrors;
+}
+
+
+
+const  SIGNUP_URL = "/auth/signup"
 export default function Signup() {
   const [password , setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if(password!== confirmPassword){
-      setPasswordError('Passwords do not match');
-      return;
+
+    if (password !== confirmPassword) {
+        setPasswordError('Passwords do not match');
+        return;
     }
 
     setPassword('');
     setConfirmPassword('');
     setPasswordError('');
-  }
+
+    const formData = new FormData(e.target);
+    const objectFromForm = Object.fromEntries(formData);
+    const jsonData = JSON.stringify(objectFromForm);
+
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: jsonData
+    };
+
+    try {
+
+        const response = await fetch(SIGNUP_URL, requestOptions);
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          const err = formatErrors(responseData.error);
+          setFormErrors(err);
+        } else {
+            const responseData = await response.json();
+            console.log('Success:', responseData);
+        }
+    } catch (error) {
+
+        setFormErrors({ general: 'An unexpected error occurred' });
+    }
+}
+
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -75,8 +119,8 @@ export default function Signup() {
                 </label>
                 <TextInput
                   type="password"
-                  name="password"
-                  id="password"
+                  name="password1"
+                  id="password1"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -92,8 +136,8 @@ export default function Signup() {
                 </label>
                 <TextInput
                   type="password"
-                  name="confirm-password"
-                  id="confirm-password"
+                  name="password2"
+                  id="password2"
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -101,6 +145,10 @@ export default function Signup() {
                 />
               </div>
               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+              {formErrors.username && <p className="text-red-500 text-sm">{formErrors.username}</p>}
+              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
+              {formErrors.password1 && <p className="text-red-500 text-sm">{formErrors.password1}</p>}
+              {formErrors.general && <p className="text-red-500 text-sm">{formErrors.general}</p>}
               <div className="flex items-start">
                 <div className="flex items-center h-5">
                   <TextInput
