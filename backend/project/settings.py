@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'dj_rest_auth',
     # my apps
@@ -59,18 +60,15 @@ INSTALLED_APPS = [
     'blog',
     'accounts',
 ]
-REST_USE_JWT = True
+
 REST_AUTH = {
-    'USE_JWT': True,
-    'TOKEN_MODEL': None,
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
