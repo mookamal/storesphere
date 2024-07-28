@@ -7,20 +7,8 @@ import { Button , Label , TextInput} from "flowbite-react";
 import { useState } from "react";
 import { ImGoogle3 } from "react-icons/im";
 import { HiCheckCircle } from "react-icons/hi";
+import { formatMsgServer } from "../../../lib/utilities";
 
-const formatMsgServer = (msgs) => {
-  const formattedMessages = {};
-
-  for (const [field, messages] of Object.entries(msgs)) {
-    if (Array.isArray(messages)) {
-      formattedMessages[field] = messages.join('. ');
-    } else {
-      formattedMessages[field] = messages;
-    }
-  }
-
-  return formattedMessages;
-};
 
 
 
