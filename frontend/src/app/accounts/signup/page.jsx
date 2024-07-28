@@ -95,6 +95,7 @@ export default function Signup() {
                   required
                 />
               </div>
+              {formErrors.username && <p className="text-red-500 text-sm">{formErrors.username}</p>}
               <div>
                 <label
                   htmlFor="email"
@@ -110,6 +111,7 @@ export default function Signup() {
                   required
                 />
               </div>
+              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
               <div>
                 <label
                   htmlFor="password"
@@ -145,8 +147,6 @@ export default function Signup() {
                 />
               </div>
               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-              {formErrors.username && <p className="text-red-500 text-sm">{formErrors.username}</p>}
-              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
               {formErrors.password1 && <p className="text-red-500 text-sm">{formErrors.password1}</p>}
               {formErrors.general && <p className="text-red-500 text-sm">{formErrors.general}</p>}
               <div className="flex items-start">

@@ -20,7 +20,6 @@ export async function POST(request) {
         const responseData = await response.json()
         
         if (!responseData.ok) {
-            console.log(responseData)
             return NextResponse.json({error: responseData},{status: response.status})
         }
 
