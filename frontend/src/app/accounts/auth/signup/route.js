@@ -18,12 +18,14 @@ export async function POST(request) {
         }
         const response = await fetch(API_REGISTER_URL, requestOptions)
         const responseData = await response.json()
+        console.log(responseData);
         
-        if (!responseData.ok) {
+        if (response.status >= 200 && response.status < 300) {
+            return NextResponse.json({success: responseData},{status: 200})
+        } else {
             return NextResponse.json({error: responseData},{status: response.status})
         }
 
-        return NextResponse.json(responseData,{status: 200})
     } catch (error) {
 
         return NextResponse.json({error: 'Server Error'}, {status: 500});

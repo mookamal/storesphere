@@ -6,16 +6,22 @@ import Link from "next/link";
 import { Button , Label , TextInput} from "flowbite-react";
 import { useState } from "react";
 import { ImGoogle3 } from "react-icons/im";
+import { HiCheckCircle } from "react-icons/hi";
 
-function formatErrors(errors) {
-  const formattedErrors = {};
+const formatMsgServer = (msgs) => {
+  const formattedMessages = {};
 
-  for (const [field, messages] of Object.entries(errors)) {
-      formattedErrors[field] = messages.join(' ');
+  for (const [field, messages] of Object.entries(msgs)) {
+    if (Array.isArray(messages)) {
+      formattedMessages[field] = messages.join('. ');
+    } else {
+      formattedMessages[field] = messages;
+    }
   }
 
-  return formattedErrors;
-}
+  return formattedMessages;
+};
+
 
 
 
@@ -25,9 +31,12 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [formErrors, setFormErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setIsLoading(true);
 
     if (password !== confirmPassword) {
         setPasswordError('Passwords do not match');
@@ -54,16 +63,17 @@ export default function Signup() {
         const responseData = await response.json();
 
         if (!response.ok) {
-          const err = formatErrors(responseData.error);
+          const err = formatMsgServer(responseData.error);
           setFormErrors(err);
         } else {
-            const responseData = await response.json();
-            console.log('Success:', responseData);
+          const formattedSuccess = formatMsgServer(responseData.success);
+          setSuccessMessage(formattedSuccess.detail);
+          setFormErrors({});
         }
     } catch (error) {
-
         setFormErrors({ general: 'An unexpected error occurred' });
     }
+    setIsLoading(false);
 }
 
 
@@ -78,6 +88,13 @@ export default function Signup() {
           {siteInfo.name}
         </a>
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+
+          {successMessage && <div className="w-72 p-3 mx-auto my-2 rounded-md bg-green-200 flex items-center justify-center">
+            <HiCheckCircle /> 
+            <p className="font-bold mx-2">{successMessage}</p>
+          </div>}
+
+
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Create an account
@@ -148,6 +165,7 @@ export default function Signup() {
               </div>
               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               {formErrors.password1 && <p className="text-red-500 text-sm">{formErrors.password1}</p>}
+              {formErrors.non_field_errors && <p className="text-red-500 text-sm">{formErrors.non_field_errors}</p>}
               {formErrors.general && <p className="text-red-500 text-sm">{formErrors.general}</p>}
               <div className="flex items-start">
                 <div className="flex items-center h-5">
@@ -173,7 +191,8 @@ export default function Signup() {
                   </label>
                 </div>
               </div>
-              <Button 
+              <Button
+              isProcessing={isLoading}
               size="lg"
               type="submit"
               className="w-full text-gray-900 bg-white border border-gray-200 focus:outline-none hover:bg-green-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
