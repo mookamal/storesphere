@@ -30,7 +30,6 @@ export default function Login() {
         setError("One or more details is incorrect");
       } else {
         console.log("Lon in successfully");
-        console.log(responseData);
       }
 
 

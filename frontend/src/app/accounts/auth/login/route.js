@@ -1,7 +1,7 @@
 "use server";
 
 import { NextResponse } from "next/server";
-
+import { setToken , setRefreshToken } from "../../../../lib/auth";
 const API_LOGIN_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login/`;
 
 export async function POST(request) {
@@ -19,7 +19,10 @@ export async function POST(request) {
         const responseData = await response.json()
         
         if (response.status >= 200 && response.status < 300) {
-            return NextResponse.json({success: responseData},{status: 200})
+            const {access, refresh} = responseData
+            setToken(access);
+            setRefreshToken(refresh);
+            return NextResponse.json({success: ""},{status: 200})
         } else {
             return NextResponse.json({error: responseData},{status: response.status})
         }
