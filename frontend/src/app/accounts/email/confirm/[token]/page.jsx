@@ -1,7 +1,8 @@
 "use client"
+
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react';
-
+import AuthContainer from "../../../../../components/accounts/AuthContainer";
 export default function ConfirmEmail({params}) {
   const router = useRouter();
   const  key  = decodeURIComponent(params.token);
@@ -33,14 +34,12 @@ export default function ConfirmEmail({params}) {
 
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900">
-        <div className='flex items-center justify-center h-screen'>
-            <div className='bg-white p-10 border-slate-900 shadow-sm rounded-lg'>
-            {status === 'loading' && <p>Loading...</p>}
-            {status === 'success' && <p>Email confirmed! Redirecting to login page...</p>}
-            {status === 'error' && <p>Invalid or expired confirmation key.</p>}
-            </div>
-        </div>
-    </section>
+    <AuthContainer>
+      <div className='m-20'>
+        {status === 'loading' && <p>Loading...</p>}
+        {status === 'success' && <p>Email confirmed! Redirecting to login page...</p>}
+        {status === 'error' && <p>Invalid or expired confirmation key.</p>}
+      </div>
+    </AuthContainer>
   );
 };
