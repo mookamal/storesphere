@@ -35,5 +35,6 @@ export function setRefreshToken(refreshToken) {
 }
 
 export function deleteTokens() {
-    return cookies().delete(TOKEN_NAME) && cookies().delete(REFRESH_TOKEN_NAME);
+    cookies().delete(REFRESH_TOKEN_NAME)
+    return cookies().delete(TOKEN_NAME)
 }
