@@ -3,7 +3,6 @@
 import { Button, Checkbox, Label, TextInput } from "flowbite-react";
 import AuthContainer from "../../../components/accounts/AuthContainer";
 import { useState } from "react";
-import { isEmail } from "../../../lib/utilities";
 
 export default function Login() {
   const [isLoading , setIsLoading] = useState(false);
@@ -14,28 +13,6 @@ export default function Login() {
     setIsLoading(true);
     setError('');
 
-    try {
-      const isEmailInput = isEmail(e.target.userInput.value);
-      const response = await fetch('/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: isEmailInput ? e.target.userInput.value : "",
-          username: !isEmailInput ? e.target.userInput.value : "",
-          password: e.target.password1.value
-        }),
-      });
-      const responseData = await response.json();
-      if (!response.ok) {
-        setError("One or more details is incorrect");
-      } else {
-        console.log("Lon in successfully");
-      }
-
-
-    } catch (error) {
-      setError('Failed to login');
-    }
     setIsLoading(false);
   }
   return (
