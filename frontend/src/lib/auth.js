@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 const TOKEN_NAME = "auth-token";
 const REFRESH_TOKEN_NAME = "auth-refresh-token";
+const DOMAIN = '.nour.com';
 export function getToken() {
     const authToken = cookies().get(TOKEN_NAME)
     return authToken?.value 
@@ -20,6 +21,7 @@ export function setToken(authToken) {
         maxAge: 3600 * 24 * 30, // 30 days
         sameSite: "strict",
         secure: process.env.NODE_ENV !== "development",
+        domain: DOMAIN,
     });
 }
 
@@ -31,6 +33,7 @@ export function setRefreshToken(refreshToken) {
         maxAge: 3600 * 24 * 30, // 30 days
         sameSite: "strict",
         secure: process.env.NODE_ENV !== "development",
+        domain: DOMAIN,
     });
 }
 

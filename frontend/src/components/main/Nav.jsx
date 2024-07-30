@@ -5,7 +5,6 @@ import {
   NavbarBrand,
   NavbarCollapse,
   NavbarLink,
-  NavbarToggle,
   DarkThemeToggle,
 } from "flowbite-react";
 
