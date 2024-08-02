@@ -9,6 +9,17 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
+  // Handling auth routes on accounts subdomain
+  if (url.pathname.startsWith('/api/auth') && subdomain !== 'accounts') {
+    const newUrl = new URL(url);
+    newUrl.hostname = 'accounts.nour.com';
+    return NextResponse.redirect(newUrl);
+  }
+
+  if (subdomain === 'accounts' && url.pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
   // admin
   if (url.pathname.startsWith('/admin') && subdomain !== 'admin') {
     const newUrl = `http://admin.nour.com${url.pathname.replace('/admin', '')}`;
