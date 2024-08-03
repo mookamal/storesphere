@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
+
+
 export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') || '';
@@ -8,9 +10,9 @@ export async function middleware(request) {
   const protectedSubdomains = ['admin',];
 
   if (protectedSubdomains.includes(subdomain) && !session) {
-    const params = new URLSearchParams();
-    params.set('callbackUrl', url.toString());
-    url.search = params.toString();
+    // const params = new URLSearchParams();
+    // params.set('callbackUrl', url.toString());
+    // url.search = params.toString();
     url.pathname = '/login';
     url.host = 'accounts.nour.com';
     url.port = '80';
