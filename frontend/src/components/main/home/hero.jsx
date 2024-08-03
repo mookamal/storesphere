@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../../lib/nextAuth";
 export default async function Hero() {
   const session = await getServerSession(authOptions);
-  console.log(session);
   return (
     <section className="bg-center bg-no-repeat bg-[url('/assets/images/hero.jpg')] bg-gray-700 bg-blend-multiply">
       <div className="px-4 mx-auto max-w-screen-xl text-center py-24 lg:py-56">
