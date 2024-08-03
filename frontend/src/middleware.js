@@ -10,9 +10,6 @@ export async function middleware(request) {
   const protectedSubdomains = ['admin',];
 
   if (protectedSubdomains.includes(subdomain) && !session) {
-    // const params = new URLSearchParams();
-    // params.set('callbackUrl', url.toString());
-    // url.search = params.toString();
     url.pathname = '/login';
     url.host = 'accounts.nour.com';
     url.port = '80';
