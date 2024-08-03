@@ -4,7 +4,7 @@ import axios from "axios";
 
 const BACKEND_ACCESS_TOKEN_LIFETIME = 45 * 60; // 45 minutes
 const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60;  // 6 days
-
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL
 const getCurrentEpochTime = () => {
   return Math.floor(new Date().getTime() / 1000);
 };
@@ -81,5 +81,17 @@ export const authOptions = {
   },
   pages: {
     signIn: "/login"
-  }
+  },
+  cookies: {
+    sessionToken: {
+      name: `${NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""}next-auth.session-token`,
+      options: {
+        domain: "." + process.env.ROOT_DOMAIN,
+        httpOnly: true,
+        sameSite: 'Lax',
+        path: '/',
+        secure: NEXTAUTH_URL.startsWith('https://'),
+      }
+    }
+  },
 };
