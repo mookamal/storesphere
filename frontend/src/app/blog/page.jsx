@@ -16,16 +16,14 @@ export default async function Blog() {
 
   return (
       <main>
-        <div className="container mt-5 mb-5">
-          <section className="app-section">
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div className="container mx-auto p-4">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 ms:grid-cols-1 gap-4">
                 {posts.map(post => (
-                    <div className="col" key={post.slug}>
+                    <div key={post.slug}>
                         <PostCard post={post} />
                     </div>
                 ))}
             </div>
-          </section>
         </div>
       </main>
   )
