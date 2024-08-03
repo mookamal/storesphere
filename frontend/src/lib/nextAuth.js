@@ -78,5 +78,8 @@ export const authOptions = {
     async session({ token }) {
       return token;
     },
+  },
+  pages: {
+    signIn: "/login"
   }
 };
