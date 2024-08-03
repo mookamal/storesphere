@@ -17,24 +17,10 @@ export default async function PostDetail({ params }) {
   const formattedDate = format(new Date(post.published_date), 'MMM dd, yyyy');
 
   return (
-    <div className="container mt-5 mb-5">
-      <h1 className='mt-text-secondary text-center'>{post.title}</h1>
-      <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%' }}>
-        <Image
-          src={post.image}
-          alt={post.title}
-          fill 
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
-        />
-      </div>
-      <div className="row mt-5">
-        <div className="col-md-3"></div>
-        <div className="col-md-6">
-          <div dangerouslySetInnerHTML={{ __html: post.content }}></div>
-        </div>
-        <div className="col-md-3"></div>
-      </div>
-    </div>
+    <article className="container mx-auto p-5 text-center">
+      <h1 className='mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white'>{post.title}</h1>
+      <img className="h-auto max-w-full my-3" src={post.image} alt={post.title} />
+      <div className='mx-auto w-full max-w-2xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert' dangerouslySetInnerHTML={{ __html: post.content }}></div>
+    </article>
   );
 }
