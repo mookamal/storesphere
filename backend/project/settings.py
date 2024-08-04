@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     'api',
     'blog',
     'accounts',
+    # 'store',
+    # 'customer',
 ]
 
 REST_AUTH = {
@@ -148,8 +150,9 @@ customColorPalette = [
             'label': 'Blue'
         },
     ]
-
-CKEDITOR_5_FILE_STORAGE = 'blog.storage.CustomStorage'
+CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+CKEDITOR_5_UPLOAD_FILE_TYPES = ['jpeg', 'pdf', 'png']
+CK_EDITOR_5_UPLOAD_FILE_VIEW_NAME = "custom_upload_file"
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': ['heading', '|', 'bold', 'italic', 'link',
