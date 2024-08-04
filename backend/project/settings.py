@@ -109,7 +109,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': '347007352501-s0tckmebihlua8acb0996uqq1dfbq4h8.apps.googleusercontent.com',
             'secret': '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',
             'key': ''
-        }
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'VERIFIED_EMAIL': True,
     }
 }
 
