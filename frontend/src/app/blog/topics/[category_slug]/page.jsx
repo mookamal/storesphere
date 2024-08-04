@@ -14,29 +14,24 @@ export async function generateMetadata({ params }) {
 
 export default async function CategoryBySlug({ params }) {
     const category = await fetchCategoryBySlug(params.category_slug);
-  return (
-    <main>
-        <section className="bg-white p-5 border-top">
-            <div className="container text-center">
-                <h1>{category.name}</h1>
-                <p>{category.description}</p>
-            </div>
-        </section>
-        <div className="container p-5">
-            <div className="row">
+    return (
+        <>
+            <section className="bg-gray-100 dark:bg-black py-10">
+                <div className="container mx-auto">
+                    <h1 className="text-center text-blue-800 dark:text-gray-50 font-bold text-4xl">{category.name}</h1>
+                    <p className='text-center my-3 text-gray-500 dark:text-gray-100 font-extralight text-lg'>{category.description}</p>
+                </div>
+            </section>
+            <div className="container mx-auto text-center">
                 {category.posts.map(post => (
-                    <div key={post.slug} className="card w-100">
-                        <div className="card-body">
-                            <Link href={`/blog/${post.slug}`} className='text-decoration-none'>
-                                <h5 className="card-title">{post.title}</h5>
-                            </Link>
-                            <p className="card-text">{post.description}</p>
-                            <p>{format(new Date(post.published_date), 'MMM dd, yyyy')}</p>
-                        </div>
-                    </div>
+                    <dev key={post.slug}>
+                        <Link key={post.slug} href={`/blog/${post.slug}`}>
+                            <h5 className="text-3xl text-blue-500 dark:text-gray-50 my-3 font-bold hover:text-blue-900 dark:hover:text-blue-700">{post.title}</h5>
+                        </Link>
+                        <hr className='shadow my-5'></hr>
+                    </dev>
                 ))}
             </div>
-        </div>
-    </main>
-  )
+        </>
+    )
 }
