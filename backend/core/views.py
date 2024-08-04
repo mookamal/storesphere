@@ -16,7 +16,6 @@ import os
 @csrf_exempt
 def custom_upload_file(request):
     if request.method == 'POST' and request.FILES.get('upload'):
-        print("request", request)
         file = request.FILES['upload']
         subfolder = 'blog/posts/%y/%m/%d'
         file_name = default_storage.save(os.path.join(subfolder, file.name), file)
