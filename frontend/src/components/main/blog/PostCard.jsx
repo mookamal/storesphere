@@ -5,9 +5,9 @@ import { format } from 'date-fns';
 export default function PostCard({ post }) {
   const formattedDate = format(new Date(post.published_date), 'MMMM dd, yyyy');
   return (
-    <Card className="max-w-sm h-full" imgAlt={post.title} imgSrc={post.image}>
+    <Card className="max-w-sm h-full shadow-sm" imgAlt={post.title} imgSrc={post.image}>
       <Link href={`/blog/${post.slug}`}>
-        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white hover:text-blue-500">
+        <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white hover:text-blue-500">
           {post.title}
         </h5>
       </Link>
