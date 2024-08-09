@@ -3,7 +3,7 @@ from .models import Post,Category
 from .serializer import PostListSerializer,PostDetailSerializer,CategoryListSerializer,CategoryDetailSerializer
 from rest_framework.response import Response
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Post.objects.filter(is_published=True).order_by('published_date')
     lookup_field = 'slug'
 
@@ -12,9 +12,10 @@ class PostViewSet(viewsets.ModelViewSet):
             return PostListSerializer
         if self.action == 'retrieve':
             return PostDetailSerializer
+        return PostListSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     lookup_field = 'slug'
 
