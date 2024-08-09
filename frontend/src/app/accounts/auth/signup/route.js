@@ -17,7 +17,7 @@ export async function POST(request) {
       { username, email, password1, password2 }
     );
     
-    console.log('Response:', response.data);
+
 
     // Return the response data
     if (response.status === 201) {
@@ -26,7 +26,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Registration failed!' }, { status: response.status });
     }
   } catch (error) {
-    console.error('Error in POST request:', error.message);
     if (error.response && error.response.status === 400) {
         const { data } = error.response;
         return NextResponse.json({ error: data }, { status: 400 });
