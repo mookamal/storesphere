@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from datetime import timedelta
 import os
 from pathlib import Path
-
+from  decouple import config  
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2&p98j+abq6w_1_f6&gpbokb56)j%b#pcf&m5+gia2-ax55#p@'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False , cast=bool)
 
 
 ALLOWED_HOSTS = ['.nour.com','127.0.0.1','localhost']
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_hosts',
     'django_ckeditor_5',
     'simple_history',
+    "phonenumber_field",
     # my apps
     'core',
     'api',
