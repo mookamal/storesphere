@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
-
+import axios from "axios";
 
 export async function middleware(request) {
   const url = request.nextUrl.clone();
@@ -15,7 +15,34 @@ export async function middleware(request) {
     url.port = '80';
     return NextResponse.redirect(url);
   }
+
+  if (subdomain == 'accounts' && session && url.pathname.startsWith("/login") || url.pathname.startsWith("/signup")) {
+    url.pathname = '/';
+    return NextResponse.redirect(url);
+  }
+
+  // Allow access if user has at least one store
+  if (subdomain == 'admin' && session) {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        }
+      });
+      if (res.status >= 200 && res.status < 300) {
+        console.log("success!");
+      }
+    } catch (e) {
+      console.error("err");
+      url.pathname = '/store-create';
+      url.host = 'accounts.nour.com';
+      url.port = '80';
+      return NextResponse.redirect(url)
+    }
+  }
   
+
+
   if (url.pathname.startsWith('/_next') || url.pathname.startsWith('/assets')|| url.pathname.startsWith('/static')) {
     return NextResponse.next();
   }
