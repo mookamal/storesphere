@@ -29,15 +29,16 @@ export async function middleware(request) {
           'Authorization': `Bearer ${session.access_token}`,
         }
       });
-      if (res.status >= 200 && res.status < 300) {
-        console.log("success!");
-      }
     } catch (e) {
-      console.error("err");
-      url.pathname = '/store-create';
-      url.host = 'accounts.nour.com';
-      url.port = '80';
-      return NextResponse.redirect(url)
+      if (e.response && e.response.status === 404) {
+        url.pathname = '/store-create';
+        url.host = 'accounts.nour.com';
+        url.port = '80';
+        return NextResponse.redirect(url)
+      } else {
+        // Handle other errors
+        console.error('Error fetching stores:', e.message);
+      }
     }
   }
   
