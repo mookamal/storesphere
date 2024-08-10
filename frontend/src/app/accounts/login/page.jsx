@@ -16,7 +16,7 @@ export default function Login() {
     setError('');
   
     const form = e.target;
-    const email = form.userInput.value;
+    const email = form.email.value;
     const password = form.password1.value;
   
     const result = await signIn("credentials", {
@@ -42,9 +42,9 @@ export default function Login() {
         <form className="flex max-w-md flex-col gap-4" onSubmit={handleLogin}>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="userInput" value="Your email or username" />
+              <Label htmlFor="email" value="Your email" />
             </div>
-            <TextInput id="userInput"  type="text" placeholder="email or username" required />
+            <TextInput id="email"  type="text" placeholder="Email" required />
           </div>
           <div>
             <div className="mb-2 block">
