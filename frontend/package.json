@@ -3,6 +3,7 @@
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
     "flowbite-react": "^0.10.1",
+    "lottie-react": "^2.4.0",
     "next": "^14.2.5",
     "next-auth": "^4.24.7",
     "next-sitemap": "^4.2.3",
