@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework import authentication, permissions , status
+from rest_framework import authentication, permissions , status , generics
 from rest_framework.response import Response
 from .models import Store
 from .serializer import StoreSerializer
@@ -27,10 +27,11 @@ class StoreDetailView(APIView):
         except Store.DoesNotExist:
             return Response({'message': 'Store not found.'}, status=404)
     
-    def post(self, request):
-        # create store
-        serializer = StoreSerializer(data=request.data)
-        if serializer.is_valid():
-            store = serializer.save(owner=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class StoreCreateView(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
