@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const formatMsgServer = (msgs) => {
   const formattedMessages = {};
 
@@ -16,3 +18,28 @@ export const isEmail = (input) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(input);
 };
+
+
+
+export async function checkHasStore(session) {
+  console.log("sss: ", session.has_store);
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      }
+    });
+
+    if (response.data.length > 0) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    if (e.response && e.response.status === 404) {
+      return false;
+    } else {
+      console.error('Error fetching stores:', e.message);
+      throw new Error('Failed to check stores');
+    }
+  }
+}

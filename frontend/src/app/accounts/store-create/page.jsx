@@ -1,4 +1,5 @@
 'use client';
+
 import axios from 'axios';
 import Lottie from 'lottie-react';
 import { Spinner, Button, TextInput, Label } from "flowbite-react";

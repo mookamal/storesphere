@@ -59,6 +59,7 @@ export const authOptions = {
         token["access_token"] = backendResponse.access;
         token["refresh_token"] = backendResponse.refresh;
         token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        token['has_store'] = false;
         return token;
       }
       if (getCurrentEpochTime() > token["ref"]) {
@@ -76,6 +77,7 @@ export const authOptions = {
       return token;
     },
     async session({ token }) {
+      
       return token;
     },
   },

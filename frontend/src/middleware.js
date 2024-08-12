@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
-import axios from "axios";
-
+import { checkHasStore } from "../src/lib/utilities";
 export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') || '';
@@ -28,22 +27,12 @@ export async function middleware(request) {
 
   // Allow access if user has at least one store
   if (subdomain == 'admin' && session) {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        }
-      });
-    } catch (e) {
-      if (e.response && e.response.status === 404) {
-        url.pathname = '/store-create';
-        url.host = 'accounts.nour.com';
-        url.port = '80';
-        return NextResponse.redirect(url)
-      } else {
-        // Handle other errors
-        console.error('Error fetching stores:', e.message);
-      }
+    const hasStore = await checkHasStore(session);
+    if (!hasStore) {
+      url.host = 'accounts.nour.com';
+      url.pathname = '/store-create';
+      url.port = '80';
+      return NextResponse.redirect(url);
     }
   }
   
