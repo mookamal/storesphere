@@ -21,6 +21,11 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   }
 
+  if (subdomain == 'accounts' && !session && url.pathname.startsWith("/store-create")) {
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
+
   // Allow access if user has at least one store
   if (subdomain == 'admin' && session) {
     try {
