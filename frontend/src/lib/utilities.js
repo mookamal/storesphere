@@ -22,7 +22,6 @@ export const isEmail = (input) => {
 
 
 export async function checkHasStore(session) {
-  console.log("sss: ", session.has_store);
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`, {
       headers: {
