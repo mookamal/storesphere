@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
-
+import { firstStoreRedirect } from "../src/lib/utilities";
 export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') || '';
@@ -41,7 +41,23 @@ export async function middleware(request) {
   if (subdomain === 'accounts' && url.pathname.startsWith('/api/auth')) {
     return NextResponse.next();
   }
-
+  if (subdomain === "admin" && session) {
+    if (session.has_store === false) {
+      url.pathname = '/store-create';
+      url.host = "accounts.nour.com";
+      url.port = "80";
+      return NextResponse.redirect(url);
+    }
+    if (session.has_store === true && url.pathname === '/') {
+      try {
+        const domain = await firstStoreRedirect(session);
+        if (domain) {
+          url.pathname = `/store/${domain}`;
+          return NextResponse.redirect(url);
+        }
+      } catch (e) {}
+    }
+  }
   // admin
   if (url.pathname.startsWith('/admin') && subdomain !== 'admin') {
     const newUrl = `http://admin.nour.com${url.pathname.replace('/admin', '')}`;
@@ -51,6 +67,7 @@ export async function middleware(request) {
     url.pathname = `/admin${url.pathname}`;
     return NextResponse.rewrite(url);
   }
+
   // accounts
   if (url.pathname.startsWith('/accounts') && subdomain!== 'accounts') {
     return NextResponse.error();

@@ -42,3 +42,21 @@ export async function checkHasStore(session) {
     }
   }
 }
+
+export async function firstStoreRedirect(session) {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/first-store/`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      }
+    });
+    if (response.data) {
+      return response.data.domain;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    console.error('Error fetching first store:', e.message);
+    throw new Error('Failed to fetch first store');
+  }
+}
