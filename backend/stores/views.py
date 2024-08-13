@@ -27,6 +27,16 @@ class StoreDetailView(APIView):
         except Store.DoesNotExist:
             return Response({'message': 'Store not found.'}, status=404)
     
+class FirstStoreDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request):
+        try:
+            first_store = Store.objects.filter(owner=request.user).first()
+            serializer = StoreSerializer(first_store)
+            return Response(serializer.data)
+        except Store.DoesNotExist:
+            return Response({'message': 'No stores found.'}, status=404)
 
 class StoreCreateView(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
