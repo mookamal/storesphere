@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'stores',
     'subscriptions',
 ]
-
+AUTH_USER_MODEL = 'accounts.User'
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,

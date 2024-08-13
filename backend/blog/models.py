@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from accounts.models import User
 from django.utils import timezone
 from django.template.defaultfilters import slugify
 from django_ckeditor_5.fields import CKEditor5Field

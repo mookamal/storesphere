@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from accounts.models import User
 from django_countries.fields import CountryField
 from simple_history.models import HistoricalRecords
 from phonenumber_field.modelfields import PhoneNumberField

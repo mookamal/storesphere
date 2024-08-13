@@ -15,7 +15,7 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  if (subdomain == 'accounts' && session && url.pathname.startsWith("/login") || url.pathname.startsWith("/signup")) {
+  if (subdomain === 'accounts' && session && (url.pathname.startsWith("/login") || url.pathname.startsWith("/signup")) ) {
     url.pathname = '/';
     return NextResponse.redirect(url);
   }
@@ -24,8 +24,6 @@ export async function middleware(request) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
-
-
 
   if (url.pathname.startsWith('/_next') || url.pathname.startsWith('/assets')|| url.pathname.startsWith('/static')) {
     return NextResponse.next();
