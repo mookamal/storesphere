@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
-import { checkHasStore } from "../src/lib/utilities";
+
 export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') || '';
@@ -25,17 +25,6 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  // Allow access if user has at least one store
-  if (subdomain == 'admin' && session) {
-    const hasStore = await checkHasStore(session);
-    if (!hasStore) {
-      url.host = 'accounts.nour.com';
-      url.pathname = '/store-create';
-      url.port = '80';
-      return NextResponse.redirect(url);
-    }
-  }
-  
 
 
   if (url.pathname.startsWith('/_next') || url.pathname.startsWith('/assets')|| url.pathname.startsWith('/static')) {

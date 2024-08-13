@@ -1,7 +1,6 @@
-import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
-
+import { checkHasStore } from "../lib/utilities";
 const BACKEND_ACCESS_TOKEN_LIFETIME = 45 * 60; // 45 minutes
 const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60;  // 6 days
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL
@@ -77,7 +76,9 @@ export const authOptions = {
       return token;
     },
     async session({ token }) {
-      
+      if (token.has_store === false) {
+        token.has_store = await checkHasStore(token);
+      }
       return token;
     },
   },

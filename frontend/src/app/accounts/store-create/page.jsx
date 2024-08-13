@@ -3,14 +3,15 @@
 import axios from 'axios';
 import Lottie from 'lottie-react';
 import { Spinner, Button, TextInput, Label } from "flowbite-react";
-import storeAnimation from "../../../../public/assets/animation/store.json"
+import storeAnimation from "../../../../public/assets/animation/store.json";
 import AuthContainer from "../../../components/accounts/AuthContainer";
 import { useState } from 'react';
-
 const CREATE_STORE_URL = "/api/store-create"
 
 export default  function StoreCreate() {
   const [isLoading, setIsLoading] = useState(false);
+
+  
 
   async function handleSubmit(e) {
     e.preventDefault();
