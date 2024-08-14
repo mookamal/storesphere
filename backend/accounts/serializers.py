@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import User , StoreOwner
-from allauth.account import app_settings as allauth_account_settings
-from allauth.account.adapter import get_adapter
-from allauth.account.models import EmailAddress
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from allauth.account.utils import complete_signup
+from allauth.account import app_settings as allauth_account_settings
 
 class CustomRegisterSerializer(RegisterSerializer):
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=False)
 
     def get_cleaned_data(self):
         super(CustomRegisterSerializer, self).get_cleaned_data()
@@ -17,7 +16,7 @@ class CustomRegisterSerializer(RegisterSerializer):
             'email': self.validated_data.get('email', ''),
             'role': self.validated_data.get('role', ''),
         }
-
+    
 class StoreOwnerSerializer(serializers.ModelSerializer):
     user = CustomRegisterSerializer()
 
@@ -27,6 +26,24 @@ class StoreOwnerSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user = CustomRegisterSerializer().create(user_data)
+        user_data['role'] = 'store_owner'
+        user_serializer = CustomRegisterSerializer(data=user_data, context=self.context)
+
+        if user_serializer.is_valid():
+            user = user_serializer.save(request=self.context.get('request'))
+        else:
+            raise serializers.ValidationError(user_serializer.errors)
+
         store_owner = StoreOwner.objects.create(user=user, **validated_data)
+
+        # Call complete_signup after creating the user
+        if allauth_account_settings.EMAIL_VERIFICATION != 'none':  # Check email verification settings
+            request = self.context.get('request')
+            if request:
+                complete_signup(
+                    request._request, user,
+                    allauth_account_settings.EMAIL_VERIFICATION,
+                    None,
+                )
+
         return store_owner

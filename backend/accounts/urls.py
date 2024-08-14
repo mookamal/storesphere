@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
 from dj_rest_auth.jwt_auth import get_refresh_view
 from dj_rest_auth.views import LoginView,LogoutView
-from .views import GoogleLogin
+from .views import GoogleLogin , StoreOwnerRegisterView
 from dj_rest_auth.registration.views import (
     ResendEmailVerificationView,
     VerifyEmailView,
@@ -16,7 +16,7 @@ from .views import email_confirm_redirect, password_reset_confirm_redirect
 
 
 urlpatterns = [
-    path("register/", RegisterView.as_view(), name="rest_register"),
+    path("register/", StoreOwnerRegisterView.as_view(), name="rest_register"),
     path('login/', LoginView.as_view(), name='rest_login'),
     path("logout/", LogoutView.as_view(), name="rest_logout"), 
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
