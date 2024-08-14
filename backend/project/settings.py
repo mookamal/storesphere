@@ -95,6 +95,7 @@ CORS_ALLOWED_ORIGINS = [
 
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
@@ -107,7 +108,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 	'allauth.account.auth_backends.AuthenticationBackend',
     ]
-
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.UserSerializer'
+}
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

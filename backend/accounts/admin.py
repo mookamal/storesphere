@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
-from django.contrib.auth.forms import UserChangeForm
 from .models import User
 
 class UserAdmin(DefaultUserAdmin):
