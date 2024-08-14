@@ -38,7 +38,7 @@ export default function Signup() {
     try {
 
         const response = await axios.post(SIGNUP_URL, jsonData);
-        
+
         if (response.statusText === "OK") {
           setSuccessMessage(response.data.success);
         } else {
@@ -165,18 +165,7 @@ export default function Signup() {
               >
                 Create an account
               </Button>
-
-              <div className="flex items-center justify-center my-6">
-                <div className="flex-grow border-t border-gray-300"></div>
-                <span className="mx-4 text-gray-500">or</span>
-                <div className="flex-grow border-t border-gray-300"></div>
-              </div>
-
-              <a className="flex items-center justify-center w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-bold font-medium text-gray bg-blue-100 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-                <ImGoogle3 className="mr-2" /> Sign up with Google
-              </a>
-
-
+            
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link
