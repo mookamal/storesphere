@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import User
+from accounts.models import StoreOwner
 from django_countries.fields import CountryField
 from simple_history.models import HistoricalRecords
 from phonenumber_field.modelfields import PhoneNumberField
@@ -7,7 +7,7 @@ from .utility import generate_unique_subdomain
 # Create your models here.
 
 class Store(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE,related_name='stores')
+    owner = models.ForeignKey(StoreOwner, on_delete=models.CASCADE,related_name='stores')
     name = models.CharField(max_length=255,default='My Store')
     phone = PhoneNumberField(blank=True, null=True)
     email = models.EmailField(blank=True, null=True)

@@ -9,7 +9,7 @@ class StoreListView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        stores = Store.objects.filter(owner=request.user)
+        stores = Store.objects.filter(owner=request.user.store_owner)
         if stores.exists():
             serializer = StoreSerializer(stores, many=True)
             return Response(serializer.data)
@@ -32,7 +32,7 @@ class FirstStoreDetailView(APIView):
     
     def get(self, request):
         try:
-            first_store = Store.objects.filter(owner=request.user).first()
+            first_store = Store.objects.filter(owner=request.user.store_owner).first()
             serializer = StoreSerializer(first_store)
             return Response(serializer.data)
         except Store.DoesNotExist:
@@ -44,4 +44,4 @@ class StoreCreateView(generics.CreateAPIView):
     serializer_class = StoreSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save(owner=self.request.user.store_owner)
