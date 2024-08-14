@@ -109,7 +109,7 @@ AUTHENTICATION_BACKENDS = [
 	'allauth.account.auth_backends.AuthenticationBackend',
     ]
 REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.UserSerializer'
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer'
 }
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {

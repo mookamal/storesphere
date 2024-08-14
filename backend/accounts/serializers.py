@@ -5,11 +5,11 @@ from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
-class UserSerializer(RegisterSerializer):
+class CustomRegisterSerializer(RegisterSerializer):
     role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=True)
 
     def get_cleaned_data(self):
-        super(UserSerializer, self).get_cleaned_data()
+        super(CustomRegisterSerializer, self).get_cleaned_data()
         return {
             'username': self.validated_data.get('username', ''),
             'password1': self.validated_data.get('password1', ''),
@@ -18,11 +18,8 @@ class UserSerializer(RegisterSerializer):
             'role': self.validated_data.get('role', ''),
         }
 
-
-
-
 class StoreOwnerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = CustomRegisterSerializer()
 
     class Meta:
         model = StoreOwner
@@ -30,6 +27,6 @@ class StoreOwnerSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user = UserSerializer().create(user_data)
+        user = CustomRegisterSerializer().create(user_data)
         store_owner = StoreOwner.objects.create(user=user, **validated_data)
         return store_owner
