@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ImGoogle3 } from "react-icons/im";
 import { HiCheckCircle } from "react-icons/hi";
 import { formatMsgServer } from "../../../lib/utilities";
-
+import axios from 'axios';
 const  SIGNUP_URL = "/auth/signup"
 
 export default function Signup() {
@@ -35,27 +35,20 @@ export default function Signup() {
     const objectFromForm = Object.fromEntries(formData);
     const jsonData = JSON.stringify(objectFromForm);
 
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: jsonData
-    };
-
     try {
 
-        const response = await fetch(SIGNUP_URL, requestOptions);
-        const responseData = await response.json();
-
-        if (!response.ok) {
-          const err = formatMsgServer(responseData.error);
-          setFormErrors(err);
+        const response = await axios.post(SIGNUP_URL, jsonData);
+        console.log(response);
+        if (response.statusText === "OK") {
+          setSuccessMessage(response.data.success);
         } else {
-          const formattedSuccess = formatMsgServer(responseData.success);
-          setSuccessMessage(formattedSuccess.detail);
-          setFormErrors({});
+          setFormErrors({general:'Registration failed. Please try again.'});
         }
+
     } catch (error) {
-        setFormErrors({ general: 'An unexpected error occurred' });
+      const errorMessage = error.response.data.error.user;
+      const err = formatMsgServer(errorMessage);
+      setFormErrors(err);
     }
     setIsLoading(false);
 }

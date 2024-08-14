@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { username, email, password1, password2 } = await request.json();
+    const data = await request.json();
 
     // Ensure the environment variable is defined
     const backendUrl = process.env.NEXTAUTH_BACKEND_URL;
@@ -14,14 +14,14 @@ export async function POST(request) {
     // Send POST request
     const response = await axios.post(
       `${backendUrl}/register/`,
-      { username, email, password1, password2 }
+      { user:data }
     );
     
 
 
     // Return the response data
     if (response.status === 201) {
-      return NextResponse.json({ success: response.data }, { status: 200 });
+      return NextResponse.json({ success: response.data.success }, { status: 200 });
     } else {
       return NextResponse.json({ error: 'Registration failed!' }, { status: response.status });
     }

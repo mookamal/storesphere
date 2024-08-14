@@ -28,5 +28,6 @@ class StoreOwnerRegisterView(APIView):
         serializer = StoreOwnerSerializer(data=request.data,context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            success_message = "Your registration was successful! A verification email has been sent to your inbox. Please check your email and follow the instructions to verify your account."
+            return Response({"success":success_message}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
