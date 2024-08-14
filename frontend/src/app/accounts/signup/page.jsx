@@ -38,7 +38,7 @@ export default function Signup() {
     try {
 
         const response = await axios.post(SIGNUP_URL, jsonData);
-        console.log(response);
+        
         if (response.statusText === "OK") {
           setSuccessMessage(response.data.success);
         } else {
