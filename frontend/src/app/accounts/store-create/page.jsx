@@ -20,10 +20,11 @@ export default  function StoreCreate() {
     const objectFromForm = Object.fromEntries(formData);
     const jsonData = JSON.stringify(objectFromForm);
     const response = await axios.post(CREATE_STORE_URL, jsonData);
+
     
     if (response.statusText === "OK") {
       const storeDomain = response.data.domain;
-      window.location.href = `/admin/store/${storeDomain}/`;
+      window.location.href = `/admin/store/${storeDomain}`;
     } else {
       console.error(response.data);
       setIsLoading(false);
