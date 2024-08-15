@@ -41,7 +41,6 @@ export async function middleware(request) {
   }
 
   if (subdomain === "admin" && session) {
-    console.log("session.has_store",session.has_store);
     if (session.has_store === false) {
       url.pathname = '/store-create';
       url.host = "accounts.nour.com";
