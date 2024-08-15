@@ -6,12 +6,15 @@ import { Spinner, Button, TextInput, Label } from "flowbite-react";
 import storeAnimation from "../../../../public/assets/animation/store.json";
 import AuthContainer from "../../../components/accounts/AuthContainer";
 import { useState } from 'react';
+
+
 const CREATE_STORE_URL = "/api/store-create"
 
 export default  function StoreCreate() {
   const [isLoading, setIsLoading] = useState(false);
 
-  
+
+
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -20,13 +23,19 @@ export default  function StoreCreate() {
     const objectFromForm = Object.fromEntries(formData);
     const jsonData = JSON.stringify(objectFromForm);
     const response = await axios.post(CREATE_STORE_URL, jsonData);
-
-    
     if (response.statusText === "OK") {
       const storeDomain = response.data.domain;
+    // session token present, check if it's valid
+    const session = await fetch(`/api/auth/session`, {
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+      const json = await session.json();
+
       window.location.href = `/admin/store/${storeDomain}`;
+  
     } else {
-      console.error(response.data);
       setIsLoading(false);
       alert('Failed to create store. Please try again later.');
     }
