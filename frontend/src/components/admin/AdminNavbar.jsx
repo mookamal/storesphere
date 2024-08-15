@@ -2,7 +2,9 @@
 
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import infoData from "../../data/site.json";
-import Search from "./search";
+import Search from "./Search";
+import AvatarByLetter from "./Avatar";
+import { DarkThemeToggle } from "flowbite-react";
 
 export default function AdminNavbar() {
   return (
@@ -10,12 +12,13 @@ export default function AdminNavbar() {
     <Navbar.Brand>
       <img src={infoData.logo} className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
     </Navbar.Brand>
-    <div className="flex md:order-2">
+    <div className="flex md:order-2 gap-2">
+      <DarkThemeToggle />
       <Dropdown
         arrowIcon={false}
         inline
         label={
-          <Avatar alt="User settings" img="https://flowbite.com/docs/images/people/profile-picture-5.jpg" />
+          <AvatarByLetter storeName="my Store" />
         }
       >
         <Dropdown.Header>

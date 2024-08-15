@@ -1,8 +1,9 @@
-import Navbar from "../../../../components/admin/navbar";
+import AdminNavbar from "../../../../components/admin/AdminNavbar";
+
 export default function AdminLayout({ children }) {
   return (
     <>
-        <Navbar />
+        <AdminNavbar />
         <main>{children}</main>
     </>
   )

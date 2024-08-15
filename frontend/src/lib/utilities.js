@@ -19,6 +19,11 @@ export const isEmail = (input) => {
   return emailPattern.test(input);
 };
 
+export function getShortInitials(name) {
+  const names = name.split(' ');
+  const initials = names.map((name) => name.charAt(0).toUpperCase());
+  return initials.join('');
+}
 
 
 export async function checkHasStore(session) {
