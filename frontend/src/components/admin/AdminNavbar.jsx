@@ -2,13 +2,13 @@
 
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import infoData from "../../data/site.json";
-import Search from "./Search";
+import Search from "./AdminSearch";
 import AvatarByLetter from "./Avatar";
 import { DarkThemeToggle } from "flowbite-react";
 
 export default function AdminNavbar() {
   return (
-    <Navbar fluid rounded>
+    <Navbar fluid rounded className="bg-slate-100 dark:bg-black">
     <Navbar.Brand>
       <img src={infoData.logo} className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
     </Navbar.Brand>
