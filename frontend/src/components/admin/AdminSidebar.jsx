@@ -6,7 +6,7 @@ import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, Hi
 
 export default function AdminSidebar() {
     return (
-        <Sidebar aria-label="Sidebar" className="sticky top-16">
+        <Sidebar aria-label="Sidebar" id="default-sidebar" className="fixed top-16 left-0 z-40 transition-transform -translate-x-full sm:translate-x-0">
             <div className="flex h-full flex-col justify-between py-2">
             <Sidebar.Items>
                 <Sidebar.ItemGroup>

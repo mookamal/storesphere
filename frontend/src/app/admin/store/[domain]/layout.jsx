@@ -5,8 +5,8 @@ export default function AdminLayout({ children }) {
     <div className="flex flex-col min-h-screen">
         <AdminNavbar />
         <div className="flex flex-1">
-        <AdminSidebar />
-        <main className="flex-1 p-6">{children}</main>
+          <AdminSidebar />
+          <main className="flex-1 p-4 sm:ml-64">{children}</main>
         </div>
     </div>
   )
