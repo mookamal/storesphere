@@ -40,7 +40,7 @@ export const authOptions = {
         } catch (error) {
           console.error(error);
         }
-        throw new Error('Invalid username or password');
+        throw new Error('Invalid email or password');
       },
     }),
   ],
