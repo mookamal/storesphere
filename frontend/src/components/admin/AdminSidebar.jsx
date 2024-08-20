@@ -1,13 +1,24 @@
 "use client";
 
-import { Badge, Sidebar } from "flowbite-react";
+import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from "react-icons/hi";
 
+const customTheme = {
+    root: {
+      inner: "h-full overflow-y-auto overflow-x-hidden bg-white px-3 py-4 dark:bg-gray-800"
+    }
+  }
 
 export default function AdminSidebar() {
     return (
-        <Sidebar aria-label="Sidebar" id="default-sidebar" className="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="flex h-full flex-col justify-between py-2">
+        <Sidebar 
+        aria-label="Sidebar"
+        id="default-sidebar"
+        theme={customTheme}
+        className="fixed top-0 left-0 z-40 w-64 h-screen pt-16  transition-transform -translate-x-full sm:translate-x-0 border-r border-gray-200 dark:border-gray-700 shadow-sm"
+        >
+
+            <div className="flex h-full flex-col justify-between">
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
                     <Sidebar.Item href="#" icon={HiChartPie}>
@@ -33,40 +44,6 @@ export default function AdminSidebar() {
                     </Sidebar.Item>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>
-            <Sidebar.CTA>
-                <div className="mb-3 flex items-center">
-                    <Badge color="warning">Beta</Badge>
-                    <button
-                        aria-label="Close"
-                        className="-m-1.5 ml-auto inline-flex h-6 w-6 rounded-lg bg-gray-100 p-1 text-cyan-900 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
-                        type="button"
-                    >
-                        <svg
-                            aria-hidden
-                            className="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </button>
-                </div>
-                <div className="mb-3 text-sm text-cyan-900 dark:text-gray-400">
-                    Preview the new Flowbite dashboard navigation! You can turn the new navigation off for a limited time in your
-                    profile.
-                </div>
-                <a
-                    className="text-sm text-cyan-900 underline hover:text-cyan-800 dark:text-gray-400 dark:hover:text-gray-300"
-                    href="#"
-                >
-                    Turn new navigation off
-                </a>
-            </Sidebar.CTA>
             </div>
         </Sidebar>
     )
