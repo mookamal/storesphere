@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Dropdown, Navbar } from "flowbite-react";
+import { Dropdown, Navbar } from "flowbite-react";
 import infoData from "../../data/site.json";
 import Search from "./AdminSearch";
 import AvatarByLetter from "./Avatar";
@@ -32,7 +32,7 @@ export default function AdminNavbar() {
             </button>
 
             <Navbar.Brand>
-              <img src={infoData.logo} className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
+              <img src={infoData.logo} className="mr-3 h-6 sm:h-9 hidden sm:block" alt={infoData.name} />
             </Navbar.Brand>
           </div>
           <Search />
