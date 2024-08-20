@@ -12,30 +12,32 @@ export default function AdminNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-      const sidebar = document.getElementById('default-sidebar');
-      sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
+    setIsSidebarOpen(!isSidebarOpen);
+    const sidebar = document.getElementById('default-sidebar');
+    sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
   };
   return (
     <Navbar fluid className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">
       <div className="w-full p-1 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
 
-          <button
-                onClick={toggleSidebar}
-                aria-controls="default-sidebar"
-                type="button"
-                className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+          <div className="flex items-center">
+            <button
+              onClick={toggleSidebar}
+              aria-controls="default-sidebar"
+              type="button"
+              className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
             >
-                <BiMenuAltLeft className="text-2xl" />
+              <BiMenuAltLeft className="text-2xl" />
             </button>
 
-          <Navbar.Brand>
-            <img src={infoData.logo} className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
-          </Navbar.Brand>
+            <Navbar.Brand>
+              <img src={infoData.logo} className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
+            </Navbar.Brand>
           </div>
-          <div className="flex md:order-2 gap-2">
+          <Search />
+
+          <div className="flex gap-2">
             <DarkThemeToggle />
             <Dropdown
               arrowIcon={false}
@@ -54,11 +56,10 @@ export default function AdminNavbar() {
               <Dropdown.Divider />
               <Dropdown.Item>Sign out</Dropdown.Item>
             </Dropdown>
-            
           </div>
-          <Search />
+          
         </div>
       </div>
-  </Navbar>
+    </Navbar>
   )
 }
