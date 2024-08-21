@@ -7,6 +7,7 @@ import AvatarByLetter from "./Avatar";
 import { DarkThemeToggle } from "flowbite-react";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { useState } from "react";
+import { signOut } from "next-auth/react"
 
 export default function AdminNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -54,7 +55,7 @@ export default function AdminNavbar() {
               <Dropdown.Item>Settings</Dropdown.Item>
               <Dropdown.Item>Earnings</Dropdown.Item>
               <Dropdown.Divider />
-              <Dropdown.Item>Sign out</Dropdown.Item>
+              <Dropdown.Item onClick={() => signOut()}>Sign out</Dropdown.Item>
             </Dropdown>
           </div>
           
