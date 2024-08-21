@@ -18,7 +18,7 @@ export default function AdminNavbar() {
     sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
   };
   return (
-    <Navbar fluid className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">
+    <Navbar fluid className="fixed top-0 z-50 w-full bg-m-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">
       <div className="w-full p-1 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
 

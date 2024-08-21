@@ -5,7 +5,7 @@ import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, Hi
 
 const customTheme = {
     root: {
-      inner: "h-full overflow-y-auto overflow-x-hidden bg-white px-3 py-4 dark:bg-gray-800"
+      inner: "h-full overflow-y-auto overflow-x-hidden bg-m-white px-3 py-4 dark:bg-gray-800"
     }
   }
 

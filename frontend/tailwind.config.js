@@ -9,7 +9,12 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundColor: {
+        "screen-primary": "#F6F8FA",
+        "m-white": "#FFFFFF",
+      },
+    },
   },
   plugins: [
     flowbite.plugin(),
