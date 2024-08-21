@@ -1,5 +1,11 @@
 import AdminNavbar from "../../../../components/admin/AdminNavbar";
 import AdminSidebar from "../../../../components/admin/AdminSidebar";
+
+export const metadata = {
+  title: 'Store Management',
+  description: 'Store Management',
+}
+
 export default function AdminLayout({ children }) {
   return (
     <>
