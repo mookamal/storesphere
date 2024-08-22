@@ -27,7 +27,16 @@ const nextConfig = {
           ]
         }
       ]
-    } // end headers
+    }, // end headers
+    async redirects() {
+      return [
+        {
+          source: '/store/:domain/settings',
+          destination: '/store/:domain/settings/general',
+          permanent: true,
+        }
+      ]
+    }
   };
   
   module.exports = nextConfig;

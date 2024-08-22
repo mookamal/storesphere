@@ -1,0 +1,3 @@
+.card {
+    @apply bg-m-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700 text-slate-800 dark:text-white;
+  }
