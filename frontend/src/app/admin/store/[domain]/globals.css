@@ -1,3 +1,7 @@
 .card {
     @apply bg-m-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700 text-slate-800 dark:text-white;
   }
+
+.active {
+  @apply bg-gray-100 dark:bg-gray-700;
+}
