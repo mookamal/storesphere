@@ -12,7 +12,7 @@ const customTheme = {
 }
 
 export default function SettingsSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
   const storeDomain = pathname.split('/')[2];
   const currentPath = pathname.split('/').pop();
   
