@@ -26,13 +26,12 @@ class StoreType(DjangoObjectType):
         fields = ('name', 'phone', 'email', 'domain', )
 
 class Query(graphene.ObjectType):
-    store_by_domain = graphene.Field(StoreType,domain=graphene.String(required=True))
+    store_details = graphene.Field(StoreType,domain=graphene.String(required=True))
 
-    def resolve_store_by_domain(self, info, domain):
+    def resolve_store_details(self, info, domain):
         try:
             user = info.context.user
             store = Store.objects.get(domain=domain)
-            print("store.owne",user)
             if user.store_owner != store.owner:
                 raise PermissionDenied("You are not authorized to access this store.")
             return store
