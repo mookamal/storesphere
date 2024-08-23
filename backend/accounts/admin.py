@@ -4,7 +4,7 @@ from .models import User , StoreOwner
 
 class UserAdmin(DefaultUserAdmin):
     fieldsets = (
-        (None, {'fields': ('username','password' ,'email', 'role')}),
+        (None, {'fields': ('username','password' ,'email')}),
         ('Personal info', {'fields': ('first_name', 'last_name')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -12,7 +12,7 @@ class UserAdmin(DefaultUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'role', 'password1', 'password2'),
+            'fields': ('username', 'email', 'password1', 'password2'),
         }),
     )
 

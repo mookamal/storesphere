@@ -5,8 +5,6 @@ from allauth.account.utils import complete_signup
 from allauth.account import app_settings as allauth_account_settings
 
 class CustomRegisterSerializer(RegisterSerializer):
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=False)
-
     def get_cleaned_data(self):
         super(CustomRegisterSerializer, self).get_cleaned_data()
         return {
@@ -14,7 +12,6 @@ class CustomRegisterSerializer(RegisterSerializer):
             'password1': self.validated_data.get('password1', ''),
             'password2': self.validated_data.get('password2', ''),
             'email': self.validated_data.get('email', ''),
-            'role': self.validated_data.get('role', ''),
         }
     
 class StoreOwnerSerializer(serializers.ModelSerializer):
@@ -26,7 +23,6 @@ class StoreOwnerSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user_data['role'] = 'store_owner'
         user_serializer = CustomRegisterSerializer(data=user_data, context=self.context)
 
         if user_serializer.is_valid():
