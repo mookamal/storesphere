@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Checkbox, Label, TextInput } from "flowbite-react";
-import AuthContainer from "../../../components/accounts/AuthContainer";
+import AuthContainer from "@/components/accounts/AuthContainer";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 

@@ -1,12 +1,11 @@
 'use client';
 
-import AuthContainer from "../../../components/accounts/AuthContainer";
+import AuthContainer from "@/components/accounts/AuthContainer";
 import Link from "next/link";
 import { Button , Label , TextInput} from "flowbite-react";
 import { useState } from "react";
-import { ImGoogle3 } from "react-icons/im";
 import { HiCheckCircle } from "react-icons/hi";
-import { formatMsgServer } from "../../../lib/utilities";
+import { formatMsgServer } from "@/lib/utilities";
 import axios from 'axios';
 const  SIGNUP_URL = "/auth/signup"
 
