@@ -4,7 +4,28 @@ import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
 import { useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
+import { useSuspenseQuery , gql  } from "@apollo/client";
+const GET_STORE_DETAILS = gql`
+  query GetStoreDetails($domain: String!) {
+    storeDetails(domain: $domain) {
+      name
+      phone
+      email
+      domain
+    }
+  }
+`;
+
 export default function General() {
+  const { data } = useSuspenseQuery(GET_STORE_DETAILS, {
+    variables: { domain: "a654p" },
+    context: {
+      // example of setting the headers with context per operation
+      headers: {
+        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI1MDQ5ODE5LCJpYXQiOjE3MjQ0NDUwMTksImp0aSI6Ijc3ODczZThjZTE0NTQwNDg4NTBmNzY4ODhmZmM0YjA2IiwidXNlcl9pZCI6NjB9.1kzmckaz_IoDlz42CXMzc1v7sO7WFOBLU24Yr_7q8UE"
+      }
+    }});
+    console.log("data",data);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
   return (
     <div className="lg:w-4/6 w-full">

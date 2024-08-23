@@ -1,7 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
 from .models import Store
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import PermissionDenied
