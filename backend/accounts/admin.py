@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
-from .models import User
+from .models import User , StoreOwner
 
 class UserAdmin(DefaultUserAdmin):
     fieldsets = (
@@ -22,3 +22,4 @@ class UserAdmin(DefaultUserAdmin):
         return self.readonly_fields
 
 admin.site.register(User, UserAdmin)
+admin.site.register(StoreOwner)

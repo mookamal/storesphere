@@ -21,3 +21,6 @@ class StoreOwner(models.Model):
         if not self.pk:
             self.user.role = 'store_owner'
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.user.username
