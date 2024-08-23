@@ -11,7 +11,6 @@ class AuthenticationMiddleware:
         request = info.context
         try:
             user, token = JWTAuthentication().authenticate(request)
-            print("1", user)
             if not user or not user.is_authenticated:
                 raise PermissionDenied("Authentication credentials were not provided or are invalid.")
         except Exception as e:
