@@ -29,7 +29,6 @@ class Query(graphene.ObjectType):
     store_by_domain = graphene.Field(StoreType,domain=graphene.String(required=True))
 
     def resolve_store_by_domain(self, info, domain):
-        print(info.context)
         try:
             return Store.objects.get(domain=domain)
         except Store.DoesNotExist:
