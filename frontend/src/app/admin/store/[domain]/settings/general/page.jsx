@@ -3,7 +3,7 @@
 import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
 import { useState } from "react";
-import ProfileStoreModal from "../../../../../../components/admin/settings/general/ProfileStoreModal";
+import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 export default function General() {
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
   return (
