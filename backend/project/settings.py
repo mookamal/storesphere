@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'simple_history',
     "phonenumber_field",
+    'graphene_django',
     # my apps
     'core',
     'api',
@@ -66,6 +67,12 @@ INSTALLED_APPS = [
     'stores',
     'subscriptions',
 ]
+
+# graphql
+GRAPHENE = {
+    "SCHEMA": "project.schema.schema"
+}
+
 AUTH_USER_MODEL = 'accounts.User'
 REST_AUTH = {
     "USE_JWT": True,
