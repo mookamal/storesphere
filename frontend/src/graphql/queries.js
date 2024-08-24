@@ -1,11 +1,12 @@
 import { gql  } from "@apollo/client";
-export const GET_STORE_DETAILS = gql`
+export const GET_SETTINGS_GENERAL = gql`
   query SettingsGeneral($domain: String!) {
-    storeDetails(domain: $domain) {
+    shop(domain: $domain) {
       name
-      phone
       email
-      domain
+      billingAddress {
+      phone
+      }
     }
   }
 `;

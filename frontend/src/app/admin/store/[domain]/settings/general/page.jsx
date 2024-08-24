@@ -2,26 +2,22 @@
 
 import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
-import { useSuspenseQuery   } from "@apollo/client";
-import { GET_STORE_DETAILS } from "@/graphql/queries";
+import axios from 'axios';
+
 
 export default function General() {
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
-
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI1MDYxODQzLCJpYXQiOjE3MjQ0NTcwNDMsImp0aSI6IjJiZTVkYzc4ZDJiODQzNTA5NDlmOTM2ZGI0NTAzNGY2IiwidXNlcl9pZCI6NjB9.oqsPX3de6Cs2qq4muSUxE7xoc-uQHhwBGhgwwyi9Zfg";
-
-  const { data } = useSuspenseQuery(GET_STORE_DETAILS, {
-    variables: { domain: "a654p" },
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
+  const getData =  async () => {
+    try {
+      const response = await axios.post('/api/get-data');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error fetching store details:', error.message);
     }
-  });
-
-
+  }
+  
 
 
   return (
@@ -39,7 +35,6 @@ export default function General() {
               </div>
               <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={24} className="text-gray-500 dark:text-gray-50" /></button>
               <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} />
-              {data.storeDetails.name}
           </div>
         </div>
       </div>
