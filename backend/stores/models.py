@@ -9,7 +9,6 @@ from .utility import generate_unique_subdomain
 class Store(models.Model):
     owner = models.ForeignKey(StoreOwner, on_delete=models.CASCADE,related_name='stores')
     name = models.CharField(max_length=255,default='My Store')
-    phone = PhoneNumberField(blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
 
@@ -20,3 +19,17 @@ class Store(models.Model):
 
     def __str__(self):
         return self.name
+
+class StoreAddress(models.Model):
+    store = models.OneToOneField(Store, on_delete=models.CASCADE, related_name='addresses')
+    address1 = models.CharField(max_length=255, null=True, blank=True)
+    address2 = models.CharField(max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    country_code_v2 = models.CharField(max_length=10,blank=True, null=True)
+    company = models.CharField(max_length=255,blank=True, null=True)
+    phone = PhoneNumberField(blank=True, null=True)
+    province_code = models.CharField(max_length=10, null=True, blank=True)
+    zip = models.CharField(max_length=10, null=True, blank=True)
+
+    def __str__(self):
+        return self.store.domain

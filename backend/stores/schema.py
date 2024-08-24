@@ -1,7 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from .models import Store
-from rest_framework.permissions import IsAuthenticated
+from .models import Store,StoreAddress
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import PermissionDenied
 
@@ -18,15 +17,20 @@ class AuthenticationMiddleware:
         info.context.user = user
         return next(root, info, **kwargs)
 
+class StoreAddressType(DjangoObjectType):
+    class Meta:
+        model = StoreAddress
+        fields = ('id','address1', 'address2', 'city', 'country_code_v2', 'company', 'phone', 'province_code', 'zip', )
+
 class StoreType(DjangoObjectType):
+    billing_address = graphene.Field(StoreAddressType)
     class Meta:
         model = Store
-        fields = ('name', 'phone', 'email', 'domain', )
 
 class Query(graphene.ObjectType):
-    store_details = graphene.Field(StoreType,domain=graphene.String(required=True))
+    shop = graphene.Field(StoreType,domain=graphene.String(required=True))
 
-    def resolve_store_details(self, info, domain):
+    def resolve_shop(self, info, domain):
         try:
             user = info.context.user
             store = Store.objects.get(domain=domain)
