@@ -1,24 +1,10 @@
 "use client";
 
-import { fetchAccessToken } from '@/lib/utilities';
 import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
 import { useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
-import { useSuspenseQuery   } from "@apollo/client";
-import { GET_STORE_DETAILS } from "@/graphql/queries";
-
 export default function General() {
-  
-  // const { data } = useSuspenseQuery(GET_STORE_DETAILS, {
-  //   variables: { domain: "a654p" },
-  //   context: {
-  //     // example of setting the headers with context per operation
-  //     headers: {
-  //       Authorization: `Bearer ${session?.access_token}`,
-  //     }
-  //   }});
-  //   console.log("datas",data , status );
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
   return (
     <div className="lg:w-4/6 w-full">
