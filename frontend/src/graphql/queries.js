@@ -5,7 +5,7 @@ export const GET_SETTINGS_GENERAL = gql`
       name
       email
       billingAddress {
-      phone
+        phone
       }
     }
   }

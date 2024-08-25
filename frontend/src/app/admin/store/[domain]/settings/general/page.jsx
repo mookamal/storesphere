@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from 'axios';
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
-import { usePathname } from 'next/navigation'
 
-export default function General() {
+
+export default function General({ params  }) {
+  const [data , setData] = useState(null);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
-  const domain = usePathname().split('/')[2];
+  const domain = params.domain;
 
   const getData = async () => {
     try {
@@ -18,7 +19,7 @@ export default function General() {
         query: GET_SETTINGS_GENERAL,
         variables: { domain: domain },
       });
-      console.log(response.data);
+      setData(response.data.shop);
     } catch (error) {
       console.error('Error fetching store details:', error.message);
     }
@@ -26,9 +27,12 @@ export default function General() {
 
   useEffect(() => {
     getData();
+
   }, []);
 
-
+  if (!data) {
+    return null;
+  }
 
   return (
     <div className="lg:w-4/6 w-full">
@@ -41,10 +45,10 @@ export default function General() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <IoMdHome size={24} className="mr-3 text-gray-500 dark:text-gray-50" />
-              <h2>My store</h2>
+              <h2>{data.name}</h2>
             </div>
             <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={24} className="text-gray-500 dark:text-gray-50" /></button>
-            <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} />
+            <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} data={data} />
           </div>
         </div>
       </div>

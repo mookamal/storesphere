@@ -27,6 +27,9 @@ class StoreType(DjangoObjectType):
     class Meta:
         model = Store
 
+    def resolve_billing_address(self, info):
+        return self.addresses
+
 class Query(graphene.ObjectType):
     shop = graphene.Field(StoreType,domain=graphene.String(required=True))
 
@@ -39,3 +42,4 @@ class Query(graphene.ObjectType):
             return store
         except Store.DoesNotExist:
             return None
+        

@@ -1,12 +1,26 @@
 "use client";
 
 import { Button, Modal, Label, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ProfileStoreModal({ openModal, setOpenModal }) {
-  const [storeName, setStoreName] = useState("");
-  const [storePhone, setStorePhone] = useState("");
-  const [storeEmail, setStoreEmail] = useState("");
+export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
+  const [storeName, setStoreName] = useState(data.name || '');
+  const [storePhone, setStorePhone] = useState(data.billingAddress.phone || '');
+  const [storeEmail, setStoreEmail] = useState(data.email || '');
+  const [isChanged, setIsChanged] = useState(false);
+
+  useEffect(() => {
+    if (
+      storeName !== data.name ||
+      storePhone !== data.billingAddress?.phone ||
+      storeEmail !== data.email
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  }, [storeName, storePhone, storeEmail, data]);
+
 
   const handleSave = () => {
     // Implement save logic here
@@ -26,7 +40,7 @@ export default function ProfileStoreModal({ openModal, setOpenModal }) {
         <span className="font-semibold text-base">Edit Profile</span>
       </Modal.Header>
 
-      <Modal.Body>
+      <Modal.Body className="dark:bg-slate-900">
         <p className="text-sm">
           Please be aware that these details might be accessible to the public.
           Avoid using personal information.
@@ -69,8 +83,8 @@ export default function ProfileStoreModal({ openModal, setOpenModal }) {
         </div>
       </Modal.Body>
 
-      <Modal.Footer>
-        <Button onClick={handleSave}>Save</Button>
+      <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
+        <Button onClick={handleSave} disabled={!isChanged}>Save</Button>
         <Button color="gray" onClick={() => setOpenModal(false)}>
           Decline
         </Button>
