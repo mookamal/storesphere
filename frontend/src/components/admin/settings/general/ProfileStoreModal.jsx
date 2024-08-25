@@ -84,10 +84,11 @@ export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
       </Modal.Body>
 
       <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
-        <Button onClick={handleSave} disabled={!isChanged}>Save</Button>
-        <Button color="gray" onClick={() => setOpenModal(false)}>
-          Decline
-        </Button>
+
+        <Button color="dark" onClick={handleSave} size="xs" disabled={!isChanged}>Save</Button>
+
+        <Button color="light" size="xs" onClick={() => setOpenModal(false)}>Cancel</Button>
+
       </Modal.Footer>
     </Modal>
   );
