@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from 'axios';
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
-
+import Lottie from 'lottie-react';
+import loadingAnimation from "@/assets/animation/loading";
 
 export default function General({ params  }) {
   const [data , setData] = useState(null);
@@ -31,7 +32,7 @@ export default function General({ params  }) {
   }, []);
 
   if (!data) {
-    return null;
+    return <Lottie animationData={loadingAnimation} loop={true}  />;
   }
 
   return (
