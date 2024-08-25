@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from 'axios';
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
+import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
-import loadingAnimation from "@/assets/animation/loading";
 
 export default function General({ params  }) {
   const [data , setData] = useState(null);
@@ -15,25 +15,33 @@ export default function General({ params  }) {
   const domain = params.domain;
 
   const getData = async () => {
+    
     try {
+      
       const response = await axios.post('/api/get-data', {
         query: GET_SETTINGS_GENERAL,
         variables: { domain: domain },
       });
+
+      
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
       setData(response.data.shop);
     } catch (error) {
       console.error('Error fetching store details:', error.message);
+      setData(null);
     }
   }
 
   useEffect(() => {
     getData();
-
   }, []);
 
-  if (!data) {
-    return <Lottie animationData={loadingAnimation} loop={true}  />;
-  }
+if (!data) {
+  return <Lottie animationData={animation} loop={true} />
+}
+
 
   return (
     <div className="lg:w-4/6 w-full">

@@ -1,6 +1,5 @@
 import SettingsSidebar from "@/components/admin/settings/SettingsSidebar";
 
-
 export default function layout({ children }) {
   return (
     <div className="flex flex-col md:flex-row justify-center items-start gap-2">
