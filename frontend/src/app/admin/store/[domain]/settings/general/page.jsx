@@ -8,22 +8,24 @@ import axios from 'axios';
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
+import Error from "@/components/admin/Error";
 
-export default function General({ params  }) {
-  const [data , setData] = useState(null);
+export default function General({ params }) {
+  const [error, setError ] = useState(false);
+  const [data, setData] = useState(null);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
   const domain = params.domain;
 
   const getData = async () => {
-    
+
     try {
-      
+
       const response = await axios.post('/api/get-data', {
         query: GET_SETTINGS_GENERAL,
         variables: { domain: domain },
       });
 
-      
+
       if (response.data.error) {
         throw new Error(response.data.error);
       }
@@ -31,6 +33,7 @@ export default function General({ params  }) {
     } catch (error) {
       console.error('Error fetching store details:', error.message);
       setData(null);
+      setError(true);
     }
   }
 
@@ -38,9 +41,14 @@ export default function General({ params  }) {
     getData();
   }, []);
 
-if (!data) {
-  return <Lottie animationData={animation} loop={true} />
-}
+  if (error) {
+    return <Error />
+  }
+
+  if (!data) {
+    return <Lottie animationData={animation} loop={true} />
+  }
+
 
 
   return (
