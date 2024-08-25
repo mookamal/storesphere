@@ -65,16 +65,3 @@ export async function firstStoreRedirect(session) {
     throw new Error('Failed to fetch first store');
   }
 }
-
-export async function fetchAccessToken() {
-    try {
-      const response = await axios.post(`/api/get-token`, {}, {
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-      return response.data.access_token;
-  } catch (error) {
-      throw new Error('Failed to fetch access token');
-  }
-}

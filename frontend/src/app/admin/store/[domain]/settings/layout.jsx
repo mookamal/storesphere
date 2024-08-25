@@ -1,4 +1,4 @@
-import SettingsSidebar from "../../../../../components/admin/settings/SettingsSidebar";
+import SettingsSidebar from "@/components/admin/settings/SettingsSidebar";
 
 
 export default function layout({ children }) {
