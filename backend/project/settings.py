@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'django_countries',
     'django_hosts',
     'django_ckeditor_5',
-    'simple_history',
     "phonenumber_field",
     'graphene_django',
     # my apps

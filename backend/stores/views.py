@@ -21,7 +21,7 @@ class StoreDetailView(APIView):
     
     def get(self, request, domain):
         try:
-            store = get_object_or_404(Store , domain=domain)
+            store = get_object_or_404(Store , default_domain=domain)
             serializer = StoreSerializer(store)
             return Response(serializer.data)
         except Store.DoesNotExist:

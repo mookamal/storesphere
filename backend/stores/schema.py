@@ -20,23 +20,19 @@ class AuthenticationMiddleware:
 class StoreAddressType(DjangoObjectType):
     class Meta:
         model = StoreAddress
-        fields = ('id','address1', 'address2', 'city', 'country_code_v2', 'company', 'phone', 'province_code', 'zip', )
+
 
 class StoreType(DjangoObjectType):
-    billing_address = graphene.Field(StoreAddressType)
     class Meta:
         model = Store
 
-    def resolve_billing_address(self, info):
-        return self.addresses
-
 class Query(graphene.ObjectType):
-    shop = graphene.Field(StoreType,domain=graphene.String(required=True))
+    shop = graphene.Field(StoreType,default_domain=graphene.String(required=True))
 
     def resolve_shop(self, info, domain):
         try:
             user = info.context.user
-            store = Store.objects.get(domain=domain)
+            store = Store.objects.get(default_domain=domain)
             if user.store_owner != store.owner:
                 raise PermissionDenied("You are not authorized to access this store.")
             return store
