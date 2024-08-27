@@ -18,6 +18,7 @@ class StoreAddress(models.Model):
     def __str__(self):
         return self.store.domain
 
+
 class Store(models.Model):
     owner = models.ForeignKey(StoreOwner, on_delete=models.CASCADE,related_name='stores')
     name = models.CharField(max_length=255,default='My Store')
