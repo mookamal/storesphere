@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import StoreOwner
+from accounts.models import User
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 from .utility import generate_unique_subdomain
@@ -24,20 +24,29 @@ class Domain(models.Model):
     def __str__(self):
         return self.host
 
+class StaffMember(models.Model):
+    store = models.ForeignKey('Store', on_delete=models.CASCADE, related_name='staff_members')
+    locale = models.CharField(max_length=50)
+    account_access = models.CharField(max_length=100)
+    is_shop_owner = models.BooleanField()
+    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    permissions = models.JSONField()
+
 class Store(models.Model):
-    owner = models.ForeignKey(StoreOwner, on_delete=models.CASCADE,related_name='stores')
     name = models.CharField(max_length=255,default='My Store')
     email = models.EmailField(blank=True, null=True)
     default_domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
-    domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
+    primary_domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
     billing_address = models.OneToOneField(StoreAddress, on_delete=models.SET_NULL, null=True, related_name='store')
 
 
     def save(self, *args, **kwargs):
         if not self.default_domain:
             self.default_domain = generate_unique_subdomain()
-            if not self.domain:
-                self.domain = Domain.objects.create(host=self.default_domain)
+            if not self.primary_domain:
+                self.primary_domain = Domain.objects.create(host=self.default_domain)
         super().save(*args, **kwargs)
 
     def __str__(self):
