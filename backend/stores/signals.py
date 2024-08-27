@@ -5,4 +5,6 @@ from .models import Store , StoreAddress
 @receiver(post_save, sender=Store)
 def set_default_store_address(sender, instance,created, **kwargs):
     if created:
-        StoreAddress.objects.create(store=instance)
+        address = StoreAddress.objects.create(country_code_v2="EG")
+        instance.billing_address = address
+        instance.save()

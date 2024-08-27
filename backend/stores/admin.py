@@ -4,3 +4,4 @@ from . import models
 
 admin.site.register(models.Store)
 admin.site.register(models.StoreAddress)
+admin.site.register(models.StaffMember)

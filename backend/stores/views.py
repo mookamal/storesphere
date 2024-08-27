@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import permissions,generics
 from rest_framework.response import Response
-from .models import Store
+from .models import Store , StaffMember
 from .serializer import StoreSerializer
 from django.shortcuts import get_object_or_404
 
@@ -44,4 +44,8 @@ class StoreCreateView(generics.CreateAPIView):
     serializer_class = StoreSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user.store_owner)
+        user = self.request.user
+        store = serializer.save()
+        owner = StaffMember.objects.create(user=user,store=store,is_store_owner=True)
+        store.owner = owner
+        store.save()

@@ -5,5 +5,5 @@ def generate_unique_subdomain():
     from .models import Store
     while True:
         subdomain = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
-        if not Store.objects.filter(domain=subdomain).exists():
+        if not Store.objects.filter(default_domain=subdomain).exists():
             return subdomain

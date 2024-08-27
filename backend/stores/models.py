@@ -16,7 +16,7 @@ class StoreAddress(models.Model):
     zip = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
-        return self.store.domain
+        return self.store.primary_domain.host
 
 class Domain(models.Model):
     host = models.CharField(max_length=255,blank=True, null=True,unique=True)
@@ -25,21 +25,30 @@ class Domain(models.Model):
         return self.host
 
 class StaffMember(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='staff_members')
     store = models.ForeignKey('Store', on_delete=models.CASCADE, related_name='staff_members')
     locale = models.CharField(max_length=50)
     account_access = models.CharField(max_length=100)
-    is_shop_owner = models.BooleanField()
+    is_store_owner = models.BooleanField()
     name = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255)
     email = models.EmailField()
     permissions = models.JSONField()
 
+    class Meta:
+        verbose_name_plural = "Staff Members"
+        unique_together = ['user','store']
+
+    def __str__(self):
+        return self.name
+
 class Store(models.Model):
+    owner = models.OneToOneField(StaffMember,blank=True, null=True, on_delete=models.CASCADE,related_name='owned_store')
     name = models.CharField(max_length=255,default='My Store')
     email = models.EmailField(blank=True, null=True)
     default_domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
     primary_domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
-    billing_address = models.OneToOneField(StoreAddress, on_delete=models.SET_NULL, null=True, related_name='store')
+    billing_address = models.OneToOneField(StoreAddress, on_delete=models.CASCADE,blank=True, null=True, related_name='store')
 
 
     def save(self, *args, **kwargs):
