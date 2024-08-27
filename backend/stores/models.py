@@ -18,18 +18,26 @@ class StoreAddress(models.Model):
     def __str__(self):
         return self.store.domain
 
+class Domain(models.Model):
+    host = models.CharField(max_length=255,blank=True, null=True,unique=True)
+
+    def __str__(self):
+        return self.host
 
 class Store(models.Model):
     owner = models.ForeignKey(StoreOwner, on_delete=models.CASCADE,related_name='stores')
     name = models.CharField(max_length=255,default='My Store')
     email = models.EmailField(blank=True, null=True)
     default_domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
+    domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
     billing_address = models.OneToOneField(StoreAddress, on_delete=models.SET_NULL, null=True, related_name='store')
 
 
     def save(self, *args, **kwargs):
         if not self.default_domain:
             self.default_domain = generate_unique_subdomain()
+            if not self.domain:
+                self.domain = Domain.objects.create(host=self.default_domain)
         super().save(*args, **kwargs)
 
     def __str__(self):
