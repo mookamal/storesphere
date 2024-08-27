@@ -14,14 +14,14 @@ export async function POST(request) {
     // Send POST request
     const response = await axios.post(
       `${backendUrl}/register/`,
-      { user:data }
+        data
     );
     
 
 
     // Return the response data
     if (response.status === 201) {
-      return NextResponse.json({ success: response.data.success }, { status: 200 });
+      return NextResponse.json({ success: response.data.detail }, { status: 200 });
     } else {
       return NextResponse.json({ error: 'Registration failed!' }, { status: response.status });
     }

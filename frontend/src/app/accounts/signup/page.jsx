@@ -40,12 +40,14 @@ export default function Signup() {
 
         if (response.statusText === "OK") {
           setSuccessMessage(response.data.success);
+          setFormErrors({});
+          e.target.reset();
         } else {
           setFormErrors({general:'Registration failed. Please try again.'});
         }
 
     } catch (error) {
-      const errorMessage = error.response.data.error.user;
+      const errorMessage = error.response.data.error;
       const err = formatMsgServer(errorMessage);
       setFormErrors(err);
     }
