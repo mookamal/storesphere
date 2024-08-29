@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
-import { firstStoreRedirect } from "../src/lib/utilities";
+import { firstStoreRedirect } from "@/lib/utilities";
 export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') || '';

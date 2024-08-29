@@ -56,7 +56,7 @@ export async function firstStoreRedirect(session) {
       }
     });
     if (response.data) {
-      return response.data.domain;
+      return response.data.default_domain;
     } else {
       return null;
     }
