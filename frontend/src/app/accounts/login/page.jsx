@@ -26,6 +26,11 @@ export default function Login() {
     });
     if (result.ok) {
       console.log("User signed in successfully");
+      const session = await fetch(`/api/auth/session`, {
+        headers: {
+          "content-type": "application/json",
+        },
+      });
       window.location.href = "/admin";
     } else {
       setError(result.error);
