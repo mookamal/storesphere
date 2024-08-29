@@ -1,6 +1,6 @@
-import { getClient } from "@/lib/ApolloClient";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import axios from 'axios';
 export async function POST(request) {
     
     try {
@@ -9,22 +9,29 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const client = getClient();
         const { query, variables } = await request.json();
-        if (!query || !variables) {
+        if (!query ||!variables) {
             return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
         }
-        const { data } = await client.query({
-            query: query, variables: variables, context: {
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                },
+
+        const response = await axios.post(process.env.GRAPHQL_BACKEND_URL,{
+            query,
+            variables
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${session.access_token}`,
             }
-        });
-        if (!data) {
-            return NextResponse.json({ error: 'data not found' }, { status: 404 });
         }
-        return NextResponse.json(data);
+        );
+        const data = await response.data;
+        if (data.errors) {
+            return NextResponse.json({ error: data.errors[0].message }, { status: 400 });
+        }
+        console.log();
+
+        return NextResponse.json({data: response.data.data } , { status: 200})
+
     } catch (error) { 
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

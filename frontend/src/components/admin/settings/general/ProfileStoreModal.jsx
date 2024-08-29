@@ -2,17 +2,21 @@
 
 import { Button, Modal, Label, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
+import axios from 'axios';
+import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
+import { useParams } from "next/navigation";
+
 
 export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
   const [storeName, setStoreName] = useState(data.name || '');
   const [storePhone, setStorePhone] = useState(data.billingAddress.phone || '');
   const [storeEmail, setStoreEmail] = useState(data.email || '');
   const [isChanged, setIsChanged] = useState(false);
-
+  const domain = useParams().domain;
   useEffect(() => {
     if (
       storeName !== data.name ||
-      storePhone !== data.billingAddress?.phone ||
+      storePhone !== data.billingAddress.phone ||
       storeEmail !== data.email
     ) {
       setIsChanged(true);
@@ -22,11 +26,30 @@ export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
   }, [storeName, storePhone, storeEmail, data]);
 
 
-  const handleSave = () => {
-    // Implement save logic here
-    console.log("Store Name:", storeName);
-    console.log("Store Phone:", storePhone);
-    setOpenModal(false);
+  const handleSave = async () => { 
+    const variables = {
+      input: {
+        name: storeName,
+        email: storeEmail,
+        billingAddress: {
+          phone: storePhone
+        }
+      },
+      defaultDomain: domain
+    };
+    try {
+      const response = await axios.post('/api/set-data', {
+        query: UPDATE_STORE_PROFILE,
+        variables: variables
+      },);
+  
+      console.log('Response:', response.data);
+    } catch (error) {
+      if (error.response.data.error) {
+        console.error(error.response.data.error);
+      }
+      console.error('Error updating store profile:', error.message);
+    }
   };
 
   return (

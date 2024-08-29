@@ -97,6 +97,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://www.nour.com",
     "http://accounts.nour.com",
+    "http://admin.nour.com",
 ]
 
 SITE_ID = 1
