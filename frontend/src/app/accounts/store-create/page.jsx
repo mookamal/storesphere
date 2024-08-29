@@ -3,7 +3,7 @@
 import axios from 'axios';
 import Lottie from 'lottie-react';
 import { Spinner, Button, TextInput, Label } from "flowbite-react";
-import storeAnimation from "@/public/assets/animation/store.json";
+import storeAnimation from "@/assets/animation/store.json";
 import AuthContainer from "@/components/accounts/AuthContainer";
 import { useState } from 'react';
 

@@ -6,6 +6,7 @@ from .utility import generate_unique_subdomain
 # Create your models here.
 
 class StoreAddress(models.Model):
+    store = models.OneToOneField('Store',on_delete=models.CASCADE,related_name="billing_address")
     address1 = models.CharField(max_length=255, null=True, blank=True)
     address2 = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
@@ -27,20 +28,20 @@ class Domain(models.Model):
 class StaffMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='staff_members')
     store = models.ForeignKey('Store', on_delete=models.CASCADE, related_name='staff_members')
-    locale = models.CharField(max_length=50)
-    account_access = models.CharField(max_length=100)
-    is_store_owner = models.BooleanField()
-    name = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=255)
-    email = models.EmailField()
-    permissions = models.JSONField()
+    locale = models.CharField(max_length=50,blank=True, null=True)
+    account_access = models.CharField(max_length=100,blank=True, null=True)
+    is_store_owner = models.BooleanField(default=False)
+    name = models.CharField(max_length=255,blank=True, null=True)
+    first_name = models.CharField(max_length=255,blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    permissions = models.JSONField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Staff Members"
         unique_together = ['user','store']
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 class Store(models.Model):
     owner = models.OneToOneField(StaffMember,blank=True, null=True, on_delete=models.CASCADE,related_name='owned_store')
@@ -48,8 +49,6 @@ class Store(models.Model):
     email = models.EmailField(blank=True, null=True)
     default_domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
     primary_domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
-    billing_address = models.OneToOneField(StoreAddress, on_delete=models.CASCADE,blank=True, null=True, related_name='store')
-
 
     def save(self, *args, **kwargs):
         if not self.default_domain:

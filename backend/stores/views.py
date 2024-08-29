@@ -9,7 +9,7 @@ class StoreListView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        stores = Store.objects.filter(owner=request.user.store_owner)
+        stores = Store.objects.filter(staff_members__user=request.user)
         if stores.exists():
             serializer = StoreSerializer(stores, many=True)
             return Response(serializer.data)
@@ -23,7 +23,10 @@ class StoreDetailView(APIView):
         try:
             store = get_object_or_404(Store , default_domain=domain)
             serializer = StoreSerializer(store)
-            return Response(serializer.data)
+            if StaffMember.objects.filter(store=store,user=request.user).exists():
+                return Response(serializer.data)
+            else:
+                return Response({'message': 'Unauthorized.'}, status=403)
         except Store.DoesNotExist:
             return Response({'message': 'Store not found.'}, status=404)
     
@@ -32,7 +35,7 @@ class FirstStoreDetailView(APIView):
     
     def get(self, request):
         try:
-            first_store = Store.objects.filter(owner=request.user.store_owner).first()
+            first_store = Store.objects.filter(staff_members__user=request.user).first()
             serializer = StoreSerializer(first_store)
             return Response(serializer.data)
         except Store.DoesNotExist:
