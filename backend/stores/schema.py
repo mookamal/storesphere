@@ -34,9 +34,9 @@ class StoreType(DjangoObjectType):
         return self.billing_address if self.billing_address else None
 
 class Query(graphene.ObjectType):
-    shop = graphene.Field(StoreType,default_domain=graphene.String(required=True))
+    store = graphene.Field(StoreType,default_domain=graphene.String(required=True))
 
-    def resolve_shop(self, info, default_domain):
+    def resolve_store(self, info, default_domain):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)

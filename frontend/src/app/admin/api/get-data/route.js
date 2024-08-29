@@ -21,7 +21,7 @@ export async function POST(request) {
                 },
             }
         });
-        if (!data.shop) {
+        if (!data.store) {
             return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
         }
         return NextResponse.json(data);

@@ -29,7 +29,7 @@ export default function General({ params }) {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-      setData(response.data.shop);
+      setData(response.data.store);
     } catch (error) {
       console.error('Error fetching store details:', error.message);
       setData(null);
