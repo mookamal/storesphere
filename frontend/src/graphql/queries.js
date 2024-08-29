@@ -5,7 +5,6 @@ export const GET_SETTINGS_GENERAL = gql`
       name
       email
       billingAddress {
-        countryCodeV2
         phone
       }
     }

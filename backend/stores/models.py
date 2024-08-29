@@ -10,7 +10,7 @@ class StoreAddress(models.Model):
     address1 = models.CharField(max_length=255, null=True, blank=True)
     address2 = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
-    country_code_v2 = CountryField(blank=True, null=True)
+    country = CountryField(blank=True, null=True)
     company = models.CharField(max_length=255,blank=True, null=True)
     phone = PhoneNumberField(blank=True, null=True)
     province_code = models.CharField(max_length=10, null=True, blank=True)
