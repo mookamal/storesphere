@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
-
+import { toast } from 'react-toastify';
 
 export default function ProfileStoreModal({ openModal, setOpenModal, data , refreshData }) {
   const [storeName, setStoreName] = useState(data.name || '');
@@ -47,13 +47,13 @@ export default function ProfileStoreModal({ openModal, setOpenModal, data , refr
 
       refreshData();
       setOpenModal(false);
-
-
+      toast.success('Store profile updated successfully!');
     } catch (error) {
       if (error.response.data.error) {
         console.error(error.response.data.error);
       }
       console.error('Error updating store profile:', error.message);
+      toast.error('Failed to update store profile!');
     }
     setLoading(false);
   };
