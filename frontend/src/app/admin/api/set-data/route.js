@@ -28,8 +28,6 @@ export async function POST(request) {
         if (data.errors) {
             return NextResponse.json({ error: data.errors[0].message }, { status: 400 });
         }
-        console.log();
-
         return NextResponse.json({data: response.data.data } , { status: 200})
 
     } catch (error) { 
