@@ -65,7 +65,7 @@ export default function General({ params }) {
               <h2>{data.name}</h2>
             </div>
             <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={24} className="text-gray-500 dark:text-gray-50" /></button>
-            <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} data={data} />
+            <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} data={data} refreshData={getData} />
           </div>
         </div>
       </div>

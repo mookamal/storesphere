@@ -1,17 +1,18 @@
 "use client";
 
-import { Button, Modal, Label, TextInput } from "flowbite-react";
+import { Button, Modal, Label, TextInput, Spinner } from "flowbite-react";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
 
 
-export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
+export default function ProfileStoreModal({ openModal, setOpenModal, data , refreshData }) {
   const [storeName, setStoreName] = useState(data.name || '');
   const [storePhone, setStorePhone] = useState(data.billingAddress.phone || '');
   const [storeEmail, setStoreEmail] = useState(data.email || '');
   const [isChanged, setIsChanged] = useState(false);
+  const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   useEffect(() => {
     if (
@@ -26,7 +27,8 @@ export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
   }, [storeName, storePhone, storeEmail, data]);
 
 
-  const handleSave = async () => { 
+  const handleSave = async () => {
+    setLoading(true);
     const variables = {
       input: {
         name: storeName,
@@ -42,14 +44,18 @@ export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
         query: UPDATE_STORE_PROFILE,
         variables: variables
       },);
-  
-      console.log('Response:', response.data);
+
+      refreshData();
+      setOpenModal(false);
+
+
     } catch (error) {
       if (error.response.data.error) {
         console.error(error.response.data.error);
       }
       console.error('Error updating store profile:', error.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -108,7 +114,10 @@ export default function ProfileStoreModal({ openModal, setOpenModal , data}) {
 
       <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
 
-        <Button color="dark" onClick={handleSave} size="xs" disabled={!isChanged}>Save</Button>
+        <Button color="dark" onClick={handleSave} size="xs" disabled={!isChanged}>
+          {loading && <Spinner aria-label="Loading button" className="mr-1" size="xs" />}
+          Save
+        </Button>
 
         <Button color="light" size="xs" onClick={() => setOpenModal(false)}>Cancel</Button>
 
