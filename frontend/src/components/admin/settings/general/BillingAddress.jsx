@@ -3,7 +3,11 @@
 import { Button, Modal, Label, TextInput, Spinner, Dropdown } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import "react-country-state-city/dist/react-country-state-city.css";
+import countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
+import Select from 'react-select'
+
+countries.registerLocale(enLocale);
 
 
 export default function BillingAddress({ openModal, setOpenModal, data, refreshData }) {
@@ -15,9 +19,14 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
   const [city, setCity] = useState(data.city || "")
   const [postalCode, setPostalCode] = useState(data.postalCode || "")
   const [country, setCountry] = useState(data.country || {})
+  const countryObj = countries.getNames('en', { select: 'official' });
+  const countryList = Object.entries(countryObj);
   const domain = useParams().domain;
+  const optionCountries = [];
 
-
+  for (let i = 0; i < countryList.length; i++) {
+    optionCountries.push({ value: countryList[i][0], label: countryList[i][1] });
+  }
 
   const handleSave = async () => {
     setLoading(false);
@@ -48,7 +57,20 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
             <div className="mb-2">
               <Label htmlFor="country" value="Country" />
             </div>
-
+            <Select
+            options={optionCountries}
+            onChange={(e) => setCountry({name: e.label , code: e.value})}
+            value={{value:country.code,label:country.name}}
+            menuPosition="fixed"
+            classNames={{
+              menuOption: () => "dark:text-white",
+              placeholder: () => "dark:text-white",
+              dropdownIndicator: () => "dark:text-white",
+              clearIndicator: () => "dark:text-white",
+              option: ({ isFocused, isSelected }) =>
+                `${isFocused ? 'dark:bg-blue-100' : ''} ${isSelected ? 'dark:bg-blue-500 dark:text-white' : ''} dark:text-gray-800`,              
+            }}
+            />
           </div>
 
         </div>
