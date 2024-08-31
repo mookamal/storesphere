@@ -17,8 +17,8 @@ export default function BillingAddressModal({ openModal, setOpenModal, data, ref
   const [address1, setAddress1] = useState(data.address1 || "")
   const [address2, setAddress2] = useState(data.address2 || "")
   const [city, setCity] = useState(data.city || "")
-  const [postalCode, setPostalCode] = useState(data.postalCode || "")
-  const [country, setCountry] = useState(data.country || {})
+  const [zip, setZip] = useState(data.zip || "")
+  const [country, setCountry] = useState({name: data.country.name , code: data.country.code} || {})
   const countryObj = countries.getNames('en', { select: 'official' });
   const countryList = Object.entries(countryObj);
   const domain = useParams().domain;
@@ -27,23 +27,26 @@ export default function BillingAddressModal({ openModal, setOpenModal, data, ref
   for (let i = 0; i < countryList.length; i++) {
     optionCountries.push({ value: countryList[i][0], label: countryList[i][1] });
   }
-
+  
   useEffect(() => {
     if (
-      company!== data.company ||
+      company !== data.company ||
+      country.code!== data.country.code ||
       address1!== data.address1 ||
       address2!== data.address2 ||
       city!== data.city ||
-      postalCode!== data.postalCode ||
-      country.code!== data.country.code
+      zip!== data.zip
     ) {
       setIsChanged(true);
+      console.log("company",company)
     } else {
       setIsChanged(false);
     }
-  });
+  } , [company,country , address1, address2, city, zip , data]);
 
   const handleSave = async () => {
+
+    // save data to API
     setLoading(false);
   };
 
@@ -79,10 +82,6 @@ export default function BillingAddressModal({ openModal, setOpenModal, data, ref
             menuPosition="fixed"
             id="country"
             classNames={{
-              menuOption: () => "dark:text-white",
-              placeholder: () => "dark:text-white",
-              dropdownIndicator: () => "dark:text-white",
-              clearIndicator: () => "dark:text-white",
               option: ({ isFocused, isSelected }) =>
                 `${isFocused ? 'dark:bg-blue-100' : ''} ${isSelected ? 'dark:bg-blue-500 dark:text-white' : ''} dark:text-gray-800`,              
             }}
@@ -113,9 +112,9 @@ export default function BillingAddressModal({ openModal, setOpenModal, data, ref
           {/* postalCode */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="postalCode" value="Postal code" />
+              <Label htmlFor="zip" value="Postal code" />
             </div>
-            <TextInput id="postalCode" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+            <TextInput id="zip" value={zip} onChange={(e) => setZip(e.target.value)} />
           </div>
         </div>
       </Modal.Body>
