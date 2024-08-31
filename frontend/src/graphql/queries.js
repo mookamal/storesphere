@@ -6,6 +6,16 @@ export const GET_SETTINGS_GENERAL = gql`
       email
       billingAddress {
         phone
+        address1
+        address2
+        city
+        company
+        provinceCode
+        zip
+        country {
+          name
+          code
+        }
       }
     }
   }

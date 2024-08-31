@@ -28,10 +28,10 @@ export default function General({ params }) {
         variables: { domain: domain },
       });
 
-
       if (response.data.error) {
         throw new Error(response.data.error);
       }
+      console.log(response.data.store);
       setData(response.data.store);
     } catch (error) {
       console.error('Error fetching store details:', error.message);
@@ -83,7 +83,7 @@ export default function General({ params }) {
               </div>
             </div>
             <button className="p-1 active-click" onClick={() => setOpenBillingAddressModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
-            <BillingAddress openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data} refreshData={getData} />
+            <BillingAddress openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data.billingAddress} refreshData={getData} />
           </div>
         </div>
       </div>
