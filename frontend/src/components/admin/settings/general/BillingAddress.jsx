@@ -62,6 +62,7 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
             onChange={(e) => setCountry({name: e.label , code: e.value})}
             value={{value:country.code,label:country.name}}
             menuPosition="fixed"
+            id="country"
             classNames={{
               menuOption: () => "dark:text-white",
               placeholder: () => "dark:text-white",
