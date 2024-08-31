@@ -6,9 +6,10 @@ import { useParams } from "next/navigation";
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import Select from 'react-select'
-
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { UPDATE_STORE_ADDRESS } from "@/graphql/mutations";
 countries.registerLocale(enLocale);
-
 
 export default function BillingAddressModal({ openModal, setOpenModal, data, refreshData }) {
   const [isChanged, setIsChanged] = useState(false);
@@ -38,13 +39,41 @@ export default function BillingAddressModal({ openModal, setOpenModal, data, ref
       zip!== data.zip
     ) {
       setIsChanged(true);
-      console.log("company",company)
     } else {
       setIsChanged(false);
     }
   } , [company,country , address1, address2, city, zip , data]);
 
   const handleSave = async () => {
+    setLoading(true);
+    const variables = {
+      input: {
+        company: company,
+        country: country,
+        address1: address1,
+        address2: address2,
+        city: city,
+        zip: zip,
+      },
+      defaultDomain: domain
+    };
+
+    try {
+      const response = await axios.post('/api/set-data', {
+        query: UPDATE_STORE_ADDRESS,
+        variables: variables
+      },);
+
+      refreshData();
+      setOpenModal(false);
+      toast.success('Store profile updated successfully!');
+    } catch (error) {
+      if (error.response.data.error) {
+        console.error(error.response.data.error);
+      }
+      console.error('Error updating store profile:', error.message);
+      toast.error('Failed to update store profile!');
+    }
 
     // save data to API
     setLoading(false);

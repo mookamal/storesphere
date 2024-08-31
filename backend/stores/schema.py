@@ -47,11 +47,15 @@ class Query(graphene.ObjectType):
         except Store.DoesNotExist:
             return None
 
+class CountryInput(graphene.InputObjectType):
+    name = graphene.String()
+    code = graphene.String()
+
 class StoreAddressInput(graphene.InputObjectType):
     address1 = graphene.String()
     address2 = graphene.String()
     city = graphene.String()
-    country_code_v2 = graphene.String()
+    country = graphene.Field(CountryInput)
     company = graphene.String()
     phone = graphene.String()
     province_code = graphene.String()
@@ -88,5 +92,33 @@ class UpdateStoreProfile(graphene.Mutation):
                 raise PermissionDenied("You are not authorized to access this store.")
         except Store.DoesNotExist:
             return None
+
+class UpdateStoreAddress(graphene.Mutation):
+    class Arguments:
+        input = StoreAddressInput(required=True)
+        default_domain = graphene.String(required=True)
+    
+    billing_address = graphene.Field(StoreAddressType)
+
+    @classmethod
+    def mutate(cls, root, info, input, default_domain):
+        user = info.context.user
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user,store=store).exists():
+                store.billing_address.address1 = input.address1
+                store.billing_address.address2 = input.address2
+                store.billing_address.city = input.city
+                store.billing_address.country = input.country
+                store.billing_address.company = input.company
+                store.billing_address.zip = input.zip
+                store.billing_address.save()
+                store.save()
+                return UpdateStoreAddress(billing_address=store.billing_address)
+        except Exception as e:
+            raise PermissionDenied(f"Error updating store address: {str(e)}")
+        
+
 class StoreMutation(graphene.ObjectType):
     update_store_profile = UpdateStoreProfile.Field()
+    update_store_address = UpdateStoreAddress.Field()

@@ -31,7 +31,6 @@ export default function General({ params }) {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-      console.log(response.data.store);
       setData(response.data.store);
     } catch (error) {
       console.error('Error fetching store details:', error.message);

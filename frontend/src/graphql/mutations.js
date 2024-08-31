@@ -11,3 +11,21 @@ export const UPDATE_STORE_PROFILE =`
     }
   }
 `;
+
+export const UPDATE_STORE_ADDRESS =`
+  mutation UpdateStoreAddress($input: StoreAddressInput!, $defaultDomain: String!) {
+    updateStoreAddress(input: $input, defaultDomain: $defaultDomain) {
+      billingAddress {
+        address1
+        address2
+        city
+        company
+        zip
+        country {
+          name
+          code
+        }
+      }
+    }
+  }
+`;
