@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-      domains: ['api.nour.com'],
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'api.nour.com',
+          pathname: '**',
+        },
+      ]
     },
     async headers() {
       return [
