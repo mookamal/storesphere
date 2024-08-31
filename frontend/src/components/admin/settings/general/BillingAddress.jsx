@@ -1,21 +1,23 @@
 "use client";
 
-import { Button, Modal, Label, TextInput, Spinner } from "flowbite-react";
+import { Button, Modal, Label, TextInput, Spinner, Dropdown } from "flowbite-react";
 import { useState, useEffect } from "react";
-import axios from 'axios';
 import { useParams } from "next/navigation";
-import { toast } from 'react-toastify';
+import "react-country-state-city/dist/react-country-state-city.css";
 
-export default function BillingAddress({ openModal, setOpenModal, data , refreshData }) {
+
+export default function BillingAddress({ openModal, setOpenModal, data, refreshData }) {
   const [isChanged, setIsChanged] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [company , setCompany] = useState(data.company || "")
+  const [company, setCompany] = useState(data.company || "")
   const [address1, setAddress1] = useState(data.address1 || "")
   const [address2, setAddress2] = useState(data.address2 || "")
   const [city, setCity] = useState(data.city || "")
   const [postalCode, setPostalCode] = useState(data.postalCode || "")
-  const [country, setCountry] = useState(data.country.name || "")
+  const [country, setCountry] = useState(data.country || {})
   const domain = useParams().domain;
+
+
 
   const handleSave = async () => {
     setLoading(false);
@@ -46,7 +48,7 @@ export default function BillingAddress({ openModal, setOpenModal, data , refresh
             <div className="mb-2">
               <Label htmlFor="country" value="Country" />
             </div>
-            <TextInput id="country" value={country} onChange={(e) => setCountry(e.target.value)} />
+
           </div>
 
         </div>
