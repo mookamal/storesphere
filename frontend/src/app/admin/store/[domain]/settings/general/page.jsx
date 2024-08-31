@@ -10,7 +10,7 @@ import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
-import BillingAddress from "@/components/admin/settings/general/BillingAddress";
+import BillingAddressModal from "@/components/admin/settings/general/BillingAddress";
 
 export default function General({ params }) {
   const [error, setError ] = useState(false);
@@ -83,7 +83,7 @@ export default function General({ params }) {
               </div>
             </div>
             <button className="p-1 active-click" onClick={() => setOpenBillingAddressModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
-            <BillingAddress openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data.billingAddress} refreshData={getData} />
+            <BillingAddressModal openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data.billingAddress} refreshData={getData} />
           </div>
         </div>
       </div>

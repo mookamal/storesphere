@@ -10,7 +10,7 @@ import Select from 'react-select'
 countries.registerLocale(enLocale);
 
 
-export default function BillingAddress({ openModal, setOpenModal, data, refreshData }) {
+export default function BillingAddressModal({ openModal, setOpenModal, data, refreshData }) {
   const [isChanged, setIsChanged] = useState(false);
   const [loading, setLoading] = useState(false);
   const [company, setCompany] = useState(data.company || "")
@@ -27,6 +27,21 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
   for (let i = 0; i < countryList.length; i++) {
     optionCountries.push({ value: countryList[i][0], label: countryList[i][1] });
   }
+
+  useEffect(() => {
+    if (
+      company!== data.company ||
+      address1!== data.address1 ||
+      address2!== data.address2 ||
+      city!== data.city ||
+      postalCode!== data.postalCode ||
+      country.code!== data.country.code
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  });
 
   const handleSave = async () => {
     setLoading(false);
@@ -45,14 +60,14 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
 
       <Modal.Body className="dark:bg-slate-900">
         <div className="grid gap-4 mb-4 grid-cols-1">
-
+          {/* company */}
           <div>
             <div className="mb-2">
               <Label htmlFor="company" value="Legal business name" />
             </div>
             <TextInput id="company" value={company} onChange={(e) => setCompany(e.target.value)} />
           </div>
-
+          {/* Country */}
           <div>
             <div className="mb-2">
               <Label htmlFor="country" value="Country" />
@@ -73,7 +88,35 @@ export default function BillingAddress({ openModal, setOpenModal, data, refreshD
             }}
             />
           </div>
+          {/* city */}
+          <div>
+            <div className="mb-2">
+              <Label htmlFor="city" value="City" />
+            </div>
+            <TextInput id="city" value={city} onChange={(e) => setCity(e.target.value)} />
+          </div>
+          {/* address1 */}
+          <div>
+            <div className="mb-2">
+              <Label htmlFor="address1" value="Address" />
+            </div>
+            <TextInput id="address1" value={address1} onChange={(e) => setAddress1(e.target.value)} />
+          </div>
+          {/* address2 */}
 
+          <div>
+            <div className="mb-2">
+              <Label htmlFor="address2" value="Apartment, suite, etc" />
+            </div>
+            <TextInput id="address2" value={address2} onChange={(e) => setAddress2(e.target.value)} />
+          </div>
+          {/* postalCode */}
+          <div>
+            <div className="mb-2">
+              <Label htmlFor="postalCode" value="Postal code" />
+            </div>
+            <TextInput id="postalCode" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+          </div>
         </div>
       </Modal.Body>
 
