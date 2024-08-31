@@ -2,6 +2,7 @@
 
 import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
+import { FaLocationCrosshairs } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from 'axios';
@@ -9,11 +10,13 @@ import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
+import BillingAddress from "@/components/admin/settings/general/BillingAddress";
 
 export default function General({ params }) {
   const [error, setError ] = useState(false);
   const [data, setData] = useState(null);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
+  const [openBillingAddressModel, setOpenBillingAddressModel] = useState(false)
   const domain = params.domain;
 
   const getData = async () => {
@@ -61,11 +64,26 @@ export default function General({ params }) {
         <div className="border p-3 my-3 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <IoMdHome size={24} className="mr-3 text-gray-500 dark:text-gray-50" />
-              <h2>{data.name}</h2>
+              <IoMdHome size={20} className="mr-3 text-gray-500 dark:text-gray-50" />
+              <div>
+                <h2>{data.name}</h2>
+                {data.email && <h2>{data.email}</h2>}
+              </div>
             </div>
-            <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={24} className="text-gray-500 dark:text-gray-50" /></button>
+            <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
             <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} data={data} refreshData={getData} />
+          </div>
+          <hr className="my-2" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <FaLocationCrosshairs size={20} className="mr-3 text-gray-500 dark:text-gray-50" />
+              <div>
+                <h2>Billing address</h2>
+                <h2>{data.billingAddress.phone}</h2>
+              </div>
+            </div>
+            <button className="p-1 active-click" onClick={() => setOpenBillingAddressModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
+            <BillingAddress openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data} refreshData={getData} />
           </div>
         </div>
       </div>
