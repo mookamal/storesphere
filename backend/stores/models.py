@@ -56,6 +56,9 @@ class Store(models.Model):
             self.default_domain = generate_unique_subdomain()
             if not self.primary_domain:
                 self.primary_domain = Domain.objects.create(host=self.default_domain)
+        if self.currency_code is None:
+            self.currency_code = 'USD'
+            self.enabled_presentment_currencies = ['USD']
         super().save(*args, **kwargs)
 
     def __str__(self):
