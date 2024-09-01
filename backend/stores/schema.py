@@ -64,6 +64,7 @@ class StoreAddressInput(graphene.InputObjectType):
 class StoreInput(graphene.InputObjectType):
     name = graphene.String()
     email = graphene.String()
+    currency_code = graphene.String()
     billing_address = graphene.Field(StoreAddressInput)
 
 class UpdateStoreProfile(graphene.Mutation):
@@ -78,20 +79,40 @@ class UpdateStoreProfile(graphene.Mutation):
         user = info.context.user
         try:
             store = Store.objects.get(default_domain=default_domain)
-            if StaffMember.objects.filter(user=user,store=store).exists():
-                store.name = input.name
-                store.email = input.email
-                store.billing_address.phone = input.billing_address.phone
-                try:
-                    store.billing_address.save()
-                except Exception as e:
-                    raise PermissionDenied(f"Error saving billing address: {str(e)}")
-                store.save()
-                return UpdateStoreProfile(store=store)
-            else:
+            
+            if not StaffMember.objects.filter(user=user, store=store).exists():
                 raise PermissionDenied("You are not authorized to access this store.")
+            
+            updated = False
+            if input.name and store.name != input.name:
+                store.name = input.name
+                updated = True
+            if input.email and store.email != input.email:
+                store.email = input.email
+                updated = True
+            if input.currency_code and store.currency_code != input.currency_code:
+                store.currency_code = input.currency_code
+                updated = True
+
+            if input.billing_address and store.billing_address:
+                if store.billing_address.phone != input.billing_address.phone:
+                    store.billing_address.phone = input.billing_address.phone
+                    try:
+                        store.billing_address.save()
+                        updated = True
+                    except Exception as e:
+                        raise PermissionDenied(f"Error saving billing address: {str(e)}")
+            
+            if updated:
+                store.save()
+
+            return UpdateStoreProfile(store=store)
+        
         except Store.DoesNotExist:
-            return None
+            raise PermissionDenied("Store not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Error updating store profile: {str(e)}")
+
 
 class UpdateStoreAddress(graphene.Mutation):
     class Arguments:

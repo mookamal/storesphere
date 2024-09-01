@@ -4,6 +4,9 @@ import { Button, Modal, Spinner } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Select from 'react-select'
+import { UPDATE_STORE_CURRENCY } from "@/graphql/mutations";
+import axios from "axios";
+import { toast } from 'react-toastify';
 let data = require('currency-codes/data');
 let cc = require('currency-codes');
 export default function StoreCurrencyModel({ openModal, setOpenModal, currencyCode, refreshData }) {
@@ -27,6 +30,28 @@ export default function StoreCurrencyModel({ openModal, setOpenModal, currencyCo
 
     const handleSave = async () => {
         setLoading(true);
+        const variables = {
+            input: {
+                currencyCode: code,
+            },
+            defaultDomain: domain
+        };
+        try {
+            const response = await axios.post('/api/set-data', {
+              query: UPDATE_STORE_CURRENCY,
+              variables: variables
+            },);
+      
+            refreshData();
+            setOpenModal(false);
+            toast.success('Store currency updated successfully!');
+          } catch (error) {
+            if (error.response.data.error) {
+              console.error(error.response.data.error);
+            }
+            console.error('Error updating store currency:', error.message);
+            toast.error('Failed to update store currency!');
+          }
         // save data to API
         setLoading(false);
     };

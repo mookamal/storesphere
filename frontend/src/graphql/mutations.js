@@ -29,3 +29,13 @@ export const UPDATE_STORE_ADDRESS =`
     }
   }
 `;
+
+export const UPDATE_STORE_CURRENCY =`
+  mutation UpdateStoreProfile($input: StoreInput!, $defaultDomain: String!) {
+    updateStoreProfile(input: $input, defaultDomain: $defaultDomain) {
+      store {
+        currencyCode
+      }
+    }
+  }
+`;
