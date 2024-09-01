@@ -49,7 +49,8 @@ class Store(models.Model):
     email = models.EmailField(blank=True, null=True)
     default_domain = models.CharField(max_length=255,blank=True, null=True,unique=True)
     primary_domain = models.OneToOneField(Domain, on_delete=models.CASCADE,blank=True, null=True)
-
+    currency_code = models.CharField(max_length=5, blank=True, null=True)
+    enabled_presentment_currencies = models.JSONField(default=list, blank=True)
     def save(self, *args, **kwargs):
         if not self.default_domain:
             self.default_domain = generate_unique_subdomain()
