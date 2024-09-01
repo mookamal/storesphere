@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'accounts',
     # stores apps
     'stores',
+    'product',
     'subscriptions',
 ]
 
