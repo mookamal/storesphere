@@ -12,6 +12,7 @@ import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
 import { Badge } from "flowbite-react";
+import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
 let cc = require('currency-codes');
 
 export default function General({ params }) {
@@ -19,6 +20,7 @@ export default function General({ params }) {
   const [data, setData] = useState(null);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
   const [openBillingAddressModel, setOpenBillingAddressModel] = useState(false)
+  const [openStoreCurrencyModel, setOpenStoreCurrencyModel] = useState(null);
   const domain = params.domain;
 
   const getData = async () => {
@@ -95,6 +97,8 @@ export default function General({ params }) {
           <div className="flex flex-row justify-between">
             <h3>Currency display</h3>
             {data.currencyCode && <Badge color="purple" className="font-bold">{cc.code(data.currencyCode).currency}</Badge>}
+            <button className="p-1 active-click" onClick={() => setOpenStoreCurrencyModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
+            <StoreCurrencyModel openModal={openStoreCurrencyModel} setOpenModal={setOpenStoreCurrencyModel} currencyCode={data.currencyCode} refreshData={getData} />
           </div>
         </div>
       </div>
