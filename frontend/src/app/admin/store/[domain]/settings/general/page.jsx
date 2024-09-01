@@ -10,7 +10,7 @@ import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
-import BillingAddressModal from "@/components/admin/settings/general/BillingAddress";
+import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
 import { Badge } from "flowbite-react";
 let cc = require('currency-codes');
 
@@ -92,7 +92,7 @@ export default function General({ params }) {
       <div className="card p-3 font-medium text-sm my-3">
         <h2>Store defaults</h2>
         <div className="border p-3 my-3 rounded-lg">
-          <div className="flex flex-row justify-around">
+          <div className="flex flex-row justify-between">
             <h3>Currency display</h3>
             {data.currencyCode && <Badge color="purple" className="font-bold">{cc.code(data.currencyCode).currency}</Badge>}
           </div>
