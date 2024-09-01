@@ -11,6 +11,7 @@ import animation from "@/assets/animation/loading.json";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddress";
+import { Badge } from "flowbite-react";
 
 export default function General({ params }) {
   const [error, setError ] = useState(false);
@@ -83,6 +84,16 @@ export default function General({ params }) {
             </div>
             <button className="p-1 active-click" onClick={() => setOpenBillingAddressModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
             <BillingAddressModal openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data.billingAddress} refreshData={getData} />
+          </div>
+        </div>
+      </div>
+      {/* store defaults */}
+      <div className="card p-3 font-medium text-sm my-3">
+        <h2>Store defaults</h2>
+        <div className="border p-3 my-3 rounded-lg">
+          <div className="flex flex-row justify-around">
+            <h3>Currency display</h3>
+            <Badge color="purple" className="font-bold">{data.currencyCode}</Badge>
           </div>
         </div>
       </div>

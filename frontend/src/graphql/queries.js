@@ -4,13 +4,13 @@ export const GET_SETTINGS_GENERAL = gql`
     store(defaultDomain: $domain) {
       name
       email
+      currencyCode
       billingAddress {
         phone
         address1
         address2
         city
         company
-        provinceCode
         zip
         country {
           name
