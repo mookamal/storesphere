@@ -12,6 +12,7 @@ import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddress";
 import { Badge } from "flowbite-react";
+let cc = require('currency-codes');
 
 export default function General({ params }) {
   const [error, setError ] = useState(false);
@@ -93,7 +94,7 @@ export default function General({ params }) {
         <div className="border p-3 my-3 rounded-lg">
           <div className="flex flex-row justify-around">
             <h3>Currency display</h3>
-            <Badge color="purple" className="font-bold">{data.currencyCode}</Badge>
+            {data.currencyCode && <Badge color="purple" className="font-bold">{cc.code(data.currencyCode).currency}</Badge>}
           </div>
         </div>
       </div>
