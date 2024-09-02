@@ -94,7 +94,7 @@ export default function General({ params }) {
       <div className="card p-3 font-medium text-sm my-3">
         <h2>Store defaults</h2>
         <div className="border p-3 my-3 rounded-lg">
-          <div className="flex flex-row justify-between">
+          <div className="flex flex-row justify-between items-center">
             <h3>Currency display</h3>
             {data.currencyCode && <Badge color="purple" className="font-bold">{cc.code(data.currencyCode).currency}</Badge>}
             <button className="p-1 active-click" onClick={() => setOpenStoreCurrencyModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
