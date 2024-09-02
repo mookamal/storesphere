@@ -12,7 +12,7 @@ class Product(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = CKEditor5Field('Description', config_name='extends')
-    handle = models.CharField(max_length=255)
+    handle = models.CharField(max_length=255,null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS , default="DRAFT")
     media_count = models.IntegerField(default=0)
 

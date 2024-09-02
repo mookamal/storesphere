@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     "phonenumber_field",
     'graphene_django',
+    'django_filters',
     # my apps
     'core',
     'api',
