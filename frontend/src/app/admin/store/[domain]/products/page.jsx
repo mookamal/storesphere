@@ -2,7 +2,7 @@
 
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { Button, Checkbox, Table, Badge, Select } from "flowbite-react";
+import { Button, Checkbox, Table, Badge, Select ,Label } from "flowbite-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from 'axios';
@@ -78,11 +78,14 @@ export default function Products({ params }) {
       <div className="card p-3 font-medium text-sm my-3">
         <h2>Filter</h2>
         <div className="flex justify-between items-center p-2">
-          <Select name="status" onChange={handleFilterChange} value={status}>
-            <option value="all">Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-          </Select>
+          <div className="flex flex-col gap-1 text-center">
+            <Label htmlFor="status">Status</Label>
+            <Select name="status" id="status" onChange={handleFilterChange} value={status}>
+              <option value="all">All</option>
+              <option value="ACTIVE">Active</option>
+              <option value="DRAFT">Draft</option>
+            </Select>
+          </div>
         </div>
         <hr className="my-2" />
         <div className="flex justify-between items-center p-2">
