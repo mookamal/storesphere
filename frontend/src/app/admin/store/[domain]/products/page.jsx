@@ -13,7 +13,7 @@ export default function Products() {
             <Dropdown.Item value="DRAFT">Draft</Dropdown.Item>
           </Dropdown>
         </div>
-        <hr className="shadow" />
+        <hr className="my-2"/>
       </div>
     </div>
   )
