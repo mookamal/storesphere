@@ -20,3 +20,17 @@ export const GET_SETTINGS_GENERAL = gql`
     }
   }
 `;
+
+export const PRODUCTS_ADMIN_PAGE = gql`
+  query ProductIndex($domain: String!) {
+    allProducts(defaultDomain: $domain) {
+      edges {
+        node {
+          id
+          title
+          status
+        }
+      }
+    }
+  }
+`;

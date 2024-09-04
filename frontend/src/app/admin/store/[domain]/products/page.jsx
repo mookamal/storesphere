@@ -3,20 +3,59 @@
 import { Dropdown } from "flowbite-react";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { Button, Checkbox, Table } from "flowbite-react";
+import { Button, Checkbox, Table, Badge } from "flowbite-react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from 'axios';
+import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
+import Lottie from 'lottie-react';
+import Error from "@/components/admin/Error";
+import animation from "@/assets/animation/loading.json";
 
 const customThemeTable = {
   head: {
     "base": "group/head text-xs uppercase text-gray-700 dark:text-gray-400",
     "cell": {
-      "base": "bg-screen-primary px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700 text-center"
+      "base": "bg-screen-primary px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
     }
   }
 }
 
 export default function Products({ params }) {
+  const [error, setError] = useState(false);
+  const [products, setProducts] = useState(null);
   const currentPath = usePathname();
+  const domain = params.domain;
+
+  const getData = async () => {
+    try {
+      const response = await axios.post('/api/get-data', {
+        query: PRODUCTS_ADMIN_PAGE,
+        variables: { domain: domain },
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      setProducts(response.data.allProducts.edges);
+    } catch (error) {
+      console.error('Error fetching store details:', error.message);
+      setProducts(null);
+      setError(true);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  if (error) {
+    return <Error />
+  }
+
+  if (!products) {
+    return <Lottie animationData={animation} loop={true} />
+  }
 
   return (
     <div className="w-full">
@@ -52,19 +91,25 @@ export default function Products({ params }) {
             </Table.Head>
 
             <Table.Body className="divide-y">
-              <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+              {products.map(({ node }) => (
+                <Table.Row key={node.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
 
-                <Table.Cell>
-                  <div className="flex justify-between">
-                    <Checkbox />
-                    <h2>product name</h2>
-                  </div>
-                </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex justify-start gap-2 items-center">
+                      <Checkbox />
+                      <h2>{node.title}</h2>
+                    </div>
+                  </Table.Cell>
 
-                <Table.Cell>White</Table.Cell>
-              </Table.Row>
+                  <Table.Cell>
+                    <Badge color={node.status === 'ACTIVE'? 'success' : 'warning'}>
+                    {node.status}
+                    </Badge>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+
             </Table.Body>
-
           </Table>
         </div>
       </div>

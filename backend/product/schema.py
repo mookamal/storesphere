@@ -48,7 +48,6 @@ class Query(graphene.ObjectType):
     def resolve_all_products(self,info, default_domain):
         try:
             user = info.context.user
-            print("user",user)
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
                 return store.products.all()
