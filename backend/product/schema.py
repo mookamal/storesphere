@@ -32,7 +32,12 @@ def convert_ckeditor_field_to_html(field, registry=None):
 
 
 class ProductFilter(django_filters.FilterSet):
-    pass
+    status = django_filters.ChoiceFilter(choices=Product.STATUS)
+    class Meta:
+        model = Product
+        fields = ['status', 'title']
+
+
 
 class ProductNode(DjangoObjectType):
     class Meta:
@@ -41,11 +46,10 @@ class ProductNode(DjangoObjectType):
         interfaces = (graphene.relay.Node, )
 
 class Query(graphene.ObjectType):
-    all_products = DjangoFilterConnectionField(ProductNode , default_domain=graphene.String(required=True))
+    all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
     product = graphene.relay.Node.Field(ProductNode)
 
-
-    def resolve_all_products(self,info, default_domain , **kwargs):
+    def resolve_all_products(self, info, default_domain, **kwargs):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
@@ -54,5 +58,7 @@ class Query(graphene.ObjectType):
                 return filtered_products
             else:
                 raise PermissionDenied("You are not authorized to access this store.")
-        except:
-            raise PermissionDenied("Authentication failed.")
+        except Store.DoesNotExist:
+            raise PermissionDenied("Store not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")

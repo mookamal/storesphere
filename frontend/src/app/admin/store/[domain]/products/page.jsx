@@ -43,7 +43,11 @@ export default function Products({ params }) {
     try {
       const response = await axios.post('/api/get-data', {
         query: PRODUCTS_ADMIN_PAGE,
-        variables: { domain: domain },
+        variables: {
+          domain: domain,
+          search: searchQuery,
+          status: status === 'all' ? undefined : status,
+        },
       });
 
       if (response.data.error) {
@@ -59,13 +63,13 @@ export default function Products({ params }) {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [searchQuery,status]);
 
   if (error) {
     return <Error />
   }
 
-  if (!products) {
+  if (products === null) {
     return <Lottie animationData={animation} loop={true} />
   }
 
@@ -74,7 +78,7 @@ export default function Products({ params }) {
       <div className="card p-3 font-medium text-sm my-3">
         <h2>Filter</h2>
         <div className="flex justify-between items-center p-2">
-          <Select name="status" onChange={handleFilterChange}>
+          <Select name="status" onChange={handleFilterChange} value={status}>
             <option value="all">Status</option>
             <option value="ACTIVE">Active</option>
             <option value="DRAFT">Draft</option>
