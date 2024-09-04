@@ -3,6 +3,7 @@
 import { Sidebar } from "flowbite-react";
 import { usePathname } from 'next/navigation'
 import { IoSettings, IoHome } from "react-icons/io5";
+import { FaAward } from "react-icons/fa";
 import Link from "next/link";
 const customTheme = {
     root: {
@@ -17,6 +18,7 @@ export default function AdminSidebar() {
  
     const adminLinksList = [
         { title: "Home", path: `/store/${storeDomain}`, icon: IoHome },
+        { title: "Products", path: `/store/${storeDomain}/products`, icon: FaAward },
         { title: "Settings", path: `/store/${storeDomain}/settings/general`, icon: IoSettings },
     ];
     return (
