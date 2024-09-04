@@ -1,16 +1,16 @@
 "use client";
 
-import { Dropdown } from "flowbite-react";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { Button, Checkbox, Table, Badge } from "flowbite-react";
-import { usePathname } from "next/navigation";
+import { Button, Checkbox, Table, Badge, Select } from "flowbite-react";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
+import { useCallback } from "react";
 
 const customThemeTable = {
   head: {
@@ -24,9 +24,21 @@ const customThemeTable = {
 export default function Products({ params }) {
   const [error, setError] = useState(false);
   const [products, setProducts] = useState(null);
-  const currentPath = usePathname();
+  const pathname = usePathname();
   const domain = params.domain;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const status = searchParams.get('status') || 'all';
+  const searchQuery = searchParams.get('search') || '';
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    const params = new URLSearchParams(searchParams);
+
+    params.set(name, value);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+  
   const getData = async () => {
     try {
       const response = await axios.post('/api/get-data', {
@@ -62,11 +74,11 @@ export default function Products({ params }) {
       <div className="card p-3 font-medium text-sm my-3">
         <h2>Filter</h2>
         <div className="flex justify-between items-center p-2">
-          <Dropdown label="Status" color="light">
-            <Dropdown.Item value="all">All</Dropdown.Item>
-            <Dropdown.Item value="ACTIVE">Active</Dropdown.Item>
-            <Dropdown.Item value="DRAFT">Draft</Dropdown.Item>
-          </Dropdown>
+          <Select name="status" onChange={handleFilterChange}>
+            <option value="all">Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="DRAFT">Draft</option>
+          </Select>
         </div>
         <hr className="my-2" />
         <div className="flex justify-between items-center p-2">
@@ -74,9 +86,9 @@ export default function Products({ params }) {
             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
               <CiSearch />
             </div>
-            <input type="text" id="search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" />
+            <input type="text" name="search" onChange={handleFilterChange} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" />
           </div>
-          <Link href={`${currentPath}/new`}>
+          <Link href={`${pathname}/new`}>
             <Button color="dark">
               Add product
             </Button>
