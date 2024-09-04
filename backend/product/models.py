@@ -6,8 +6,8 @@ from django_ckeditor_5.fields import CKEditor5Field
 
 class Product(models.Model):
     STATUS = (
-        ('ACTIVE', 'Active'),
-        ('DRAFT', 'Draft'),
+        ('ACTIVE', 'ACTIVE'),
+        ('DRAFT', 'DRAFT'),
     )
     store = models.ForeignKey(Store, on_delete=models.CASCADE , related_name="products")
     title = models.CharField(max_length=255)

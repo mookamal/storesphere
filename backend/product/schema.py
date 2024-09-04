@@ -30,27 +30,28 @@ class HTML(Scalar):
 def convert_ckeditor_field_to_html(field, registry=None):
     return HTML()
 
+
 class ProductFilter(django_filters.FilterSet):
-    class Meta:
-        model = Product
-        fields = ["status","title"]
+    pass
 
 class ProductNode(DjangoObjectType):
     class Meta:
         model = Product
+        filter_fields = {"status": ['exact'],"title":['exact', 'icontains', 'istartswith']}
         interfaces = (graphene.relay.Node, )
 
 class Query(graphene.ObjectType):
-    all_products = DjangoFilterConnectionField(ProductNode, filterset_class=ProductFilter , default_domain=graphene.String(required=True))
+    all_products = DjangoFilterConnectionField(ProductNode , default_domain=graphene.String(required=True))
     product = graphene.relay.Node.Field(ProductNode)
 
 
-    def resolve_all_products(self,info, default_domain):
+    def resolve_all_products(self,info, default_domain , **kwargs):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
-                return store.products.all()
+                filtered_products = ProductFilter(data=kwargs, queryset=store.products.all()).qs
+                return filtered_products
             else:
                 raise PermissionDenied("You are not authorized to access this store.")
         except:
