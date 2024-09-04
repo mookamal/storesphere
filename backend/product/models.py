@@ -9,7 +9,7 @@ class Product(models.Model):
         ('ACTIVE', 'Active'),
         ('DRAFT', 'Draft'),
     )
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE , related_name="products")
     title = models.CharField(max_length=255)
     description = CKEditor5Field('Description', config_name='extends')
     handle = models.CharField(max_length=255,null=True, blank=True)

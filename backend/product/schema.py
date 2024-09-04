@@ -1,4 +1,5 @@
 import graphene
+from stores.models import Store , StaffMember
 from .models import Product
 import django_filters
 from graphene_django import DjangoObjectType
@@ -7,6 +8,7 @@ from graphql.language import ast
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
+from django.core.exceptions import PermissionDenied
 
 class HTML(Scalar):
     """Scalar for HTML content."""
@@ -39,5 +41,18 @@ class ProductNode(DjangoObjectType):
         interfaces = (graphene.relay.Node, )
 
 class Query(graphene.ObjectType):
-    all_products = DjangoFilterConnectionField(ProductNode, filterset_class=ProductFilter)
+    all_products = DjangoFilterConnectionField(ProductNode, filterset_class=ProductFilter , default_domain=graphene.String(required=True))
     product = graphene.relay.Node.Field(ProductNode)
+
+
+    def resolve_all_products(self,info, default_domain):
+        try:
+            user = info.context.user
+            print("user",user)
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                return store.products.all()
+            else:
+                raise PermissionDenied("You are not authorized to access this store.")
+        except:
+            raise PermissionDenied("Authentication failed.")
