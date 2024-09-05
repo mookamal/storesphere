@@ -34,6 +34,7 @@ export default function Products({ params }) {
   const searchQuery = searchParams.get('search') || '';
 
   const handleFilterChange = (e) => {
+    setEndCursor("");
     const { name, value } = e.target;
     const params = new URLSearchParams(searchParams);
 
