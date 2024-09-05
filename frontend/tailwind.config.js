@@ -14,6 +14,9 @@ module.exports = {
         "screen-primary": "#F6F8FA",
         "m-white": "#FFFFFF",
       },
+      colors: {
+        "primary-text": "#1E3A2B",
+      }
     },
   },
   plugins: [
