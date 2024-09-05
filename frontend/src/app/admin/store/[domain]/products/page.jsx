@@ -137,7 +137,7 @@ export default function Products({ params }) {
           </Table>
         </div>
         <div className="flex justify-end">
-          {hasNextPage && <Button size="sm" color="dark" onClick={getData}>Load More</Button>}
+          {hasNextPage && <Button size="sm" color="light" onClick={getData}>Load More</Button>}
         </div>
       </div>
     </div>
