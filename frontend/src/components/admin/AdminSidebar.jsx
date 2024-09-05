@@ -26,7 +26,7 @@ export default function AdminSidebar() {
             aria-label="Sidebar"
             id="default-sidebar"
             theme={customTheme}
-            className="fixed top-0 left-0 z-40 w-64 h-screen pt-16  transition-transform -translate-x-full sm:translate-x-0 border-r border-gray-200 dark:border-coal-300 shadow-sm"
+            className="fixed top-0 left-0 z-40 w-64 h-screen pt-16  transition-transform -translate-x-full sm:translate-x-0 border-r border-gray-200  dark:border-coal-100 shadow-sm"
         >
 
             <div className="flex h-full flex-col justify-between">

@@ -1,12 +1,12 @@
 .card {
-    @apply bg-m-white border border-gray-100 rounded-lg dark:bg-coal-300 dark:border-coal-300 text-slate-800 dark:text-white;
+    @apply bg-m-white border border-gray-100 rounded-lg dark:bg-coal-300 dark:border-coal-300 dark:text-white;
   }
 
 .active {
   @apply bg-gray-100 dark:bg-gray-700;
 }
 .h1 {
-  @apply text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white;
+  @apply text-2xl font-bold leading-none sm:text-3xl dark:text-white;
 }
 
 .active-click {
