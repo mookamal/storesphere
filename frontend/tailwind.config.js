@@ -16,6 +16,8 @@ module.exports = {
       },
       colors: {
         "primary-text": "#1E3A2B",
+        "yellow": '#EFF87A',
+        "baby-blue": '#CFDCFF',
       }
     },
   },

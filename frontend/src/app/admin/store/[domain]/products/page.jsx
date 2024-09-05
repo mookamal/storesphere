@@ -14,9 +14,9 @@ import { useCallback } from "react";
 
 const customThemeTable = {
   head: {
-    "base": "group/head text-xs uppercase text-gray-700 dark:text-gray-400",
+    "base": "group/head text-xs",
     "cell": {
-      "base": "bg-screen-primary px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
+      "base": "bg-baby-blue px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
     }
   }
 }
@@ -102,7 +102,7 @@ export default function Products({ params }) {
             <input type="text" name="search" onChange={handleFilterChange} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" />
           </div>
           <Link href={`${pathname}/new`}>
-            <Button color="dark">
+            <Button color="light" className="bg-yellow text-primary-text font-bold">
               Add product
             </Button>
           </Link>
@@ -138,7 +138,7 @@ export default function Products({ params }) {
           </Table>
         </div>
         <div className="flex justify-end">
-          {hasNextPage && <Button size="sm" color="light" onClick={getData}>Load More</Button>}
+          {hasNextPage && <Button size="sm" color="light" className="bg-yellow text-primary-text font-bold" onClick={getData}>Load More</Button>}
         </div>
       </div>
     </div>
