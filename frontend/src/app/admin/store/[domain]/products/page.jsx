@@ -28,6 +28,8 @@ export default function Products({ params }) {
   const domain = params.domain;
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [endCursor, setEndCursor] = useState("");
+  const [hasNextPage, setHasNextPage] = useState(false);
   const status = searchParams.get('status') || 'all';
   const searchQuery = searchParams.get('search') || '';
 
@@ -47,6 +49,7 @@ export default function Products({ params }) {
           domain: domain,
           search: searchQuery,
           status: status === 'all' ? undefined : status,
+          after: endCursor,
         },
       });
 
@@ -54,6 +57,8 @@ export default function Products({ params }) {
         throw new Error(response.data.error);
       }
       setProducts(response.data.allProducts.edges);
+      setEndCursor(response.data.allProducts.pageInfo.endCursor);
+      setHasNextPage(response.data.allProducts.pageInfo.hasNextPage);
     } catch (error) {
       console.error('Error fetching store details:', error.message);
       setProducts(null);
@@ -130,6 +135,9 @@ export default function Products({ params }) {
 
             </Table.Body>
           </Table>
+        </div>
+        <div className="flex justify-end">
+          {hasNextPage && <Button size="sm" color="dark" onClick={getData}>Load More</Button>}
         </div>
       </div>
     </div>
