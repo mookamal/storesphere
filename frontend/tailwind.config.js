@@ -17,7 +17,9 @@ module.exports = {
       colors: {
         "primary-text": "#1E3A2B",
         "yellow": '#EFF87A',
+
         "baby-blue": '#CFDCFF',
+        "coal-50": "#1b1c22",
         "coal-100": "#15171c",
         "coal-200": "#13141a",
         "coal-300": "#111217",
