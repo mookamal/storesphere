@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className='dark:bg-slate-700'>
+      <body className='dark:bg-coal-500'>
           {children}
           <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       </body>

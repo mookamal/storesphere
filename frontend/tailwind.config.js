@@ -18,6 +18,13 @@ module.exports = {
         "primary-text": "#1E3A2B",
         "yellow": '#EFF87A',
         "baby-blue": '#CFDCFF',
+        "coal-100": "#15171c",
+        "coal-200": "#13141a",
+        "coal-300": "#111217",
+        "coal-400": "#0f1014",
+        "coal-500": "#0d0e12",
+        "coal-600": "#0b0c10",
+        "coal-black": "#000",
       }
     },
   },
