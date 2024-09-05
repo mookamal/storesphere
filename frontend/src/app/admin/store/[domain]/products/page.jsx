@@ -21,6 +21,17 @@ const customThemeTable = {
   }
 }
 
+const customThemeSelect = {
+  base: "",
+  field: {
+    select: {
+      colors: {
+        success: "bg-yellow font-bold dark:bg-coal-100",
+      },
+    },
+  },
+};
+
 export default function Products({ params }) {
   const [error, setError] = useState(false);
   const [products, setProducts] = useState(null);
@@ -86,11 +97,13 @@ export default function Products({ params }) {
         <div className="flex justify-between items-center p-2">
           <div className="flex flex-col gap-1 text-center">
             <Label htmlFor="status">Status</Label>
-            <Select name="status" id="status" onChange={handleFilterChange} value={status}>
+
+            <Select name="status" theme={customThemeSelect} color="success" id="status" onChange={handleFilterChange} value={status}>
               <option value="all">All</option>
               <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
             </Select>
+
           </div>
         </div>
         <hr className="my-2" />
