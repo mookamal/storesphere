@@ -14,7 +14,7 @@ export default function AdminLayout({ children }) {
     <>
       <AdminNavbar />
       <AdminSidebar />
-      <main className="p-4 sm:ml-64 mt-16 h-screen bg-screen-primary dark:bg-black">{children}</main>
+      <main className="p-4 sm:ml-64 mt-16 h-screen bg-screen-primary dark:bg-coal-500">{children}</main>
     </>
   )
 }
