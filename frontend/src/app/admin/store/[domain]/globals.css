@@ -1,7 +1,17 @@
 .card {
-    @apply bg-m-white border border-gray-100 rounded-xl dark:bg-coal-300 dark:border-coal-50 dark:text-white;
+    @apply bg-m-white border border-gray-100 rounded-xl dark:bg-coal-300 dark:border-coal-50 dark:text-white shadow-sm font-medium text-sm;
   }
 
+.card-header {
+    @apply flex items-center justify-between border-b p-3;
+  }
+.card-body {
+    @apply  grow;
+  }
+
+.card-footer {
+    @apply border-t p-2;
+  }
 .active {
   @apply bg-gray-100 dark:bg-gray-700;
 }
