@@ -2,7 +2,7 @@
 
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { Button, Checkbox, Table, Badge, Select, Label } from "flowbite-react";
+import { Button, Checkbox, Table, Badge, Select, Spinner } from "flowbite-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from 'axios';
@@ -24,6 +24,7 @@ export default function Products({ params }) {
   const status = searchParams.get('status') || 'all';
   const searchQuery = searchParams.get('search') || '';
   const [countProduct, setCountProduct] = useState(5);
+  const [loading, setLoading] = useState(false);
 
   const handleFilterChange = (e) => {
     setEndCursor("");
@@ -35,6 +36,7 @@ export default function Products({ params }) {
   };
 
   const getData = async () => {
+    setLoading(true);
     try {
       const response = await axios.post('/api/get-data', {
         query: PRODUCTS_ADMIN_PAGE,
@@ -58,6 +60,7 @@ export default function Products({ params }) {
       setProducts(null);
       setError(true);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -85,11 +88,16 @@ export default function Products({ params }) {
       <div className="card my-3">
         {/* header */}
         <div className="card-header gap-1">
+          {/* status */}
             <Select name="status"  sizing="sm" id="status" onChange={handleFilterChange} value={status}>
               <option value="all">All</option>
               <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
             </Select>
+          {/* End status */}
+          {/* loading */}
+          {loading && <Spinner color="info" size="lg" aria-label="Loading page" />}
+          {/* End loading */}
           {/* search */}
           <div className="relative">
             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
