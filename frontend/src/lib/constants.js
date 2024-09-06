@@ -2,7 +2,7 @@ export const customThemeTable = {
     head: {
         "base": "group/head text-xs",
         "cell": {
-            "base": "bg-baby-blue px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-coal-500"
+            "base": "bg-baby-blue px-6 py-3  dark:bg-coal-500"
         }
     },
     body: {
