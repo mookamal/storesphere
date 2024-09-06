@@ -10,7 +10,7 @@ import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
-import { customThemeTable, customThemeSelect } from "@/lib/constants";
+import { customThemeTable } from "@/lib/constants";
 
 export default function Products({ params }) {
   const [error, setError] = useState(false);
@@ -62,7 +62,7 @@ export default function Products({ params }) {
 
   useEffect(() => {
     getData();
-  }, [searchQuery, status,countProduct]);
+  }, [searchQuery, status, countProduct]);
 
   if (error) {
     return <Error />
@@ -74,39 +74,35 @@ export default function Products({ params }) {
 
   return (
     <div className="w-full">
+      <div className="flex justify-end">
+        <Link href={`${pathname}/new`}>
+          <Button color="light" className="bg-m-yellow text-primary-text font-bold">
+            Add product
+          </Button>
+        </Link>
+      </div>
       {/* card */}
       <div className="card my-3">
-
         {/* header */}
-        <div className="card-header flex-col md:flex-row">
-          <h2>Filter</h2>
-          <div className="flex justify-between items-center p-2">
-            <div className="flex flex-col gap-1 text-center">
-              <div className="relative">
-                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                  <CiSearch />
-                </div>
-                <input type="text" name="search" onChange={handleFilterChange} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" />
-              </div>
+        <div className="card-header gap-1">
+            <Select name="status"  sizing="sm" id="status" onChange={handleFilterChange} value={status}>
+              <option value="all">All</option>
+              <option value="ACTIVE">Active</option>
+              <option value="DRAFT">Draft</option>
+            </Select>
+          {/* search */}
+          <div className="relative">
+            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <CiSearch />
             </div>
+            <input type="text" name="search" onChange={handleFilterChange} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" />
           </div>
+          {/* End search */}
         </div>
         {/* End header */}
 
         {/* body */}
         <div className="card-body">
-          <div className="flex justify-between items-center p-2">
-            <Select name="status" theme={customThemeSelect} color="success" id="status" onChange={handleFilterChange} value={status}>
-              <option value="all">All</option>
-              <option value="ACTIVE">Active</option>
-              <option value="DRAFT">Draft</option>
-            </Select>
-            <Link href={`${pathname}/new`}>
-              <Button color="light" className="bg-yellow text-primary-text font-bold">
-                Add product
-              </Button>
-            </Link>
-          </div>
           <div className="overflow-x-auto my-3">
             <Table hoverable theme={customThemeTable}>
 
@@ -137,9 +133,9 @@ export default function Products({ params }) {
               </Table.Body>
             </Table>
           </div>
-          <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-5 text-gray-600 text-2sm font-medium">
-            <div className="flex items-center gap-2">
-              Show 
+          <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-2 text-gray-600 text-2sm font-medium">
+            <div className="flex items-center gap-1 justify-between">
+              Show
               <Select name="showCountProduct" sizing="sm" value={countProduct} onChange={
                 (e) => {
                   setCountProduct(parseInt(e.target.value));
@@ -152,7 +148,7 @@ export default function Products({ params }) {
               </Select>
               per page
             </div>
-            <Button size="sm" color="light" className="bg-yellow text-primary-text font-bold" disabled={!hasNextPage} onClick={getData}>Load More</Button>
+            <Button size="sm" color="light" className="bg-m-yellow text-primary-text font-bold" disabled={!hasNextPage} onClick={getData}>Load More</Button>
           </div>
         </div>
       </div>

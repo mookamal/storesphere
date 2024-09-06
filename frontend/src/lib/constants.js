@@ -1,8 +1,8 @@
 export const customThemeTable = {
     head: {
-        "base": "group/head text-xs",
+        "base": "group/head text-xs text-gray-700 dark:text-coal-500",
         "cell": {
-            "base": "bg-baby-blue px-6 py-3  dark:bg-coal-500"
+            "base": "bg-gray-200 px-6 py-3 dark:bg-yellow-100"
         }
     },
     body: {
