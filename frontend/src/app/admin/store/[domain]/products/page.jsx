@@ -135,8 +135,17 @@ export default function Products({ params }) {
               </Table.Body>
             </Table>
           </div>
-          <div className="card-footer justify-center md:justify-between flex-col md:flex-row gap-5 text-gray-600 text-2sm font-medium">
-            {hasNextPage && <Button size="sm" color="light" className="bg-yellow text-primary-text font-bold" onClick={getData}>Load More</Button>}
+          <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-5 text-gray-600 text-2sm font-medium">
+            <div className="flex items-center gap-2">
+              Show 
+              <Select name="showCountProduct" sizing="sm">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+              </Select>
+              per page
+            </div>
+            <Button size="sm" color="light" className="bg-yellow text-primary-text font-bold" disabled={!hasNextPage} onClick={getData}>Load More</Button>
           </div>
         </div>
       </div>
