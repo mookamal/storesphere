@@ -10,27 +10,7 @@ import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
 import Lottie from 'lottie-react';
 import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
-import { useCallback } from "react";
-
-const customThemeTable = {
-  head: {
-    "base": "group/head text-xs",
-    "cell": {
-      "base": "bg-baby-blue px-6 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
-    }
-  }
-}
-
-const customThemeSelect = {
-  base: "",
-  field: {
-    select: {
-      colors: {
-        success: "bg-yellow font-bold dark:bg-coal-100",
-      },
-    },
-  },
-};
+import { customThemeTable , customThemeSelect } from "@/lib/constants";
 
 export default function Products({ params }) {
   const [error, setError] = useState(false);
@@ -130,7 +110,7 @@ export default function Products({ params }) {
 
             <Table.Body className="divide-y">
               {products.map(({ node }) => (
-                <Table.Row key={node.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                <Table.Row key={node.id}>
 
                   <Table.Cell>
                     <div className="flex justify-start gap-2 items-center">
