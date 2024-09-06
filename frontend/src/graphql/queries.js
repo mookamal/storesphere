@@ -22,8 +22,8 @@ export const GET_SETTINGS_GENERAL = gql`
 `;
 
 export const PRODUCTS_ADMIN_PAGE = gql`
-  query ProductIndex($domain: String!, $after: String! ,$search: String!, $status: ProductProductStatusChoices) {
-    allProducts(defaultDomain: $domain, first: 2 ,after: $after ,title_Icontains: $search,status: $status) {
+  query ProductIndex($domain: String!, $first: Int,$after: String! ,$search: String!, $status: ProductProductStatusChoices) {
+    allProducts(defaultDomain: $domain, first: $first ,after: $after ,title_Icontains: $search,status: $status) {
       edges {
         node {
           id

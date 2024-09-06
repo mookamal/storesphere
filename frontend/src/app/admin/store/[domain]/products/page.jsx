@@ -23,6 +23,7 @@ export default function Products({ params }) {
   const [hasNextPage, setHasNextPage] = useState(false);
   const status = searchParams.get('status') || 'all';
   const searchQuery = searchParams.get('search') || '';
+  const [countProduct, setCountProduct] = useState(5);
 
   const handleFilterChange = (e) => {
     setEndCursor("");
@@ -41,6 +42,7 @@ export default function Products({ params }) {
           domain: domain,
           search: searchQuery,
           status: status === 'all' ? undefined : status,
+          first: countProduct,
           after: endCursor,
         },
       });
@@ -60,7 +62,7 @@ export default function Products({ params }) {
 
   useEffect(() => {
     getData();
-  }, [searchQuery, status]);
+  }, [searchQuery, status,countProduct]);
 
   if (error) {
     return <Error />
@@ -138,7 +140,12 @@ export default function Products({ params }) {
           <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-5 text-gray-600 text-2sm font-medium">
             <div className="flex items-center gap-2">
               Show 
-              <Select name="showCountProduct" sizing="sm">
+              <Select name="showCountProduct" sizing="sm" value={countProduct} onChange={
+                (e) => {
+                  setCountProduct(parseInt(e.target.value));
+                  setEndCursor("");
+                }
+              }>
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="20">20</option>
