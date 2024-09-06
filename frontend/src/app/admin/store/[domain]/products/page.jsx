@@ -25,6 +25,7 @@ export default function Products({ params }) {
   const searchQuery = searchParams.get('search') || '';
   const [countProduct, setCountProduct] = useState(5);
   const [loading, setLoading] = useState(false);
+  const [notFoundProducts , setNotFoundProducts] = useState(false);
 
   const handleFilterChange = (e) => {
     setEndCursor("");
@@ -55,6 +56,11 @@ export default function Products({ params }) {
       setProducts(response.data.allProducts.edges);
       setEndCursor(response.data.allProducts.pageInfo.endCursor);
       setHasNextPage(response.data.allProducts.pageInfo.hasNextPage);
+      if (response.data.allProducts.edges.length === 0) {
+        setNotFoundProducts(true);
+      } else {
+        setNotFoundProducts(false);
+      }
     } catch (error) {
       console.error('Error fetching store details:', error.message);
       setProducts(null);
@@ -111,36 +117,47 @@ export default function Products({ params }) {
 
         {/* body */}
         <div className="card-body">
-          <div className="overflow-x-auto my-3">
-            <Table hoverable theme={customThemeTable}>
-
-              <Table.Head>
-                <Table.HeadCell>Product</Table.HeadCell>
-                <Table.HeadCell>Status</Table.HeadCell>
-              </Table.Head>
-
-              <Table.Body className="divide-y">
-                {products.map(({ node }) => (
-                  <Table.Row key={node.id}>
-
-                    <Table.Cell>
-                      <div className="flex justify-start gap-2 items-center">
-                        <Checkbox />
-                        <h2>{node.title}</h2>
-                      </div>
-                    </Table.Cell>
-
-                    <Table.Cell>
-                      <Badge color={node.status === 'ACTIVE' ? 'success' : 'warning'}>
-                        {node.status}
-                      </Badge>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-
-              </Table.Body>
-            </Table>
+          {/* not found */}
+          {notFoundProducts &&
+          <div className="text-center p-2">
+            <h2 className="text-lg font-bold text-coal-black">No products found</h2>
           </div>
+          }
+          {/* End not found */}
+          {/* products */}
+          {!notFoundProducts &&
+                    <div className="overflow-x-auto my-3">
+                    <Table hoverable theme={customThemeTable}>
+        
+                      <Table.Head>
+                        <Table.HeadCell>Product</Table.HeadCell>
+                        <Table.HeadCell>Status</Table.HeadCell>
+                      </Table.Head>
+        
+                      <Table.Body className="divide-y">
+                        {products.map(({ node }) => (
+                          <Table.Row key={node.id}>
+        
+                            <Table.Cell>
+                              <div className="flex justify-start gap-2 items-center">
+                                <Checkbox />
+                                <h2>{node.title}</h2>
+                              </div>
+                            </Table.Cell>
+        
+                            <Table.Cell>
+                              <Badge color={node.status === 'ACTIVE' ? 'success' : 'warning'}>
+                                {node.status}
+                              </Badge>
+                            </Table.Cell>
+                          </Table.Row>
+                        ))}
+        
+                      </Table.Body>
+                    </Table>
+                  </div>
+          }
+          {/* End products */}
           <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-2 text-gray-600 text-2sm font-medium">
             <div className="flex items-center gap-1 justify-between">
               Show
