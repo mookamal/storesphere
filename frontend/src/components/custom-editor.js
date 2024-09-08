@@ -18,6 +18,7 @@ import {
   Highlight,
   Alignment,
   Font,
+  List,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import "../styles/custom-editor-styles.css";
@@ -80,6 +81,8 @@ function CustomEditor({ content, setContent }) {
             "fontSize",
             "fontFamily",
             "fontColor",
+            "bulletedList",
+            "numberedList",
           ],
         },
         image: {
@@ -139,6 +142,7 @@ function CustomEditor({ content, setContent }) {
           Highlight,
           Alignment,
           Font,
+          List,
         ],
 
         extraPlugins: [MyCustomUploadAdapterPlugin],
