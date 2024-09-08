@@ -2,10 +2,12 @@
 
 import { TextInput, Label } from "flowbite-react";
 import dynamic from 'next/dynamic';
+import { useState } from "react";
 
 const CustomEditor = dynamic( () => import( '@/components/custom-editor' ), { ssr: false } );
 
 export default function AddProduct() {
+  const [description, setDescription] = useState("");
   return (
     <div className="grid lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2">
@@ -20,12 +22,12 @@ export default function AddProduct() {
 
           <div>
             <div className="mb-2">
-              <Label htmlFor="description" value="Product description" />
+              <Label htmlFor="description" value="Product description"  />
             </div>
-            <CustomEditor id="description" name="description" />
+            <CustomEditor name="description" content={description} setContent={setDescription} />
           </div>
-    
         </div>
+
       </div>
       <div className="lg:col-span-1">
         <div className="card">test2</div>

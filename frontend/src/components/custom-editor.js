@@ -14,7 +14,7 @@ import {
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import "../styles/custom-editor-styles.css";
-function CustomEditor() {
+function CustomEditor({ content , setContent }) {
   return (
     <CKEditor
       editor={ClassicEditor}
@@ -62,6 +62,10 @@ function CustomEditor() {
         ],
         initialData: "<p>Hello from CKEditor 5 in React!</p>",
       }}
+      onChange={ ( event, editor ) => {
+        const data = editor.getData();
+        setContent(data);
+    } }
     />
   );
 }
