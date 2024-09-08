@@ -1,22 +1,4 @@
 .ck-editor__editable h1 {
-    font-size: 2em;
-    font-weight: bold;
-    color: #333;
-}
-
-.ck-editor__editable h2 {
-    font-size: 1.75em;
-    font-weight: bold;
-    color: #555;
-}
-
-.ck-editor__editable h3 {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #777;
-}
-
-.ck-editor__editable h1 {
     @apply text-2xl font-bold text-gray-800;
 }
 
@@ -26,6 +8,10 @@
 
 .ck-editor__editable h3 {
     @apply text-lg font-bold text-gray-400;
+}
+
+.ck-editor__editable p {
+    @apply text-base  text-gray-400;
 }
 
 .ck-editor__editable ul {
