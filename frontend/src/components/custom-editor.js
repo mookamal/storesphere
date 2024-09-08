@@ -10,58 +10,81 @@ import {
   Heading,
   Image,
   ImageInsert,
-  
+  ImageCaption,
+  ImageResize,
+  ImageStyle,
+  ImageToolbar,
+  LinkImage,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import "../styles/custom-editor-styles.css";
 
 class MyUploadAdapter {
-    constructor(loader) {
-      this.loader = loader;
-    }
-  
-upload() {
-  return this.loader.file.then(
-    (file) =>
-      new Promise((resolve, reject) => {
-        const data = new FormData();
-        data.append("upload", file);
+  constructor(loader) {
+    this.loader = loader;
+  }
 
-        fetch("http://api.nour.com/s/stores/images/upload/", {
-          method: "POST",
-          body: data,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
+  upload() {
+    return this.loader.file.then(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const data = new FormData();
+          data.append("upload", file);
+
+          fetch("http://api.nour.com/s/stores/images/upload/", {
+            method: "POST",
+            body: data,
           })
-          .then((res) => {
-            resolve({
-              default: res.url,
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((res) => {
+              resolve({
+                default: res.url,
+              });
+            })
+            .catch((err) => {
+              console.error("Upload error:", err);
+              reject(err);
             });
-          })
-          .catch((err) => {
-            console.error('Upload error:', err);
-            reject(err);
-          });
-      })
-  );
+        })
+    );
+  }
+
+  abort() {}
 }
 
-    abort() {
-    }
-  }
-  
-
-function CustomEditor({ content , setContent }) {
+function CustomEditor({ content, setContent }) {
   return (
     <CKEditor
       editor={ClassicEditor}
       config={{
         toolbar: {
-          items: ["undo", "redo", "|", "bold", "italic", "heading", "|","insertImage"],
+          items: [
+            "undo",
+            "redo",
+            "|",
+            "bold",
+            "italic",
+            "heading",
+            "|",
+            "insertImage",
+          ],
+        },
+        image: {
+          toolbar: [
+            "imageStyle:block",
+            "imageStyle:side",
+            "imageStyle:alignLeft",            
+            "|",
+            "toggleImageCaption",
+            "imageTextAlternative",
+            "|",
+            "linkImage",
+          ],
         },
         heading: {
           options: [
@@ -100,14 +123,19 @@ function CustomEditor({ content , setContent }) {
           Heading,
           Image,
           ImageInsert,
+          ImageCaption,
+          ImageResize,
+          ImageStyle,
+          LinkImage,
+          ImageToolbar,
         ],
+
         extraPlugins: [MyCustomUploadAdapterPlugin],
-        initialData: "<p>Hello from CKEditor 5 in React!</p>",
       }}
-      onChange={ ( event, editor ) => {
+      onChange={(event, editor) => {
         const data = editor.getData();
         setContent(data);
-    } }
+      }}
     />
   );
 }
@@ -115,7 +143,7 @@ function CustomEditor({ content , setContent }) {
 export default CustomEditor;
 
 function MyCustomUploadAdapterPlugin(editor) {
-    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
-      return new MyUploadAdapter(loader);
-    };
-  }
+  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
