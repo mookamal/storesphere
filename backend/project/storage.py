@@ -22,7 +22,6 @@ def upload_image(request):
             image = request.FILES['upload']
             filename = custom_storage.save(image.name, image)
             file_url = custom_storage.url(filename)
-            print("file_url",file_url)
             return JsonResponse({'url': file_url})
         return JsonResponse({'error': 'No file uploaded'}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
