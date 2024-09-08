@@ -33,7 +33,7 @@ export default function AddProduct() {
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
               </div>
-              <TextInput id="title" sizing="sm" type="text" {...register("title")} />
+              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" />
             </div>
 
             <div className="my-2">
@@ -51,7 +51,7 @@ export default function AddProduct() {
             <div className="mb-2">
                 <Label htmlFor="status" value="Status" />
             </div>
-            <Select id="status" {...register("status")}>
+            <Select sizing="sm" id="status" {...register("status")}>
               <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
             </Select>
