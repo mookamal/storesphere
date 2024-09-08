@@ -23,7 +23,10 @@ class Query(
     ):
     pass
 
-class Mutation(stores.schema.StoreMutation,graphene.ObjectType):
+class Mutation(
+    stores.schema.StoreMutation,
+    product.schema.Mutation,
+    graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query,mutation=Mutation)

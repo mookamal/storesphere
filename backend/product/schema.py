@@ -62,3 +62,24 @@ class Query(graphene.ObjectType):
             raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+class CreateProduct(graphene.relay.ClientIDMutation):
+    product = graphene.Field(ProductNode)        
+    class Input:
+        title = graphene.String(required=True)
+        description = graphene.String(required=True)
+        status = graphene.String(required=True)
+        default_domain = graphene.String(required=True)
+    
+    def mutate_and_get_payload(root, info ,**input):
+        user = info.context.user
+        store = Store.objects.get(default_domain=input.get('default_domain'))
+        if StaffMember.objects.filter(user=user, store=store).exists():
+            product = Product(store=store,title=input.get('title'), description=input.get('description'), status=input.get('status'))
+            product.save()
+            return CreateProduct(product=product)
+        else:
+            raise PermissionDenied("You are not authorized to access this store.")
+
+class Mutation(graphene.ObjectType):
+    create_product = CreateProduct.Field()
