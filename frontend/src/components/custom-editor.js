@@ -84,6 +84,7 @@ function CustomEditor({ content, setContent }) {
             "bulletedList",
             "numberedList",
           ],
+          shouldNotGroupWhenFull: true,
         },
         image: {
           toolbar: [

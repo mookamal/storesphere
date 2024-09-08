@@ -15,14 +15,14 @@ export default function AddProduct() {
 
           <div>
             <div className="mb-2">
-              <Label htmlFor="name" value="Product name" />
+              <Label htmlFor="name" value="Title" />
             </div>
             <TextInput id="name" sizing="sm" type="text" placeholder="Product 1" />
           </div>
 
-          <div>
+          <div className="my-2">
             <div className="mb-2">
-              <Label htmlFor="description" value="Product description"  />
+              <Label htmlFor="description" value="Description"  />
             </div>
             <CustomEditor name="description" content={description} setContent={setDescription} />
           </div>
