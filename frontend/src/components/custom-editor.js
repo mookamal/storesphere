@@ -15,6 +15,9 @@ import {
   ImageStyle,
   ImageToolbar,
   LinkImage,
+  Highlight,
+  Alignment,
+  Font,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import "../styles/custom-editor-styles.css";
@@ -70,8 +73,13 @@ function CustomEditor({ content, setContent }) {
             "bold",
             "italic",
             "heading",
+            "alignment",
             "|",
             "insertImage",
+            "highlight",
+            "fontSize",
+            "fontFamily",
+            "fontColor",
           ],
         },
         image: {
@@ -128,6 +136,9 @@ function CustomEditor({ content, setContent }) {
           ImageStyle,
           LinkImage,
           ImageToolbar,
+          Highlight,
+          Alignment,
+          Font,
         ],
 
         extraPlugins: [MyCustomUploadAdapterPlugin],
