@@ -3,11 +3,12 @@
 import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { CREATE_PRODUCT } from "@/graphql/mutations";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
+import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify';
 
@@ -17,11 +18,25 @@ export default function AddProduct() {
   const domain = useParams().domain;
   const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
+      title: "",
       description: "",
     },
   });
 
   const description = watch("description");
+  const watchedTitle = watch('title');
+
+  const debouncedUpdate = debounce((field, value) => {
+  }, 500);
+
+  useEffect(() => {
+    debouncedUpdate('title', watchedTitle);
+    debouncedUpdate('description', description);
+    return () => {
+      debouncedUpdate.cancel();
+    };
+  }, [watchedTitle, description]);
+
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -86,7 +101,7 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
-      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">
+      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={loading}>
         {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
         Add
       </Button>
