@@ -1,12 +1,17 @@
 "use client";
 
-import { TextInput, Label, Select, Button } from "flowbite-react";
+import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
-
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import axios from "axios";
+import { CREATE_PRODUCT } from "@/graphql/mutations";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
 
 export default function AddProduct() {
+  const [loading, setLoading] = useState(false);
+  const domain = useParams().domain;
   const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       description: "",
@@ -15,8 +20,22 @@ export default function AddProduct() {
 
   const description = watch("description");
 
-  const onSubmit = (data) => {
-    console.log("Form Data: ", data);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    const variables = {
+      input: {
+        defaultDomain: domain,
+        ...data
+      },
+    };
+    try {
+      const response = await axios.post('/api/set-data', {query: CREATE_PRODUCT,variables:variables});
+      setLoading(false);
+      console.log("Success");
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   };
 
   const handleEditorChange = (content) => {
@@ -58,7 +77,10 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
-      <Button  size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">Add</Button>
+      <Button  size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">
+      {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
+        Add
+      </Button>
     </form>
   )
 }
