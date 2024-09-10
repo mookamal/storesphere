@@ -58,7 +58,7 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
-      <Button  size="xl" color="light"  className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">Add</Button>
+      <Button  size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">Add</Button>
     </form>
   )
 }
