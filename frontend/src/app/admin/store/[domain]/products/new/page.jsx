@@ -8,8 +8,11 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { CREATE_PRODUCT } from "@/graphql/mutations";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify';
 
 export default function AddProduct() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   const { register, handleSubmit, setValue, watch } = useForm({
@@ -29,12 +32,18 @@ export default function AddProduct() {
       },
     };
     try {
-      const response = await axios.post('/api/set-data', {query: CREATE_PRODUCT,variables:variables});
+      const response = await axios.post('/api/set-data', { query: CREATE_PRODUCT, variables: variables });
       setLoading(false);
-      console.log("Success");
+      if (response.data.data.createProduct.product.id) {
+        router.push(`/store/${domain}/products/${response.data.data.createProduct.product.id}`);
+        toast.success("Product created successfully!");
+      }
+      else {
+        toast.error("Failed to create product!");
+      }
     } catch (error) {
-      console.error(error);
       setLoading(false);
+      toast.success("Product created successfully!");
     }
   };
 
@@ -68,7 +77,7 @@ export default function AddProduct() {
         <div className="lg:col-span-1">
           <div className="card p-3">
             <div className="mb-2">
-                <Label htmlFor="status" value="Status" />
+              <Label htmlFor="status" value="Status" />
             </div>
             <Select sizing="sm" id="status" {...register("status")}>
               <option value="ACTIVE">Active</option>
@@ -77,8 +86,8 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
-      <Button  size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">
-      {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
+      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">
+        {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
         Add
       </Button>
     </form>
