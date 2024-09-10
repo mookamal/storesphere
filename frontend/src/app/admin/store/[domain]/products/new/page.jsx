@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Label, Select } from "flowbite-react";
+import { TextInput, Label, Select, Button } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 
@@ -33,7 +33,7 @@ export default function AddProduct() {
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
               </div>
-              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" />
+              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" required />
             </div>
 
             <div className="my-2">
@@ -58,6 +58,7 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
+      <Button  size="xl"  color="light" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600">Add</Button>
     </form>
   )
 }
