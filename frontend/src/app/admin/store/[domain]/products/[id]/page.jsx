@@ -4,7 +4,7 @@ import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { useParams,notFound } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import axios from "axios";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
 import { debounce } from 'lodash';
@@ -17,7 +17,7 @@ export default function UpdateProduct() {
   const [loading, setLoading] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
   const productId = useParams().id;
-  const [data , setData] = useState(null);
+  const [data, setData] = useState(null);
   const { register, handleSubmit, setValue, watch } = useForm();
 
   const description = watch("description");
@@ -76,7 +76,7 @@ export default function UpdateProduct() {
   if (isNotFound) return notFound();
 
   if (!data) {
-    return <div className="flex justify-center items-center h-full"><Spinner aria-label="Loading button"  size="lg" /></div>;
+    return <div className="flex justify-center items-center h-full"><Spinner aria-label="Loading button" size="lg" /></div>;
   }
 
   return (
@@ -97,7 +97,7 @@ export default function UpdateProduct() {
                 <Label htmlFor="description" value="Description" />
               </div>
               {/* CustomEditor with description */}
-              <CustomEditor id="description" content={description} setContent={handleEditorChange}  />
+              <CustomEditor id="description" content={description} setContent={handleEditorChange} />
             </div>
           </div>
 
