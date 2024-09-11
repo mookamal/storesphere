@@ -41,11 +41,16 @@ export const UPDATE_STORE_CURRENCY =`
 `;
 
 export const CREATE_PRODUCT = `
-  mutation CreateProduct($input: CreateProductInput!) {
-    createProduct(input: $input) {
+  mutation CreateProductMutation($product: ProductInput!, $defaultDomain: String!) {
+    createProduct(input: {product: $product ,defaultDomain: $defaultDomain }) {
       product {
+        id
+        title
+        description
+        status
         productId
       }
     }
   }
 `;
+

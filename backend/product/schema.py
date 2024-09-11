@@ -82,19 +82,25 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
+class ProductInput(graphene.InputObjectType):
+    title = graphene.String(required=True)
+    description = graphene.String(required=True)
+    status = graphene.String(required=True)
+    
+
 class CreateProduct(graphene.relay.ClientIDMutation):
     product = graphene.Field(ProductNode)        
     class Input:
-        title = graphene.String(required=True)
-        description = graphene.String(required=True)
-        status = graphene.String(required=True)
+        product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
     
     def mutate_and_get_payload(root, info ,**input):
+        product_data = input.get("product")
+        default_domain = input.get("default_domain")
         user = info.context.user
-        store = Store.objects.get(default_domain=input.get('default_domain'))
+        store = Store.objects.get(default_domain=default_domain)
         if StaffMember.objects.filter(user=user, store=store).exists():
-            product = Product(store=store,title=input.get('title'), description=input.get('description'), status=input.get('status'))
+            product = Product(store=store,title=product_data.title, description=product_data.description, status=product_data.status)
             product.save()
             return CreateProduct(product=product)
         else:

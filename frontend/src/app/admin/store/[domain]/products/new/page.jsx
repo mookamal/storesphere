@@ -41,10 +41,8 @@ export default function AddProduct() {
   const onSubmit = async (data) => {
     setLoading(true);
     const variables = {
-      input: {
-        defaultDomain: domain,
-        ...data
-      },
+      defaultDomain: domain,
+      product: data
     };
     try {
       const response = await axios.post('/api/set-data', { query: CREATE_PRODUCT, variables: variables });
@@ -58,7 +56,7 @@ export default function AddProduct() {
       }
     } catch (error) {
       setLoading(false);
-      toast.success("Product created successfully!");
+      toast.error("Failed to create product!");
     }
   };
 
