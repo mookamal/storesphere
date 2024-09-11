@@ -14,27 +14,37 @@ import { GET_PRODUCT_BY_ID } from "@/graphql/queries";
 import { UPDATE_PRODUCT } from "@/graphql/mutations";
 
 export default function UpdateProduct() {
-  const router = useRouter()
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
   const productId = useParams().id;
   const [data, setData] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const { register, handleSubmit, setValue, watch } = useForm();
-
   const description = watch("description");
-  const watchedTitle = watch('title');
+  const title = watch('title');
+  const status = watch('status');
+
+  useEffect(() => {
+    if (title!== product?.title || description!== product?.description || status!== product?.status) {
+      setHasChanges(true);
+    } else {
+      setHasChanges(false);
+    }
+  },[description, title, status]);
 
   const debouncedUpdate = debounce((field, value) => {
+
   }, 500);
 
   useEffect(() => {
-    debouncedUpdate('title', watchedTitle);
+    debouncedUpdate('title', title);
     debouncedUpdate('description', description);
     return () => {
       debouncedUpdate.cancel();
     };
-  }, [watchedTitle, description]);
+  }, [title, description]);
 
   useEffect(() => {
     getProductById();
@@ -53,6 +63,7 @@ export default function UpdateProduct() {
       if (response.data) {
 
         setData(response.data);
+        setProduct(response.data.product);
         setValue('title', response.data.product.title);
         setValue('description', response.data.product.description);
         setValue('status', response.data.product.status);
@@ -80,6 +91,7 @@ export default function UpdateProduct() {
         toast.success('Product updated successfully!');
         getProductById();
         setLoading(false);
+        setHasChanges(false);
       }
 
     } catch (error) {
@@ -133,7 +145,7 @@ export default function UpdateProduct() {
           </div>
         </div>
       </div>
-      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={loading}>
+      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={!hasChanges}>
         {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
         Update
       </Button>
