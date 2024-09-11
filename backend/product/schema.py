@@ -40,10 +40,15 @@ class ProductFilter(django_filters.FilterSet):
 
 
 class ProductNode(DjangoObjectType):
+    product_id = graphene.Int()
+
     class Meta:
         model = Product
         filter_fields = {"status": ['exact'],"title":['exact', 'icontains', 'istartswith']}
         interfaces = (graphene.relay.Node, )
+    
+    def resolve_product_id(self, info):
+        return self.id
 
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
