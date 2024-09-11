@@ -44,9 +44,7 @@ export const CREATE_PRODUCT = `
   mutation CreateProduct($input: CreateProductInput!) {
     createProduct(input: $input) {
       product {
-        id
-        title
-        status
+        productId
       }
     }
   }

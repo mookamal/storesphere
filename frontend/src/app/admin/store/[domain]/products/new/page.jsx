@@ -49,8 +49,8 @@ export default function AddProduct() {
     try {
       const response = await axios.post('/api/set-data', { query: CREATE_PRODUCT, variables: variables });
       setLoading(false);
-      if (response.data.data.createProduct.product.id) {
-        router.push(`/store/${domain}/products/${response.data.data.createProduct.product.id}`);
+      if (response.data.data.createProduct.product.productId) {
+        router.push(`/store/${domain}/products/${response.data.data.createProduct.product.productId}`);
         toast.success("Product created successfully!");
       }
       else {
