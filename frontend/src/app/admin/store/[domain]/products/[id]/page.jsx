@@ -18,12 +18,7 @@ export default function UpdateProduct() {
   const [isNotFound, setIsNotFound] = useState(false);
   const productId = useParams().id;
   const [data , setData] = useState(null);
-  const { register, handleSubmit, setValue, watch } = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-    },
-  });
+  const { register, handleSubmit, setValue, watch } = useForm();
 
   const description = watch("description");
   const watchedTitle = watch('title');
@@ -54,7 +49,11 @@ export default function UpdateProduct() {
         throw new Error(response.data.error);
       }
       if (response.data) {
-        setData(response.data.product);
+
+        setData(response.data);
+        setValue('title', response.data.product.title);
+        setValue('description', response.data.product.description);
+        setValue('status', response.data.product.status);
       }
       else {
         toast.error('Failed to fetch product details');
@@ -67,7 +66,7 @@ export default function UpdateProduct() {
   }
 
   const onSubmit = async (data) => {
-
+    setLoading(true);
   };
 
   const handleEditorChange = (content) => {
@@ -98,7 +97,7 @@ export default function UpdateProduct() {
                 <Label htmlFor="description" value="Description" />
               </div>
               {/* CustomEditor with description */}
-              <CustomEditor id="description" content={description} setContent={handleEditorChange} />
+              <CustomEditor id="description" content={description} setContent={handleEditorChange}  />
             </div>
           </div>
 
@@ -117,7 +116,7 @@ export default function UpdateProduct() {
       </div>
       <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={loading}>
         {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
-        Add
+        Update
       </Button>
     </form>
   )

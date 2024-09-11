@@ -152,6 +152,9 @@ function CustomEditor({ content, setContent }) {
         const data = editor.getData();
         setContent(data);
       }}
+      onReady={(editor) => {
+        editor.setData(content);
+      }}
     />
   );
 }
