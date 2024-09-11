@@ -11,9 +11,11 @@ import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify';
 import { GET_PRODUCT_BY_ID } from "@/graphql/queries";
+import { UPDATE_PRODUCT } from "@/graphql/mutations";
 
 export default function UpdateProduct() {
   const router = useRouter()
+  const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
   const productId = useParams().id;
@@ -67,6 +69,23 @@ export default function UpdateProduct() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    const variables = {
+      defaultDomain: domain,
+      product: data,
+      id: productId,
+    };
+    try {
+      const response = await axios.post('/api/set-data', { query: UPDATE_PRODUCT, variables: variables });
+      if (response.data.data.updateProduct.product.id) {
+        toast.success('Product updated successfully!');
+        getProductById();
+        setLoading(false);
+      } 
+
+    } catch (error) {
+      toast.error('Failed to update product');
+      setLoading(false);
+    }
   };
 
   const handleEditorChange = (content) => {

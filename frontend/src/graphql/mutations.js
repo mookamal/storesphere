@@ -54,3 +54,12 @@ export const CREATE_PRODUCT = `
   }
 `;
 
+export const UPDATE_PRODUCT = `
+  mutation ProductSaveUpdate($id:ID! , $defaultDomain: String! , $product: ProductInput!) {
+  updateProduct(input: {id: $id ,defaultDomain: $defaultDomain , product: $product }) {
+    product {
+      id
+    }
+  }
+}
+`;
