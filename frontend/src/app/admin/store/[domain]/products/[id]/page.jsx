@@ -4,7 +4,7 @@ import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams,notFound } from "next/navigation";
 import axios from "axios";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
 import { debounce } from 'lodash';
@@ -15,8 +15,9 @@ import { GET_PRODUCT_BY_ID } from "@/graphql/queries";
 export default function UpdateProduct() {
   const router = useRouter()
   const [loading, setLoading] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
   const productId = useParams().id;
-  const [product , setProduct] = useState(null);
+  const [data , setData] = useState(null);
   const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       title: "",
@@ -43,22 +44,26 @@ export default function UpdateProduct() {
   }, []);
 
   const getProductById = async () => {
-    setLoading(true);
     try {
       const response = await axios.post('/api/get-data', {
         query: GET_PRODUCT_BY_ID,
-        variables: { id: 23 },
+        variables: { id: productId },
       });
 
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-      console.log(response);
+      if (response.data) {
+        setData(response.data.product);
+      }
+      else {
+        toast.error('Failed to fetch product details');
+        setIsNotFound(true);
+      }
     } catch (error) {
-      console.error('Error fetching store details:', error.message);
       toast.error('Failed to update product');
+      setIsNotFound(true);
     }
-    setLoading(false);
   }
 
   const onSubmit = async (data) => {
@@ -68,6 +73,12 @@ export default function UpdateProduct() {
   const handleEditorChange = (content) => {
     setValue("description", content);
   };
+
+  if (isNotFound) return notFound();
+
+  if (!data) {
+    return <div className="flex justify-center items-center h-full"><Spinner aria-label="Loading button"  size="lg" /></div>;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
