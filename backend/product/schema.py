@@ -62,6 +62,21 @@ class Query(graphene.ObjectType):
             raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
+    
+    # resolve product with check StaffMember
+    def resolve_product(self, info, id, **kwargs):
+        try:
+            user = info.context.user
+            product = Product.objects.get(pk=id)
+            store = product.store
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                return product
+            else:
+                raise PermissionDenied("You are not authorized to access this product.")
+        except Product.DoesNotExist:
+            raise PermissionDenied("Product not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
 
 class CreateProduct(graphene.relay.ClientIDMutation):
     product = graphene.Field(ProductNode)        
