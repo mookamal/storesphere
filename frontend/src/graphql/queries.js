@@ -1,4 +1,4 @@
-import { gql  } from "@apollo/client";
+import { gql } from "@apollo/client";
 export const GET_SETTINGS_GENERAL = gql`
   query SettingsGeneral($domain: String!) {
     store(defaultDomain: $domain) {
@@ -35,6 +35,17 @@ export const PRODUCTS_ADMIN_PAGE = gql`
       endCursor
       hasNextPage
       }
+    }
+  }
+`;
+
+export const GET_PRODUCT_BY_ID = gql`
+  query GetProductById($id: ID!) {
+    product(id: $id) {
+      title
+      description
+      status
+      handle
     }
   }
 `;

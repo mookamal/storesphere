@@ -47,7 +47,7 @@ class ProductNode(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
-    product = graphene.relay.Node.Field(ProductNode)
+    product = graphene.Field(ProductNode, id=graphene.ID(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -63,7 +63,6 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
     
-    # resolve product with check StaffMember
     def resolve_product(self, info, id, **kwargs):
         try:
             user = info.context.user
