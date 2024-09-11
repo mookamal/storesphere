@@ -106,5 +106,40 @@ class CreateProduct(graphene.relay.ClientIDMutation):
         else:
             raise PermissionDenied("You are not authorized to access this store.")
 
+class UpdateProduct(graphene.relay.ClientIDMutation):
+    product = graphene.Field(ProductNode)
+
+    class Input:
+        id = graphene.ID(required=True)
+        product = ProductInput(required=True)
+        default_domain = graphene.String(required=True)
+    
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, id, product, default_domain):
+        user = info.context.user
+
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+        except Store.DoesNotExist:
+            raise Exception("Store with the provided domain does not exist.")
+
+        if not StaffMember.objects.filter(user=user, store=store).exists():
+            raise PermissionDenied("You are not authorized to update products for this store.")
+
+        try:
+            product_instance = Product.objects.get(pk=id, store=store)
+        except Product.DoesNotExist:
+            raise Exception("Product not found or you do not have access to this product.")
+
+        product_instance.title = product.title
+        product_instance.description = product.description
+        product_instance.status = product.status
+        product_instance.save()
+
+        return UpdateProduct(product=product_instance)
+        
+
+
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
+    update_product = UpdateProduct.Field()
