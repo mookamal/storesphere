@@ -80,7 +80,7 @@ export default function UpdateProduct() {
         toast.success('Product updated successfully!');
         getProductById();
         setLoading(false);
-      } 
+      }
 
     } catch (error) {
       toast.error('Failed to update product');
