@@ -44,6 +44,10 @@ export default function AddProduct() {
       title: data.title,
       description: data.description,
       status: data.status,
+      seo: {
+        title: data.seoTitle,
+        description: data.seoDescription,
+      }
     }
     const variables = {
       defaultDomain: domain,

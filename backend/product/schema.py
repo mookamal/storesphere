@@ -36,6 +36,10 @@ class SEOType(DjangoObjectType):
         model = SEO
         fields = ["title", "description",]
 
+class SEOInput(graphene.InputObjectType):
+    title = graphene.String()
+    description = graphene.String()
+
 class ProductFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(choices=Product.STATUS)
     class Meta:
@@ -91,6 +95,7 @@ class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String(required=True)
     status = graphene.String(required=True)
+    seo = SEOInput(required=True)
 
     
 class CreateProduct(graphene.relay.ClientIDMutation):
@@ -107,6 +112,8 @@ class CreateProduct(graphene.relay.ClientIDMutation):
         store = Store.objects.get(default_domain=default_domain)
         if StaffMember.objects.filter(user=user, store=store).exists():
             product = Product(store=store,title=product_data.title, description=product_data.description, status=product_data.status)
+            seo = SEO.objects.create(**product_data.seo)
+            product.seo = seo
             product.save()
             return CreateProduct(product=product)
         else:
