@@ -46,6 +46,10 @@ export const GET_PRODUCT_BY_ID = gql`
       description
       status
       handle
+      seo {
+        title
+        description
+      }
     }
   }
 `;

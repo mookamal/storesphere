@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
+import { TextInput, Label, Select, Button, Spinner, Textarea  } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -25,14 +25,24 @@ export default function UpdateProduct() {
   const description = watch("description");
   const title = watch('title');
   const status = watch('status');
+  const seoTitle = watch('seoTitle');
+  const seoDescription = watch('seoDescription');
+
+
 
   useEffect(() => {
-    if (title!== product?.title || description!== product?.description || status!== product?.status) {
+    if (
+      title!== product?.title ||
+      description!== product?.description ||
+      status!== product?.status ||
+      seoTitle!== product?.seo.title ||
+      seoDescription!== product?.seo.description
+    ) {
       setHasChanges(true);
     } else {
       setHasChanges(false);
     }
-  },[description, title, status]);
+  },[description, title, status, seoTitle, seoDescription ]);
 
   const debouncedUpdate = debounce((field, value) => {
 
@@ -67,6 +77,8 @@ export default function UpdateProduct() {
         setValue('title', response.data.product.title);
         setValue('description', response.data.product.description);
         setValue('status', response.data.product.status);
+        setValue('seoTitle', response.data.product.seo.title);
+        setValue('seoDescription', response.data.product.seo.description);
       }
       else {
         toast.error('Failed to fetch product details');
@@ -80,9 +92,18 @@ export default function UpdateProduct() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    const productData = {
+      title: data.title,
+      description: data.description,
+      status: data.status,
+      seo: {
+        title: data.seoTitle,
+        description: data.seoDescription,
+      }
+    }
     const variables = {
       defaultDomain: domain,
-      product: data,
+      product: productData,
       id: productId,
     };
     try {
@@ -131,8 +152,8 @@ export default function UpdateProduct() {
               <CustomEditor id="description" content={description} setContent={handleEditorChange} />
             </div>
           </div>
-
         </div>
+
         <div className="lg:col-span-1">
           <div className="card p-3">
             <div className="mb-2">
@@ -144,6 +165,25 @@ export default function UpdateProduct() {
             </Select>
           </div>
         </div>
+
+        <div className="lg:col-span-1">
+          <div className="card p-3">
+            <h2>SEO data</h2>
+            <div className="my-2">
+              <div className="mb-2">
+                <Label htmlFor="seoTitle" value="Page title" />
+              </div>
+              <TextInput id="seoTitle" sizing="sm" type="text" {...register("seoTitle")} placeholder="seo title" />
+            </div>
+            <div className="my-2">
+              <div className="mb-2">
+                <Label htmlFor="seoDescription" value="Page description" />
+              </div>
+              <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
+            </div>
+          </div>
+        </div>
+
       </div>
       <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={!hasChanges}>
         {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
