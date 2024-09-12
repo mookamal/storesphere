@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Label, Select, Button, Spinner } from "flowbite-react";
+import { TextInput, Label, Select, Button, Spinner,Textarea } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -40,9 +40,14 @@ export default function AddProduct() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    const productData = {
+      title: data.title,
+      description: data.description,
+      status: data.status,
+    }
     const variables = {
       defaultDomain: domain,
-      product: data
+      product: productData
     };
     try {
       const response = await axios.post('/api/set-data', { query: CREATE_PRODUCT, variables: variables });
@@ -67,9 +72,9 @@ export default function AddProduct() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid lg:grid-cols-3 gap-4">
+
         <div className="lg:col-span-2">
           <div className="card p-3">
-
             <div>
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
@@ -85,8 +90,8 @@ export default function AddProduct() {
               <CustomEditor id="description" content={description} setContent={handleEditorChange} />
             </div>
           </div>
-
         </div>
+
         <div className="lg:col-span-1">
           <div className="card p-3">
             <div className="mb-2">
@@ -98,6 +103,25 @@ export default function AddProduct() {
             </Select>
           </div>
         </div>
+
+        <div className="lg:col-span-1">
+          <div className="card p-3">
+            <h2>SEO data</h2>
+            <div className="my-2">
+              <div className="mb-2">
+                <Label htmlFor="seoTitle" value="Page title" />
+              </div>
+              <TextInput id="seoTitle" sizing="sm" type="text" {...register("seoTitle")} placeholder="seo title" />
+            </div>
+            <div className="my-2">
+              <div className="mb-2">
+                <Label htmlFor="seoDescription" value="Page description" />
+              </div>
+              <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
+            </div>
+          </div>
+        </div>
+        
       </div>
       <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={loading}>
         {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}

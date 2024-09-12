@@ -44,7 +44,7 @@ class ProductFilter(django_filters.FilterSet):
 
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
-    seo = SEOType()
+    seo = graphene.Field(SEOType)
     class Meta:
         model = Product
         filter_fields = {"status": ['exact'],"title":['exact', 'icontains', 'istartswith']}
@@ -91,13 +91,14 @@ class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String(required=True)
     status = graphene.String(required=True)
-    
 
+    
 class CreateProduct(graphene.relay.ClientIDMutation):
     product = graphene.Field(ProductNode)        
     class Input:
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
+
     
     def mutate_and_get_payload(root, info ,**input):
         product_data = input.get("product")
