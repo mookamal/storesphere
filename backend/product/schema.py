@@ -1,5 +1,6 @@
 import graphene
 from stores.models import Store , StaffMember
+from core.models import SEO
 from .models import Product
 import django_filters
 from graphene_django import DjangoObjectType
@@ -30,6 +31,10 @@ class HTML(Scalar):
 def convert_ckeditor_field_to_html(field, registry=None):
     return HTML()
 
+class SEOType(DjangoObjectType):
+    class Meta:
+        model = SEO
+        fields = ["title", "description",]
 
 class ProductFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(choices=Product.STATUS)
@@ -37,15 +42,15 @@ class ProductFilter(django_filters.FilterSet):
         model = Product
         fields = ['status', 'title']
 
-
-
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
-
+    seo = SEOType()
     class Meta:
         model = Product
         filter_fields = {"status": ['exact'],"title":['exact', 'icontains', 'istartswith']}
         interfaces = (graphene.relay.Node, )
+        exclude = ('store',)
+
     
     def resolve_product_id(self, info):
         return self.id
