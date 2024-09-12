@@ -147,6 +147,10 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product_instance.title = product.title
         product_instance.description = product.description
         product_instance.status = product.status
+        seo = product_instance.seo
+        seo.title = product.seo.title
+        seo.description = product.seo.description
+        seo.save()
         product_instance.save()
 
         return UpdateProduct(product=product_instance)
