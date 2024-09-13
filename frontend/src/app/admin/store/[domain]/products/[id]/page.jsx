@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Label, Select, Button, Spinner, Textarea  } from "flowbite-react";
+import { TextInput, Label, Select, Button, Spinner, Textarea,Badge  } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -8,7 +8,6 @@ import { useParams, notFound } from "next/navigation";
 import axios from "axios";
 const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
 import { debounce } from 'lodash';
-import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify';
 import { GET_PRODUCT_BY_ID } from "@/graphql/queries";
 import { UPDATE_PRODUCT } from "@/graphql/mutations";
@@ -25,16 +24,25 @@ export default function UpdateProduct() {
   const description = watch("description");
   const title = watch('title');
   const status = watch('status');
+  const handle = watch('handle');
   const seoTitle = watch('seoTitle');
   const seoDescription = watch('seoDescription');
 
-
+  const handleBlur = () => {
+    if (!handle) {
+      setValue('handle', watchedTitle.replace(/\s+/g, '-').toLowerCase());
+    }
+    if (!seoTitle) {
+      setValue('seoTitle', watchedTitle);
+    }
+  };
 
   useEffect(() => {
     if (
       title!== product?.title ||
       description!== product?.description ||
       status!== product?.status ||
+      handle!== product?.handle ||
       seoTitle!== product?.seo.title ||
       seoDescription!== product?.seo.description
     ) {
@@ -42,7 +50,7 @@ export default function UpdateProduct() {
     } else {
       setHasChanges(false);
     }
-  },[description, title, status, seoTitle, seoDescription ]);
+  },[description, title, status, seoTitle, seoDescription ,handle]);
 
   const debouncedUpdate = debounce((field, value) => {
 
@@ -78,6 +86,7 @@ export default function UpdateProduct() {
         setValue('title', response.data.product.title || "");
         setValue('description', response.data.product.description || "");
         setValue('status', response.data.product.status);
+        setValue('handle', response.data.product.handle || null);
         setValue('seoTitle', response.data.product.seo.title || "");
         setValue('seoDescription', response.data.product.seo.description || "");
       }
@@ -97,6 +106,7 @@ export default function UpdateProduct() {
       title: data.title,
       description: data.description,
       status: data.status,
+      handle: data.handle,
       seo: {
         title: data.seoTitle,
         description: data.seoDescription,
@@ -142,7 +152,7 @@ export default function UpdateProduct() {
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
               </div>
-              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" required />
+              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" onBlur={handleBlur} required />
             </div>
 
             <div className="my-2">
@@ -182,6 +192,17 @@ export default function UpdateProduct() {
               </div>
               <Textarea  sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
             </div>
+
+            <div className="my-2">
+              <div className="mb-2">
+                <h2>URL handle</h2>
+                <Badge size="xs" className="my-3" color="success">
+                  https://{domain}.my-store.com/{handle}
+                </Badge>
+              </div>
+              <TextInput sizing="sm" {...register("handle")}  />
+            </div>
+
           </div>
         </div>
 

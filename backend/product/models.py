@@ -18,15 +18,28 @@ class Product(models.Model):
     status = models.CharField(max_length=10, choices=STATUS, default="DRAFT")
     media_count = models.IntegerField(default=0)
 
-    def save(self, *args, **kwargs):
+    def generate_unique_handle(self, base_handle):
+        """ Helper function to generate unique handle. """
+        unique_handle = base_handle
+        num = 1
+        while Product.objects.filter(store=self.store, handle=unique_handle).exclude(pk=self.pk).exists():
+            unique_handle = f"{base_handle}-{num}"
+            num += 1
+        return unique_handle
+
+    def clean(self):
+        """
+        This method is used for validation before saving the model.
+        It ensures the 'handle' is unique within the same store.
+        """
         if not self.handle:
             base_handle = slugify(self.title)
-            unique_handle = base_handle
-            num = 1
-            while Product.objects.filter(store=self.store, handle=unique_handle).exists():
-                unique_handle = f"{base_handle}-{num}"
-                num += 1
-            self.handle = unique_handle
+            self.handle = self.generate_unique_handle(base_handle)
+        else:
+            self.handle = self.generate_unique_handle(slugify(self.handle))
+
+    def save(self, *args, **kwargs):
+        self.clean()
         try:
             super().save(*args, **kwargs)
         except ValidationError as e:

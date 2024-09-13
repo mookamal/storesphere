@@ -95,6 +95,7 @@ class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String(required=True)
     status = graphene.String(required=True)
+    handle = graphene.String(required=True)
     seo = SEOInput(required=True)
 
     
@@ -147,6 +148,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product_instance.title = product.title
         product_instance.description = product.description
         product_instance.status = product.status
+        product_instance.handle = product.handle
         seo = product_instance.seo
         seo.title = product.seo.title
         seo.description = product.seo.description
