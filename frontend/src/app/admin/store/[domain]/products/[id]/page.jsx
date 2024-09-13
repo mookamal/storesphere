@@ -146,10 +146,10 @@ export default function UpdateProduct() {
 
             <div className="my-2">
               <div className="mb-2">
-                <Label htmlFor="description" value="Description" />
+                <h2>Description</h2>
               </div>
               {/* CustomEditor with description */}
-              <CustomEditor id="description" content={description} setContent={handleEditorChange} />
+              <CustomEditor content={description} setContent={handleEditorChange} />
             </div>
           </div>
         </div>
