@@ -132,11 +132,12 @@ export default function Products({ params }) {
                       <Table.Head>
                         <Table.HeadCell>Product</Table.HeadCell>
                         <Table.HeadCell>Status</Table.HeadCell>
+                        <Table.HeadCell></Table.HeadCell>
                       </Table.Head>
         
                       <Table.Body className="divide-y">
                         {products.map(({ node }) => (
-                          <Table.Row key={node.id}>
+                          <Table.Row key={node.id} >
         
                             <Table.Cell>
                               <div className="flex justify-start gap-2 items-center">
@@ -150,6 +151,13 @@ export default function Products({ params }) {
                                 {node.status}
                               </Badge>
                             </Table.Cell>
+
+                            <Table.Cell>
+                              <Link href={`${pathname}/${node.productId}`}>
+                                <h2 className="text-blue-600 hover:text-blue-800">Edit</h2>
+                              </Link>
+                            </Table.Cell>
+
                           </Table.Row>
                         ))}
         

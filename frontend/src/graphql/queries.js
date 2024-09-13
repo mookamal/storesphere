@@ -29,6 +29,7 @@ export const PRODUCTS_ADMIN_PAGE = gql`
           id
           title
           status
+          productId
         }
       }
       pageInfo {
