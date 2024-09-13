@@ -70,15 +70,16 @@ export default function UpdateProduct() {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
+      console.log(response.data);
       if (response.data) {
 
-        setData(response.data);
-        setProduct(response.data.product);
-        setValue('title', response.data.product.title);
-        setValue('description', response.data.product.description);
+        setData(response.data || null);
+        setProduct(response.data.product || null);
+        setValue('title', response.data.product.title || "");
+        setValue('description', response.data.product.description || "");
         setValue('status', response.data.product.status);
-        setValue('seoTitle', response.data.product.seo.title);
-        setValue('seoDescription', response.data.product.seo.description);
+        setValue('seoTitle', response.data.product.seo.title || "");
+        setValue('seoDescription', response.data.product.seo.description || "");
       }
       else {
         toast.error('Failed to fetch product details');
@@ -177,9 +178,9 @@ export default function UpdateProduct() {
             </div>
             <div className="my-2">
               <div className="mb-2">
-                <Label htmlFor="seoDescription" value="Page description" />
+                <h2>Page description</h2>
               </div>
-              <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
+              <Textarea  sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
             </div>
           </div>
         </div>
