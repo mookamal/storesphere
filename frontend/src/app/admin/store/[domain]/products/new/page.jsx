@@ -25,6 +25,17 @@ export default function AddProduct() {
 
   const description = watch("description");
   const watchedTitle = watch('title');
+  const handle = watch('handle');
+  const seoTitle = watch('seoTitle');
+
+  const handleBlur = () => {
+    if (!handle) {
+      setValue('handle', watchedTitle.replace(/\s+/g, '-').toLowerCase());
+    }
+    if (!seoTitle) {
+      setValue('seoTitle', watchedTitle);
+    }
+  };
 
   const debouncedUpdate = debounce((field, value) => {
   }, 500);
@@ -83,7 +94,7 @@ export default function AddProduct() {
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
               </div>
-              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" required />
+              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" onBlur={handleBlur} required />
             </div>
 
             <div className="my-2">
@@ -111,17 +122,26 @@ export default function AddProduct() {
         <div className="lg:col-span-1">
           <div className="card p-3">
             <h2>SEO data</h2>
+
             <div className="my-2">
               <div className="mb-2">
                 <Label htmlFor="seoTitle" value="Page title" />
               </div>
               <TextInput id="seoTitle" sizing="sm" type="text" {...register("seoTitle")} placeholder="seo title" />
             </div>
+
             <div className="my-2">
               <div className="mb-2">
                 <h2>Page description</h2>
               </div>
               <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
+            </div>
+
+            <div className="my-2">
+              <div className="mb-2">
+                <h2>URL handle</h2>
+              </div>
+              <TextInput sizing="sm" {...register("handle")}  />
             </div>
 
           </div>

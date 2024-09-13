@@ -45,9 +45,6 @@ export const CREATE_PRODUCT = `
     createProduct(input: {product: $product ,defaultDomain: $defaultDomain }) {
       product {
         id
-        title
-        description
-        status
         productId
       }
     }
