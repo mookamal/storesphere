@@ -55,6 +55,7 @@ export default function AddProduct() {
       title: data.title,
       description: data.description,
       status: data.status,
+      handle: data.handle,
       seo: {
         title: data.seoTitle,
         description: data.seoDescription,
