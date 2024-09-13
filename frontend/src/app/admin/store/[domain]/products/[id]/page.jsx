@@ -70,7 +70,7 @@ export default function UpdateProduct() {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-      console.log(response.data);
+
       if (response.data) {
 
         setData(response.data || null);

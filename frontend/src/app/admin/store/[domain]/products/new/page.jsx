@@ -119,10 +119,11 @@ export default function AddProduct() {
             </div>
             <div className="my-2">
               <div className="mb-2">
-                <Label htmlFor="seoDescription" value="Page description" />
+                <h2>Page description</h2>
               </div>
               <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
             </div>
+
           </div>
         </div>
         
