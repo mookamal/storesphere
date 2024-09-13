@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Label, Select, Button, Spinner,Textarea } from "flowbite-react";
+import { TextInput, Label, Select, Button, Spinner,Textarea, Badge } from "flowbite-react";
 import dynamic from 'next/dynamic';
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -140,6 +140,9 @@ export default function AddProduct() {
             <div className="my-2">
               <div className="mb-2">
                 <h2>URL handle</h2>
+                <Badge size="xs" className="my-3" color="success">
+                  https://{domain}.my-store.com/{handle}
+                </Badge>
               </div>
               <TextInput sizing="sm" {...register("handle")}  />
             </div>
