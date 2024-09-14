@@ -1,19 +1,32 @@
 "use client";
 
-import { TextInput, Label, Select, Button, Spinner,Textarea, Badge } from "flowbite-react";
-import dynamic from 'next/dynamic';
+import {
+  TextInput,
+  Label,
+  Select,
+  Button,
+  Spinner,
+  Textarea,
+  Badge,
+} from "flowbite-react";
+import { IoCloudUploadOutline } from "react-icons/io5";
+import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { CREATE_PRODUCT } from "@/graphql/mutations";
-const CustomEditor = dynamic(() => import('@/components/custom-editor'), { ssr: false });
-import { debounce } from 'lodash';
-import { useRouter } from 'next/navigation'
-import { toast } from 'react-toastify';
+const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
+  ssr: false,
+});
+import { debounce } from "lodash";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import MediaModal from "@/components/admin/product/MediaModal";
 
 export default function AddProduct() {
-  const router = useRouter()
+  const [openMediaModal, setOpenMediaModal] = useState(false);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   const { register, handleSubmit, setValue, watch } = useForm({
@@ -24,30 +37,28 @@ export default function AddProduct() {
   });
 
   const description = watch("description");
-  const watchedTitle = watch('title');
-  const handle = watch('handle');
-  const seoTitle = watch('seoTitle');
+  const watchedTitle = watch("title");
+  const handle = watch("handle");
+  const seoTitle = watch("seoTitle");
 
   const handleBlur = () => {
     if (!handle) {
-      setValue('handle', watchedTitle.replace(/\s+/g, '-').toLowerCase());
+      setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
     }
     if (!seoTitle) {
-      setValue('seoTitle', watchedTitle);
+      setValue("seoTitle", watchedTitle);
     }
   };
 
-  const debouncedUpdate = debounce((field, value) => {
-  }, 500);
+  const debouncedUpdate = debounce((field, value) => {}, 500);
 
   useEffect(() => {
-    debouncedUpdate('title', watchedTitle);
-    debouncedUpdate('description', description);
+    debouncedUpdate("title", watchedTitle);
+    debouncedUpdate("description", description);
     return () => {
       debouncedUpdate.cancel();
     };
   }, [watchedTitle, description]);
-
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -59,20 +70,24 @@ export default function AddProduct() {
       seo: {
         title: data.seoTitle,
         description: data.seoDescription,
-      }
-    }
+      },
+    };
     const variables = {
       defaultDomain: domain,
-      product: productData
+      product: productData,
     };
     try {
-      const response = await axios.post('/api/set-data', { query: CREATE_PRODUCT, variables: variables });
+      const response = await axios.post("/api/set-data", {
+        query: CREATE_PRODUCT,
+        variables: variables,
+      });
       setLoading(false);
       if (response.data.data.createProduct.product.productId) {
-        router.push(`/store/${domain}/products/${response.data.data.createProduct.product.productId}`);
+        router.push(
+          `/store/${domain}/products/${response.data.data.createProduct.product.productId}`
+        );
         toast.success("Product created successfully!");
-      }
-      else {
+      } else {
         toast.error("Failed to create product!");
       }
     } catch (error) {
@@ -88,14 +103,21 @@ export default function AddProduct() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid lg:grid-cols-3 gap-4">
-
         <div className="lg:col-span-2">
           <div className="card p-3">
             <div>
               <div className="mb-2">
                 <Label htmlFor="title" value="Title" />
               </div>
-              <TextInput id="title" sizing="sm" type="text" {...register("title")} placeholder="Product 1" onBlur={handleBlur} required />
+              <TextInput
+                id="title"
+                sizing="sm"
+                type="text"
+                {...register("title")}
+                placeholder="Product 1"
+                onBlur={handleBlur}
+                required
+              />
             </div>
 
             <div className="my-2">
@@ -103,7 +125,30 @@ export default function AddProduct() {
                 <h2>Description</h2>
               </div>
               {/* CustomEditor with description */}
-              <CustomEditor content={description} setContent={handleEditorChange} />
+              <CustomEditor
+                content={description}
+                setContent={handleEditorChange}
+              />
+            </div>
+            {/* Media */}
+            <div className="my-2">
+              <div className="mb-2">
+                <h2>Media</h2>
+              </div>
+              {/* Media upload */}
+              <div>
+                <Button
+                  size="xl"
+                  color="light"
+                  onClick={() => setOpenMediaModal(true)}
+                >
+                  <IoCloudUploadOutline />
+                </Button>
+                <MediaModal
+                  openModal={openMediaModal}
+                  setOpenModal={() => setOpenMediaModal(false)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -128,14 +173,26 @@ export default function AddProduct() {
               <div className="mb-2">
                 <Label htmlFor="seoTitle" value="Page title" />
               </div>
-              <TextInput id="seoTitle" sizing="sm" type="text" {...register("seoTitle")} placeholder="seo title" />
+              <TextInput
+                id="seoTitle"
+                sizing="sm"
+                type="text"
+                {...register("seoTitle")}
+                placeholder="seo title"
+              />
             </div>
 
             <div className="my-2">
               <div className="mb-2">
                 <h2>Page description</h2>
               </div>
-              <Textarea id="seoDescription" sizing="sm" {...register("seoDescription")} placeholder="seo description" rows={3} />
+              <Textarea
+                id="seoDescription"
+                sizing="sm"
+                {...register("seoDescription")}
+                placeholder="seo description"
+                rows={3}
+              />
             </div>
 
             <div className="my-2">
@@ -145,17 +202,23 @@ export default function AddProduct() {
                   https://{domain}.my-store.com/{handle}
                 </Badge>
               </div>
-              <TextInput sizing="sm" {...register("handle")}  />
+              <TextInput sizing="sm" {...register("handle")} />
             </div>
-
           </div>
         </div>
-        
       </div>
-      <Button size="xl" color="light" type="submit" className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600" disabled={loading}>
-        {loading && <Spinner aria-label="Loading button" className="mr-1" size="md" />}
+      <Button
+        size="xl"
+        color="light"
+        type="submit"
+        className="fixed bottom-5 right-5 rounded-full shadow-md bg-baby-blue text-coal-600"
+        disabled={loading}
+      >
+        {loading && (
+          <Spinner aria-label="Loading button" className="mr-1" size="md" />
+        )}
         Add
       </Button>
     </form>
-  )
+  );
 }
