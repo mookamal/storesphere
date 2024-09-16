@@ -4,13 +4,10 @@ import { Button, Modal, Spinner, FileInput, Label } from "flowbite-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { toast } from "react-toastify";
 export default function MediaModal({ openModal, setOpenModal }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
-
-  const handleFileChange = (e) => {
-    uploadImage(e.target.files[0]);
-  };
 
   const uploadImage = async (selectedFile) => {
     console.log("start!");
@@ -23,12 +20,13 @@ export default function MediaModal({ openModal, setOpenModal }) {
     formData.append("domain", domain);
     try {
       const response = await axios.post(`/api/product/upload-image`, formData);
-      console.log(response);
-      setLoading(false);
+      if (response.statusText === "OK") {
+        toast.success("Image uploaded successfully!");
+      }
     } catch (error) {
-      console.error(error);
-      setLoading(false);
+      toast.error("Failed to upload image");
     }
+    setLoading(false);
   };
   const handleSave = async () => {};
   return (
@@ -61,7 +59,7 @@ export default function MediaModal({ openModal, setOpenModal }) {
               <FileInput
                 id="dropzone-file"
                 className="hidden"
-                onChange={handleFileChange}
+                onChange={(e) => uploadImage(e.target.files[0])}
               />
             </Label>
           </div>
