@@ -1,12 +1,34 @@
 "use client";
 
 import { Button, Modal, Spinner, FileInput, Label } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams } from "next/navigation";
 export default function MediaModal({ openModal, setOpenModal }) {
+  const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    uploadImage(e.target.files[0]);
+  };
+
+  const uploadImage = async (selectedFile) => {
+    console.log("start!");
+    if (!selectedFile) {
+      return;
+    }
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("domain", domain);
+    try {
+      const response = await axios.post(`/api/product/upload-image`, formData);
+      console.log(response);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   };
   const handleSave = async () => {};
   return (
