@@ -22,8 +22,20 @@ export const GET_SETTINGS_GENERAL = gql`
 `;
 
 export const PRODUCTS_ADMIN_PAGE = gql`
-  query ProductIndex($domain: String!, $first: Int,$after: String! ,$search: String!, $status: ProductProductStatusChoices) {
-    allProducts(defaultDomain: $domain, first: $first ,after: $after ,title_Icontains: $search,status: $status) {
+  query ProductIndex(
+    $domain: String!
+    $first: Int
+    $after: String!
+    $search: String!
+    $status: ProductProductStatusChoices
+  ) {
+    allProducts(
+      defaultDomain: $domain
+      first: $first
+      after: $after
+      title_Icontains: $search
+      status: $status
+    ) {
       edges {
         node {
           id
@@ -33,8 +45,8 @@ export const PRODUCTS_ADMIN_PAGE = gql`
         }
       }
       pageInfo {
-      endCursor
-      hasNextPage
+        endCursor
+        hasNextPage
       }
     }
   }
@@ -51,6 +63,15 @@ export const GET_PRODUCT_BY_ID = gql`
         title
         description
       }
+    }
+  }
+`;
+
+export const GET_MEDIA_IMAGES = gql`
+  query GetMediaImages($domain: String!) {
+    allMediaImages(defaultDomain: $domain) {
+      id
+      image
     }
   }
 `;

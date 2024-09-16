@@ -1,13 +1,15 @@
 "use client";
 
-import { Button, Modal, Spinner, FileInput, Label } from "flowbite-react";
+import { Button, Modal, Spinner, FileInput, Label, HR } from "flowbite-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
+import { GET_MEDIA_IMAGES } from "@/graphql/queries";
 export default function MediaModal({ openModal, setOpenModal }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
 
   const uploadImage = async (selectedFile) => {
     console.log("start!");
@@ -22,17 +24,39 @@ export default function MediaModal({ openModal, setOpenModal }) {
       const response = await axios.post(`/api/product/upload-image`, formData);
       if (response.statusText === "OK") {
         toast.success("Image uploaded successfully!");
+        getData();
       }
     } catch (error) {
       toast.error("Failed to upload image");
     }
     setLoading(false);
   };
+  const getData = async () => {
+    try {
+      const response = await axios.post("/api/get-data", {
+        query: GET_MEDIA_IMAGES,
+        variables: { domain: domain },
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      setData(response.data.allMediaImages);
+    } catch (error) {
+      console.error("Error fetching store details:", error.message);
+      setData(null);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+
   const handleSave = async () => {};
   return (
     <Modal
       dismissible
       className="dark:text-white"
+      size="6xl"
       show={openModal}
       onClose={() => setOpenModal(false)}
     >
@@ -64,6 +88,30 @@ export default function MediaModal({ openModal, setOpenModal }) {
             </Label>
           </div>
         </div>
+        <HR.Trimmed />
+        {data && (
+          <div className="grid grid-rows-1 grid-flow-col gap-4">
+            {data.map((image) => {
+              return (
+                <div key={image.id} className="flex items-center space-x-4">
+                  {/* Checkbox for each image */}
+                  <input
+                    type="checkbox"
+                    id={`checkbox-${image.id}`}
+                    className="form-checkbox h-5 w-5"
+                  />
+
+                  {/* Image display */}
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
+                    alt={`image-${image.id}`}
+                    className="h-40 max-w-xs rounded-lg object-cover"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Modal.Body>
 
       <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
