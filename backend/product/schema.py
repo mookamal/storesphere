@@ -1,7 +1,7 @@
 import graphene
 from stores.models import Store , StaffMember
 from core.models import SEO
-from .models import Product
+from .models import Product,Image
 import django_filters
 from graphene_django import DjangoObjectType
 from graphene import Scalar
@@ -46,6 +46,12 @@ class ProductFilter(django_filters.FilterSet):
         model = Product
         fields = ['status', 'title']
 
+
+class ImageType(DjangoObjectType):
+    class Meta:
+        model = Image
+        fields = ('image',"id")
+
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
     seo = graphene.Field(SEOType)
@@ -62,6 +68,7 @@ class ProductNode(DjangoObjectType):
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
     product = graphene.Field(ProductNode, id=graphene.ID(required=True))
+    all_media_images = graphene.List(ImageType,default_domain=graphene.String(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -88,6 +95,20 @@ class Query(graphene.ObjectType):
                 raise PermissionDenied("You are not authorized to access this product.")
         except Product.DoesNotExist:
             raise PermissionDenied("Product not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+    
+    def resolve_all_media_images(self, info, default_domain, **kwargs):
+        try:
+            user = info.context.user
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                images = Image.objects.filter(store=store)
+                return images
+            else:
+                raise PermissionDenied("You are not authorized to access this store.")
+        except Store.DoesNotExist:
+            raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
