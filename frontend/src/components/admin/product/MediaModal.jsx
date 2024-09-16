@@ -1,18 +1,30 @@
 "use client";
 
-import { Button, Modal, Spinner, FileInput, Label, HR } from "flowbite-react";
+import {
+  Button,
+  Modal,
+  Spinner,
+  FileInput,
+  Label,
+  HR,
+  Checkbox,
+} from "flowbite-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { GET_MEDIA_IMAGES } from "@/graphql/queries";
-export default function MediaModal({ openModal, setOpenModal }) {
+export default function MediaModal({
+  openModal,
+  setOpenModal,
+  selectedImages,
+  setSelectedImages,
+}) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
 
   const uploadImage = async (selectedFile) => {
-    console.log("start!");
     if (!selectedFile) {
       return;
     }
@@ -23,6 +35,9 @@ export default function MediaModal({ openModal, setOpenModal }) {
     try {
       const response = await axios.post(`/api/product/upload-image`, formData);
       if (response.statusText === "OK") {
+        const image = response.data;
+        selectedImages.push(image);
+        console.log(selectedImages);
         toast.success("Image uploaded successfully!");
         getData();
       }
@@ -41,6 +56,7 @@ export default function MediaModal({ openModal, setOpenModal }) {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
+
       setData(response.data.allMediaImages);
     } catch (error) {
       console.error("Error fetching store details:", error.message);
@@ -50,6 +66,22 @@ export default function MediaModal({ openModal, setOpenModal }) {
   useEffect(() => {
     getData();
   }, []);
+
+  const handleCheckboxChange = (image, isChecked) => {
+    console.log("selectedImages", selectedImages);
+    if (isChecked) {
+      setSelectedImages((prevSelectedImages) => [
+        ...prevSelectedImages,
+        { id: image.id, image: image.image },
+      ]);
+    } else {
+      setSelectedImages((prevSelectedImages) =>
+        prevSelectedImages.filter(
+          (selectedImage) => selectedImage.id !== image.id
+        )
+      );
+    }
+  };
 
   const handleSave = async () => {};
   return (
@@ -90,22 +122,27 @@ export default function MediaModal({ openModal, setOpenModal }) {
         </div>
         <HR.Trimmed />
         {data && (
-          <div className="grid grid-rows-1 grid-flow-col gap-4">
+          <div className="grid grid-rows-1 grid-flow-col gap-4 overflow-x-auto p-4">
             {data.map((image) => {
               return (
                 <div key={image.id} className="flex items-center space-x-4">
                   {/* Checkbox for each image */}
-                  <input
-                    type="checkbox"
-                    id={`checkbox-${image.id}`}
-                    className="form-checkbox h-5 w-5"
+                  <Checkbox
+                    id={image.id}
+                    color="light"
+                    onChange={(e) =>
+                      handleCheckboxChange(image, e.target.checked)
+                    }
+                    checked={selectedImages.some(
+                      (selectedImage) => selectedImage.id === image.id
+                    )}
                   />
 
                   {/* Image display */}
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
                     alt={`image-${image.id}`}
-                    className="h-40 max-w-xs rounded-lg object-cover"
+                    className="max-h-16 max-w-20 rounded-lg object-cover"
                   />
                 </div>
               );

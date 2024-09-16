@@ -51,6 +51,9 @@ class ImageType(DjangoObjectType):
     class Meta:
         model = Image
         fields = ('image',"id")
+    
+    def resolve_image(self, info):
+        return self.image.url if self.image.url else None
 
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()

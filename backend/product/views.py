@@ -18,7 +18,7 @@ def image_upload(request):
             image_obj.save()
             data = {
                 'id': image_obj.id,
-                "message": "Image uploaded successfully"
+                'image':image_obj.image.url,
             }
             return JsonResponse(data, status=200)
         else:

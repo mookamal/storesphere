@@ -29,6 +29,7 @@ export default function AddProduct() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
+  const [selectedImages, setSelectedImages] = useState([]);
   const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       title: "",
@@ -51,6 +52,21 @@ export default function AddProduct() {
   };
 
   const debouncedUpdate = debounce((field, value) => {}, 500);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (selectedImages.length > 0) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [selectedImages]);
 
   useEffect(() => {
     debouncedUpdate("title", watchedTitle);
@@ -147,6 +163,8 @@ export default function AddProduct() {
                 <MediaModal
                   openModal={openMediaModal}
                   setOpenModal={() => setOpenMediaModal(false)}
+                  selectedImages={selectedImages}
+                  setSelectedImages={setSelectedImages}
                 />
               </div>
             </div>
