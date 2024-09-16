@@ -1,17 +1,15 @@
 from rest_framework import viewsets
 from .models import Info
 from .serializer import InfoSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import default_storage
+import os
 
 class InfoViewSet(viewsets.ModelViewSet):
     queryset = Info.objects.all()
     serializer_class = InfoSerializer
 
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.core.files.storage import default_storage
-import os
 
 @csrf_exempt
 def custom_upload_file(request):
