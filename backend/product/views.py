@@ -17,7 +17,7 @@ def image_upload(request):
             image_obj = Image(image=image, store=store)
             image_obj.save()
             data = {
-                'id': image_obj.id,
+                'id': str(image_obj.id),
                 'image':image_obj.image.url,
             }
             return JsonResponse(data, status=200)

@@ -8,6 +8,8 @@ import {
   Spinner,
   Textarea,
   Badge,
+  HR,
+  Checkbox,
 } from "flowbite-react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import dynamic from "next/dynamic";
@@ -152,21 +154,43 @@ export default function AddProduct() {
                 <h2>Media</h2>
               </div>
               {/* Media upload */}
-              <div>
-                <Button
-                  size="xl"
-                  color="light"
-                  onClick={() => setOpenMediaModal(true)}
-                >
-                  <IoCloudUploadOutline />
-                </Button>
-                <MediaModal
-                  openModal={openMediaModal}
-                  setOpenModal={() => setOpenMediaModal(false)}
-                  selectedImages={selectedImages}
-                  setSelectedImages={setSelectedImages}
-                />
-              </div>
+              {selectedImages && (
+                <div className="grid grid-rows-1 grid-flow-col gap-4 overflow-x-auto p-4">
+                  <div className="max-h-16 max-w-20 flex items-center justify-center">
+                    <Button
+                      size="xl"
+                      color="light"
+                      onClick={() => setOpenMediaModal(true)}
+                    >
+                      <IoCloudUploadOutline />
+                    </Button>
+                    <MediaModal
+                      openModal={openMediaModal}
+                      setOpenModal={() => setOpenMediaModal(false)}
+                      selectedImages={selectedImages}
+                      setSelectedImages={setSelectedImages}
+                    />
+                  </div>
+                  {selectedImages.map((image) => {
+                    return (
+                      <div
+                        key={image.id}
+                        className="flex items-center space-x-4"
+                      >
+                        {/* Checkbox for each image */}
+                        <Checkbox id={image.id} color="light" />
+
+                        {/* Image display */}
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
+                          alt={`image-${image.id}`}
+                          className="max-h-16 max-w-20 rounded-lg object-cover"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
