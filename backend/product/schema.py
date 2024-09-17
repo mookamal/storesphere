@@ -180,9 +180,34 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product_instance.save()
 
         return UpdateProduct(product=product_instance)
-        
+    
+# Media for product
+class AddImagesProduct(graphene.Mutation):
+    class Arguments:
+        default_domain = graphene.String(required=True)
+        product_id = graphene.ID(required=True)
+        image_ids = graphene.List(graphene.ID)
+    
+    product = graphene.Field(ProductNode)
 
+    def mutate(self, info, default_domain, product_id, image_ids):
+        user = info.context.user
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+        except Store.DoesNotExist:
+            raise Exception("Store with the provided domain does not exist.")
+
+        if not StaffMember.objects.filter(user=user, store=store).exists():
+            raise PermissionDenied("You are not authorized to update products for this store.")
+        try:
+            product = Product.objects.get(pk=product_id, store=store)
+            images = Image.objects.filter(pk__in=image_ids)
+            product.images.add(*images)
+            return AddImagesProduct(product=product)
+        except Product.DoesNotExist:
+            raise Exception("Product not found or you do not have access to this product.")
 
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
+    add_images_product = AddImagesProduct.Field()

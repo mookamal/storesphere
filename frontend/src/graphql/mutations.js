@@ -1,4 +1,4 @@
-export const UPDATE_STORE_PROFILE =`
+export const UPDATE_STORE_PROFILE = `
   mutation UpdateStoreProfile($input: StoreInput!, $defaultDomain: String!) {
     updateStoreProfile(input: $input, defaultDomain: $defaultDomain) {
       store {
@@ -12,7 +12,7 @@ export const UPDATE_STORE_PROFILE =`
   }
 `;
 
-export const UPDATE_STORE_ADDRESS =`
+export const UPDATE_STORE_ADDRESS = `
   mutation UpdateStoreAddress($input: StoreAddressInput!, $defaultDomain: String!) {
     updateStoreAddress(input: $input, defaultDomain: $defaultDomain) {
       billingAddress {
@@ -30,7 +30,7 @@ export const UPDATE_STORE_ADDRESS =`
   }
 `;
 
-export const UPDATE_STORE_CURRENCY =`
+export const UPDATE_STORE_CURRENCY = `
   mutation UpdateStoreProfile($input: StoreInput!, $defaultDomain: String!) {
     updateStoreProfile(input: $input, defaultDomain: $defaultDomain) {
       store {
@@ -54,6 +54,16 @@ export const CREATE_PRODUCT = `
 export const UPDATE_PRODUCT = `
   mutation ProductSaveUpdate($id:ID! , $defaultDomain: String! , $product: ProductInput!) {
   updateProduct(input: {id: $id ,defaultDomain: $defaultDomain , product: $product }) {
+    product {
+      id
+    }
+  }
+}
+`;
+
+export const ADD_MEDIA_IMAGES_PRODUCT = `
+mutation AddMediaImagesProduct($defaultDomain: String!, $productId: ID!$imageIds: [ID]!) {
+  addImagesProduct(defaultDomain: $defaultDomain ,productId: $productId,imageIds: $imageIds) {
     product {
       id
     }

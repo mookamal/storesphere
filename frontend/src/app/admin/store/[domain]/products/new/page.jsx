@@ -8,7 +8,6 @@ import {
   Spinner,
   Textarea,
   Badge,
-  HR,
   Checkbox,
 } from "flowbite-react";
 import { IoCloudUploadOutline } from "react-icons/io5";
@@ -17,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import { CREATE_PRODUCT } from "@/graphql/mutations";
+import { ADD_MEDIA_IMAGES_PRODUCT, CREATE_PRODUCT } from "@/graphql/mutations";
 const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
   ssr: false,
 });
@@ -43,6 +42,27 @@ export default function AddProduct() {
   const watchedTitle = watch("title");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
+
+  const addImages = async (productId) => {
+    if (productId || selectedImages.length > 0) {
+      const dataBody = {
+        query: ADD_MEDIA_IMAGES_PRODUCT,
+        variables: {
+          productId: productId,
+          imageIds: selectedImages.map((item) => item.id),
+          defaultDomain: domain,
+        },
+      };
+      try {
+        const response = await axios.post("/api/set-data", dataBody);
+        if (response.data.data.addImagesProduct.product.id) {
+          toast.success("Media images added successfully!");
+        }
+      } catch (error) {
+        toast.error("Failed to add media images to the product.");
+      }
+    }
+  };
 
   const handleBlur = () => {
     if (!handle) {
@@ -101,6 +121,7 @@ export default function AddProduct() {
       });
       setLoading(false);
       if (response.data.data.createProduct.product.productId) {
+        await addImages(response.data.data.createProduct.product.productId);
         router.push(
           `/store/${domain}/products/${response.data.data.createProduct.product.productId}`
         );
