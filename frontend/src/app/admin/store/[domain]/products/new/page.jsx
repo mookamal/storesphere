@@ -31,6 +31,7 @@ export default function AddProduct() {
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
   const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       title: "",
@@ -42,6 +43,23 @@ export default function AddProduct() {
   const watchedTitle = watch("title");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
+
+  const handleSelectRemoveImages = (image, isChecked) => {
+    if (isChecked) {
+      setSelectedRemoveImages([...selectedRemoveImages, image]);
+    } else {
+      setSelectedRemoveImages(
+        selectedRemoveImages.filter((item) => item.id !== image.id)
+      );
+    }
+  };
+
+  const removeSelectedImages = () => {
+    setSelectedImages(
+      selectedImages.filter((item) => !selectedRemoveImages.includes(item))
+    );
+    setSelectedRemoveImages([]);
+  };
 
   const addImages = async (productId) => {
     if (productId || selectedImages.length > 0) {
@@ -172,7 +190,19 @@ export default function AddProduct() {
             {/* Media */}
             <div className="my-2">
               <div className="mb-2">
-                <h2>Media</h2>
+                {selectedRemoveImages.length > 0 && (
+                  <div className="flex items-center justify-between">
+                    <h3>{selectedRemoveImages.length} file selected</h3>
+                    <Button
+                      color="red"
+                      size="xs"
+                      onClick={removeSelectedImages}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
+                {selectedRemoveImages.length === 0 && <h2>Media</h2>}
               </div>
               {/* Media upload */}
               {selectedImages && (
@@ -199,7 +229,16 @@ export default function AddProduct() {
                         className="flex items-center space-x-4"
                       >
                         {/* Checkbox for each image */}
-                        <Checkbox id={image.id} color="light" />
+                        <Checkbox
+                          id={image.id}
+                          color="light"
+                          onChange={(e) =>
+                            handleSelectRemoveImages(image, e.target.checked)
+                          }
+                          checked={selectedRemoveImages.some(
+                            (selectedImage) => selectedImage.id === image.id
+                          )}
+                        />
 
                         {/* Image display */}
                         <img
