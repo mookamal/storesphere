@@ -25,7 +25,19 @@ export default function MediaModal({
   const [data, setData] = useState(null);
 
   const uploadImage = async (selectedFile) => {
+    const allowedExtensions = [
+      "image/jpeg",
+      "image/png",
+      "image/svg+xml",
+      "image/gif",
+    ];
     if (!selectedFile) {
+      return;
+    }
+    if (!allowedExtensions.includes(selectedFile.type)) {
+      toast.error(
+        "Invalid file type. Only JPEG, PNG, SVG, and GIF are allowed."
+      );
       return;
     }
     setLoading(true);
@@ -112,7 +124,7 @@ export default function MediaModal({
                   and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  SVG, PNG, JPG or GIF (MAX. 800x400px)
+                  SVG, PNG, JPG or GIF
                 </p>
               </div>
               <FileInput
