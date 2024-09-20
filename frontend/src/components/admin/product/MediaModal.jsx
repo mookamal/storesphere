@@ -176,7 +176,7 @@ export default function MediaModal({
           disabled={!hasNextPage}
           onClick={getData}
         >
-          Load mode
+          Load more
         </Button>
       </Modal.Body>
 
