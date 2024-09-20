@@ -23,6 +23,8 @@ export default function MediaModal({
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [endCursor, setEndCursor] = useState("");
+  const [hasNextPage, setHasNextPage] = useState(false);
 
   const uploadImage = async (selectedFile) => {
     const allowedExtensions = [
@@ -64,14 +66,16 @@ export default function MediaModal({
     try {
       const response = await axios.post("/api/get-data", {
         query: GET_MEDIA_IMAGES,
-        variables: { domain: domain },
+        variables: { domain: domain, first: 10, after: endCursor },
       });
 
       if (response.data.error) {
         throw new Error(response.data.error);
       }
 
-      setData(response.data.allMediaImages);
+      setData(response.data.allMediaImages.edges);
+      setEndCursor(response.data.allMediaImages.pageInfo.endCursor);
+      setHasNextPage(response.data.allMediaImages.pageInfo.hasNextPage);
     } catch (error) {
       console.error("Error fetching store details:", error.message);
       setData(null);
@@ -85,12 +89,12 @@ export default function MediaModal({
     if (isChecked) {
       setSelectedImages((prevSelectedImages) => [
         ...prevSelectedImages,
-        { id: image.id, image: image.image },
+        { id: image.imageId, image: image.image },
       ]);
     } else {
       setSelectedImages((prevSelectedImages) =>
         prevSelectedImages.filter(
-          (selectedImage) => selectedImage.id !== image.id
+          (selectedImage) => selectedImage.id !== image.imageId
         )
       );
     }
@@ -138,18 +142,19 @@ export default function MediaModal({
         <HR.Trimmed />
         {data && (
           <div className="grid grid-rows-1 grid-flow-col gap-4 overflow-x-auto p-4">
-            {data.map((image) => {
+            {data.map((edge) => {
+              const image = edge.node;
               return (
                 <div key={image.id} className="flex items-center space-x-4">
                   {/* Checkbox for each image */}
                   <Checkbox
-                    id={image.id}
+                    id={image.imageId}
                     color="light"
                     onChange={(e) =>
                       handleCheckboxChange(image, e.target.checked)
                     }
                     checked={selectedImages.some(
-                      (selectedImage) => selectedImage.id === image.id
+                      (selectedImage) => selectedImage.id === image.imageId
                     )}
                   />
 
@@ -164,6 +169,15 @@ export default function MediaModal({
             })}
           </div>
         )}
+        <Button
+          color="light"
+          size="xs"
+          className="my-2"
+          disabled={!hasNextPage}
+          onClick={getData}
+        >
+          Load mode
+        </Button>
       </Modal.Body>
 
       <Modal.Footer className="bg-screen-primary dark:bg-black p-3">

@@ -68,10 +68,19 @@ export const GET_PRODUCT_BY_ID = gql`
 `;
 
 export const GET_MEDIA_IMAGES = gql`
-  query GetMediaImages($domain: String!) {
-    allMediaImages(defaultDomain: $domain) {
-      id
-      image
+  query GetMediaImages($domain: String!, $first: Int, $after: String!) {
+    allMediaImages(defaultDomain: $domain, first: $first, after: $after) {
+      edges {
+        node {
+          image
+          id
+          imageId
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
     }
   }
 `;

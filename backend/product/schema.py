@@ -47,13 +47,19 @@ class ProductFilter(django_filters.FilterSet):
         fields = ['status', 'title']
 
 
-class ImageType(DjangoObjectType):
+class ImageNode(DjangoObjectType):
+    image_id = graphene.Int()
     class Meta:
         model = Image
-        fields = ('image',"id")
+        interfaces = (graphene.relay.Node, )
+        exclude = ('store',)
+        filter_fields = ["created_at",]
     
     def resolve_image(self, info):
         return self.image.url if self.image.url else None
+
+    def resolve_image_id(self,info):
+        return self.id
 
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
@@ -71,7 +77,7 @@ class ProductNode(DjangoObjectType):
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
     product = graphene.Field(ProductNode, id=graphene.ID(required=True))
-    all_media_images = graphene.List(ImageType,default_domain=graphene.String(required=True))
+    all_media_images = DjangoFilterConnectionField(ImageNode,default_domain=graphene.String(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
