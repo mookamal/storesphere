@@ -9,6 +9,7 @@ class Image(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="product_images")
     image = models.ImageField(upload_to='product_images/')
     alt_text = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
 class Video(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="product_videos")

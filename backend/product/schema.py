@@ -106,7 +106,7 @@ class Query(graphene.ObjectType):
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
-                images = Image.objects.filter(store=store)
+                images = Image.objects.filter(store=store).order_by('-created_at')
                 return images
             else:
                 raise PermissionDenied("You are not authorized to access this store.")
