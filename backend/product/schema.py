@@ -78,6 +78,7 @@ class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
     product = graphene.Field(ProductNode, id=graphene.ID(required=True))
     all_media_images = DjangoFilterConnectionField(ImageNode,default_domain=graphene.String(required=True))
+    get_images_product = DjangoFilterConnectionField(ImageNode,product_id=graphene.ID(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -118,6 +119,21 @@ class Query(graphene.ObjectType):
                 raise PermissionDenied("You are not authorized to access this store.")
         except Store.DoesNotExist:
             raise PermissionDenied("Store not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+    
+    def resolve_get_images_product(self, info, product_id, **kwargs):
+        try:
+            user = info.context.user
+            product = Product.objects.get(pk=product_id)
+            store = product.store
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                images = product.images.all().order_by('-created_at')
+                return images
+            else:
+                raise PermissionDenied("You are not authorized to access this store.")
+        except Product.DoesNotExist:
+            raise PermissionDenied("Product not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 

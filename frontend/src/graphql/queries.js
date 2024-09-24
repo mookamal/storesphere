@@ -84,3 +84,21 @@ export const GET_MEDIA_IMAGES = gql`
     }
   }
 `;
+
+export const GET_MEDIA_PRODUCT = gql`
+  query GetMediaProduct($productId: ID!) {
+    getImagesProduct(productId: $productId, first: 10) {
+      edges {
+        node {
+          image
+          id
+          imageId
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
