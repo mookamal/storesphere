@@ -37,9 +37,9 @@ export default function UpdateProduct() {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
   const seoDescription = watch("seoDescription");
-  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  const [mediaRemoveImages, setMediaRemoveImages] = useState([]);
 
-  const removeSelectedImages = () => {};
+  const removeMediaImages = () => {};
 
   const handleBlur = () => {
     if (!handle) {
@@ -191,9 +191,9 @@ export default function UpdateProduct() {
             {/* Media */}
             <div className="my-2">
               <div className="mb-2">
-                {selectedRemoveImages.length > 0 && (
+                {mediaRemoveImages.length > 0 && (
                   <div className="flex items-center justify-between">
-                    <h3>{selectedRemoveImages.length} file selected</h3>
+                    <h3>{mediaRemoveImages.length} file selected</h3>
                     <Button
                       color="red"
                       size="xs"
@@ -203,7 +203,7 @@ export default function UpdateProduct() {
                     </Button>
                   </div>
                 )}
-                {selectedRemoveImages.length === 0 && <h2>Media</h2>}
+                {mediaRemoveImages.length === 0 && <h2>Media</h2>}
               </div>
             </div>
           </div>
