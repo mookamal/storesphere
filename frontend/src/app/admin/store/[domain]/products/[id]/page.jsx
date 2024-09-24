@@ -104,8 +104,12 @@ export default function UpdateProduct() {
         throw new Error(response.data.error);
       }
       if (response.data.getImagesProduct.edges) {
+        console.log(response.data.getImagesProduct.edges);
         setMediaImages(
-          response.data.getImagesProduct.edges.map((edge) => edge.node)
+          response.data.getImagesProduct.edges.map((edge) => ({
+            id: edge.node.imageId,
+            image: edge.node.image,
+          }))
         );
       }
     } catch (e) {}
@@ -224,7 +228,7 @@ export default function UpdateProduct() {
               <div className="mb-2">
                 {selectedRemoveImages.length > 0 && (
                   <div className="flex items-center justify-between">
-                    <h3>{mediaImages.length} file selected</h3>
+                    <h3>{selectedRemoveImages.length} file selected</h3>
                     <Button
                       color="red"
                       size="xs"
@@ -249,8 +253,8 @@ export default function UpdateProduct() {
                   <MediaModal
                     openModal={openMediaModal}
                     setOpenModal={() => setOpenMediaModal(false)}
-                    selectedImages={[]}
-                    setSelectedImages={() => None}
+                    selectedImages={mediaImages}
+                    setSelectedImages={setMediaImages}
                   />
                 </div>
                 {mediaImages.map((image) => {
