@@ -8,7 +8,9 @@ import {
   Spinner,
   Textarea,
   Badge,
+  Checkbox,
 } from "flowbite-react";
+import { IoCloudUploadOutline } from "react-icons/io5";
 import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -19,8 +21,9 @@ const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
 });
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
-import { GET_PRODUCT_BY_ID } from "@/graphql/queries";
+import { GET_MEDIA_PRODUCT, GET_PRODUCT_BY_ID } from "@/graphql/queries";
 import { UPDATE_PRODUCT } from "@/graphql/mutations";
+import MediaModal from "@/components/admin/product/MediaModal";
 
 export default function UpdateProduct() {
   const domain = useParams().domain;
@@ -37,9 +40,20 @@ export default function UpdateProduct() {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
   const seoDescription = watch("seoDescription");
-  const [mediaRemoveImages, setMediaRemoveImages] = useState([]);
+  const [mediaImages, setMediaImages] = useState([]);
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  const [openMediaModal, setOpenMediaModal] = useState(false);
 
-  const removeMediaImages = () => {};
+  const handleSelectRemoveImages = (image, isChecked) => {
+    if (isChecked) {
+      setSelectedRemoveImages([...selectedRemoveImages, image]);
+    } else {
+      setSelectedRemoveImages(
+        selectedRemoveImages.filter((item) => item.id !== image.id)
+      );
+    }
+  };
+  const removeSelectedImages = async () => {};
 
   const handleBlur = () => {
     if (!handle) {
@@ -77,7 +91,25 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     getProductById();
+    getMediaProduct();
   }, []);
+
+  const getMediaProduct = async () => {
+    try {
+      const response = await axios.post("/api/get-data", {
+        query: GET_MEDIA_PRODUCT,
+        variables: { productId: productId, after: "" },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      if (response.data.getImagesProduct.edges) {
+        setMediaImages(
+          response.data.getImagesProduct.edges.map((edge) => edge.node)
+        );
+      }
+    } catch (e) {}
+  };
 
   const getProductById = async () => {
     try {
@@ -91,7 +123,6 @@ export default function UpdateProduct() {
       }
 
       if (response.data) {
-        console.log("Product", response.data);
         setData(response.data || null);
         setProduct(response.data.product || null);
         setValue("title", response.data.product.title || "");
@@ -191,9 +222,9 @@ export default function UpdateProduct() {
             {/* Media */}
             <div className="my-2">
               <div className="mb-2">
-                {mediaRemoveImages.length > 0 && (
+                {selectedRemoveImages.length > 0 && (
                   <div className="flex items-center justify-between">
-                    <h3>{mediaRemoveImages.length} file selected</h3>
+                    <h3>{mediaImages.length} file selected</h3>
                     <Button
                       color="red"
                       size="xs"
@@ -203,7 +234,49 @@ export default function UpdateProduct() {
                     </Button>
                   </div>
                 )}
-                {mediaRemoveImages.length === 0 && <h2>Media</h2>}
+                {selectedRemoveImages.length === 0 && <h2>Media</h2>}
+              </div>
+              {/* Media upload */}
+              <div className="grid grid-rows-1 grid-flow-col gap-4 overflow-x-auto p-4">
+                <div className="max-h-16 max-w-20 flex items-center justify-center">
+                  <Button
+                    size="xl"
+                    color="light"
+                    onClick={() => setOpenMediaModal(true)}
+                  >
+                    <IoCloudUploadOutline />
+                  </Button>
+                  <MediaModal
+                    openModal={openMediaModal}
+                    setOpenModal={() => setOpenMediaModal(false)}
+                    selectedImages={[]}
+                    setSelectedImages={() => None}
+                  />
+                </div>
+                {mediaImages.map((image) => {
+                  return (
+                    <div key={image.id} className="flex items-center space-x-4">
+                      {/* Checkbox for each image */}
+                      <Checkbox
+                        id={image.id}
+                        color="light"
+                        onChange={(e) =>
+                          handleSelectRemoveImages(image, e.target.checked)
+                        }
+                        checked={selectedRemoveImages.some(
+                          (selectedImage) => selectedImage.id === image.id
+                        )}
+                      />
+
+                      {/* Image display */}
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
+                        alt={`image-${image.id}`}
+                        className="max-h-16 max-w-20 rounded-lg object-cover"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
