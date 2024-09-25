@@ -22,8 +22,9 @@ const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
 import { GET_MEDIA_PRODUCT, GET_PRODUCT_BY_ID } from "@/graphql/queries";
-import { UPDATE_PRODUCT } from "@/graphql/mutations";
+import { ADD_MEDIA_IMAGES_PRODUCT, UPDATE_PRODUCT } from "@/graphql/mutations";
 import MediaModal from "@/components/admin/product/MediaModal";
+import LoadingElement from "@/components/LoadingElement";
 
 export default function UpdateProduct() {
   const domain = useParams().domain;
@@ -41,6 +42,7 @@ export default function UpdateProduct() {
   const seoTitle = watch("seoTitle");
   const seoDescription = watch("seoDescription");
   const [mediaImages, setMediaImages] = useState([]);
+  const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
   const [openMediaModal, setOpenMediaModal] = useState(false);
 
@@ -79,6 +81,36 @@ export default function UpdateProduct() {
     }
   }, [description, title, status, seoTitle, seoDescription, handle]);
 
+  const addImages = async (productId) => {
+    setLoading(true);
+    if (productId || mediaImages.length > 0) {
+      const dataBody = {
+        query: ADD_MEDIA_IMAGES_PRODUCT,
+        variables: {
+          productId: productId,
+          imageIds: mediaImages.map((item) => item.id),
+          defaultDomain: domain,
+        },
+      };
+      try {
+        const response = await axios.post("/api/set-data", dataBody);
+        if (response.data.data.addImagesProduct.product.id) {
+          toast.success("Media images added successfully!");
+          getMediaProduct();
+        }
+      } catch (error) {
+        toast.error("Failed to add media images to the product.");
+      }
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (mediaImages.length > copyMediaImages.length) {
+      addImages(productId);
+    }
+  }, [mediaImages]);
+
   const debouncedUpdate = debounce((field, value) => {}, 500);
 
   useEffect(() => {
@@ -110,8 +142,16 @@ export default function UpdateProduct() {
             image: edge.node.image,
           }))
         );
+        setCopyMediaImages([
+          ...response.data.getImagesProduct.edges.map((edge) => ({
+            id: edge.node.imageId,
+            image: edge.node.image,
+          })),
+        ]);
       }
-    } catch (e) {}
+    } catch (e) {
+      toast.error("Failed to fetch media images");
+    }
   };
 
   const getProductById = async () => {
@@ -194,6 +234,7 @@ export default function UpdateProduct() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {loading && <LoadingElement />}
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <div className="card p-3">
@@ -254,6 +295,7 @@ export default function UpdateProduct() {
                     setOpenModal={() => setOpenMediaModal(false)}
                     selectedImages={mediaImages}
                     setSelectedImages={setMediaImages}
+                    externalLoading={loading}
                   />
                 </div>
                 {mediaImages.map((image) => {

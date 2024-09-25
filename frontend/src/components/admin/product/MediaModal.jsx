@@ -14,11 +14,13 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { GET_MEDIA_IMAGES } from "@/graphql/queries";
+import LoadingElement from "@/components/LoadingElement";
 export default function MediaModal({
   openModal,
   setOpenModal,
   selectedImages,
   setSelectedImages,
+  externalLoading,
 }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
@@ -116,6 +118,7 @@ export default function MediaModal({
       </Modal.Header>
 
       <Modal.Body className="dark:bg-slate-900">
+        {externalLoading && <LoadingElement />}
         <div className="flex flex-col">
           <div className="flex w-full items-center justify-center">
             <Label
