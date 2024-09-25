@@ -86,7 +86,6 @@ export default function MediaModal({
   }, []);
 
   const handleCheckboxChange = (image, isChecked) => {
-    console.log("selectedImages", selectedImages);
     if (isChecked) {
       setSelectedImages((prevSelectedImages) => [
         ...prevSelectedImages,

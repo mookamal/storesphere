@@ -104,7 +104,6 @@ export default function UpdateProduct() {
         throw new Error(response.data.error);
       }
       if (response.data.getImagesProduct.edges) {
-        console.log(response.data.getImagesProduct.edges);
         setMediaImages(
           response.data.getImagesProduct.edges.map((edge) => ({
             id: edge.node.imageId,
