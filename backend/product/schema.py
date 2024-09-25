@@ -1,7 +1,7 @@
 import graphene
-from stores.models import Store , StaffMember
+from stores.models import Store, StaffMember
 from core.models import SEO
-from .models import Product,Image
+from .models import Product, Image
 import django_filters
 from graphene_django import DjangoObjectType
 from graphene import Scalar
@@ -10,6 +10,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import PermissionDenied
+
 
 class HTML(Scalar):
     """Scalar for HTML content."""
@@ -27,21 +28,26 @@ class HTML(Scalar):
     def parse_value(value):
         return str(value)
 
+
 @convert_django_field.register(CKEditor5Field)
 def convert_ckeditor_field_to_html(field, registry=None):
     return HTML()
+
 
 class SEOType(DjangoObjectType):
     class Meta:
         model = SEO
         fields = ["title", "description",]
 
+
 class SEOInput(graphene.InputObjectType):
     title = graphene.String()
     description = graphene.String()
 
+
 class ProductFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(choices=Product.STATUS)
+
     class Meta:
         model = Product
         fields = ['status', 'title']
@@ -49,51 +55,60 @@ class ProductFilter(django_filters.FilterSet):
 
 class ImageNode(DjangoObjectType):
     image_id = graphene.Int()
+
     class Meta:
         model = Image
         interfaces = (graphene.relay.Node, )
         exclude = ('store',)
         filter_fields = ["created_at",]
-    
+
     def resolve_image(self, info):
         return self.image.url if self.image.url else None
 
-    def resolve_image_id(self,info):
+    def resolve_image_id(self, info):
         return self.id
+
 
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
     seo = graphene.Field(SEOType)
+
     class Meta:
         model = Product
-        filter_fields = {"status": ['exact'],"title":['exact', 'icontains', 'istartswith']}
+        filter_fields = {"status": ['exact'], "title": [
+            'exact', 'icontains', 'istartswith']}
         interfaces = (graphene.relay.Node, )
         exclude = ('store',)
 
-    
     def resolve_product_id(self, info):
         return self.id
 
+
 class Query(graphene.ObjectType):
-    all_products = DjangoFilterConnectionField(ProductNode, default_domain=graphene.String(required=True))
+    all_products = DjangoFilterConnectionField(
+        ProductNode, default_domain=graphene.String(required=True))
     product = graphene.Field(ProductNode, id=graphene.ID(required=True))
-    all_media_images = DjangoFilterConnectionField(ImageNode,default_domain=graphene.String(required=True))
-    get_images_product = DjangoFilterConnectionField(ImageNode,product_id=graphene.ID(required=True))
+    all_media_images = DjangoFilterConnectionField(
+        ImageNode, default_domain=graphene.String(required=True))
+    get_images_product = DjangoFilterConnectionField(
+        ImageNode, product_id=graphene.ID(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
-                filtered_products = ProductFilter(data=kwargs, queryset=store.products.all()).qs
+                filtered_products = ProductFilter(
+                    data=kwargs, queryset=store.products.all()).qs
                 return filtered_products
             else:
-                raise PermissionDenied("You are not authorized to access this store.")
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
         except Store.DoesNotExist:
             raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
-    
+
     def resolve_product(self, info, id, **kwargs):
         try:
             user = info.context.user
@@ -102,26 +117,29 @@ class Query(graphene.ObjectType):
             if StaffMember.objects.filter(user=user, store=store).exists():
                 return product
             else:
-                raise PermissionDenied("You are not authorized to access this product.")
+                raise PermissionDenied(
+                    "You are not authorized to access this product.")
         except Product.DoesNotExist:
             raise PermissionDenied("Product not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
-    
+
     def resolve_all_media_images(self, info, default_domain, **kwargs):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
-                images = Image.objects.filter(store=store).order_by('-created_at')
+                images = Image.objects.filter(
+                    store=store).order_by('-created_at')
                 return images
             else:
-                raise PermissionDenied("You are not authorized to access this store.")
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
         except Store.DoesNotExist:
             raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
-    
+
     def resolve_get_images_product(self, info, product_id, **kwargs):
         try:
             user = info.context.user
@@ -131,11 +149,13 @@ class Query(graphene.ObjectType):
                 images = product.images.all().order_by('-created_at')
                 return images
             else:
-                raise PermissionDenied("You are not authorized to access this store.")
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
         except Product.DoesNotExist:
             raise PermissionDenied("Product not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
+
 
 class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
@@ -144,27 +164,30 @@ class ProductInput(graphene.InputObjectType):
     handle = graphene.String(required=True)
     seo = SEOInput(required=True)
 
-    
+
 class CreateProduct(graphene.relay.ClientIDMutation):
-    product = graphene.Field(ProductNode)        
+    product = graphene.Field(ProductNode)
+
     class Input:
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    
-    def mutate_and_get_payload(root, info ,**input):
+    def mutate_and_get_payload(root, info, **input):
         product_data = input.get("product")
         default_domain = input.get("default_domain")
         user = info.context.user
         store = Store.objects.get(default_domain=default_domain)
         if StaffMember.objects.filter(user=user, store=store).exists():
-            product = Product(store=store,title=product_data.title, description=product_data.description, status=product_data.status)
+            product = Product(store=store, title=product_data.title,
+                              description=product_data.description, status=product_data.status)
             seo = SEO.objects.create(**product_data.seo)
             product.seo = seo
             product.save()
             return CreateProduct(product=product)
         else:
-            raise PermissionDenied("You are not authorized to access this store.")
+            raise PermissionDenied(
+                "You are not authorized to access this store.")
+
 
 class UpdateProduct(graphene.relay.ClientIDMutation):
     product = graphene.Field(ProductNode)
@@ -173,7 +196,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         id = graphene.ID(required=True)
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
-    
+
     @classmethod
     def mutate_and_get_payload(cls, root, info, id, product, default_domain):
         user = info.context.user
@@ -184,12 +207,14 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
             raise Exception("Store with the provided domain does not exist.")
 
         if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise PermissionDenied("You are not authorized to update products for this store.")
+            raise PermissionDenied(
+                "You are not authorized to update products for this store.")
 
         try:
             product_instance = Product.objects.get(pk=id, store=store)
         except Product.DoesNotExist:
-            raise Exception("Product not found or you do not have access to this product.")
+            raise Exception(
+                "Product not found or you do not have access to this product.")
 
         product_instance.title = product.title
         product_instance.description = product.description
@@ -202,14 +227,16 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product_instance.save()
 
         return UpdateProduct(product=product_instance)
-    
+
 # Media for product
+
+
 class AddImagesProduct(graphene.Mutation):
     class Arguments:
         default_domain = graphene.String(required=True)
         product_id = graphene.ID(required=True)
         image_ids = graphene.List(graphene.ID)
-    
+
     product = graphene.Field(ProductNode)
 
     def mutate(self, info, default_domain, product_id, image_ids):
@@ -220,14 +247,17 @@ class AddImagesProduct(graphene.Mutation):
             raise Exception("Store with the provided domain does not exist.")
 
         if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise PermissionDenied("You are not authorized to update products for this store.")
+            raise PermissionDenied(
+                "You are not authorized to update products for this store.")
         try:
             product = Product.objects.get(pk=product_id, store=store)
             images = Image.objects.filter(pk__in=image_ids)
             product.images.add(*images)
             return AddImagesProduct(product=product)
         except Product.DoesNotExist:
-            raise Exception("Product not found or you do not have access to this product.")
+            raise Exception(
+                "Product not found or you do not have access to this product.")
+
 
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
