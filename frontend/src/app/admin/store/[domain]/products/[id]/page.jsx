@@ -75,6 +75,7 @@ export default function UpdateProduct() {
         if (response.data.data.removeImagesProduct.product.id) {
           toast.success("Media images removed successfully!");
           getMediaProduct();
+          setSelectedRemoveImages([]);
         }
       } catch (error) {
         toast.error("Failed to remove media images from the product.");
