@@ -259,7 +259,34 @@ class AddImagesProduct(graphene.Mutation):
                 "Product not found or you do not have access to this product.")
 
 
+class RemoveImagesProduct(graphene.Mutation):
+    class Arguments:
+        default_domain = graphene.String(required=True)
+        product_id = graphene.ID(required=True)
+        image_ids = graphene.List(graphene.ID)
+
+    product = graphene.Field(ProductNode)
+
+    def mutate(self, info, default_domain, product_id, image_ids):
+        user = info.context.user
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+            if not StaffMember.objects.filter(user=user, store=store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to update products for this store.")
+            product = Product.objects.get(pk=product_id, store=store)
+            images = Image.objects.filter(pk__in=image_ids)
+            product.images.remove(*images)
+            return RemoveImagesProduct(product=product)
+        except Product.DoesNotExist:
+            raise Exception(
+                "Product not found or you do not have access to this product.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
     add_images_product = AddImagesProduct.Field()
+    remove_images_product = RemoveImagesProduct.Field()

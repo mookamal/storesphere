@@ -22,7 +22,11 @@ const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
 import { GET_MEDIA_PRODUCT, GET_PRODUCT_BY_ID } from "@/graphql/queries";
-import { ADD_MEDIA_IMAGES_PRODUCT, UPDATE_PRODUCT } from "@/graphql/mutations";
+import {
+  ADD_MEDIA_IMAGES_PRODUCT,
+  REMOVE_MEDIA_IMAGES_PRODUCT,
+  UPDATE_PRODUCT,
+} from "@/graphql/mutations";
 import MediaModal from "@/components/admin/product/MediaModal";
 import LoadingElement from "@/components/LoadingElement";
 
@@ -55,7 +59,29 @@ export default function UpdateProduct() {
       );
     }
   };
-  const removeSelectedImages = async () => {};
+  const removeSelectedImages = async () => {
+    setLoading(true);
+    if (selectedRemoveImages.length > 0) {
+      const dataBody = {
+        query: REMOVE_MEDIA_IMAGES_PRODUCT,
+        variables: {
+          productId: productId,
+          imageIds: selectedRemoveImages.map((item) => item.id),
+          defaultDomain: domain,
+        },
+      };
+      try {
+        const response = await axios.post("/api/set-data", dataBody);
+        if (response.data.data.removeImagesProduct.product.id) {
+          toast.success("Media images removed successfully!");
+          getMediaProduct();
+        }
+      } catch (error) {
+        toast.error("Failed to remove media images from the product.");
+      }
+    }
+    setLoading(false);
+  };
 
   const handleBlur = () => {
     if (!handle) {

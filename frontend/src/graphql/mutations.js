@@ -70,3 +70,12 @@ mutation AddMediaImagesProduct($defaultDomain: String!, $productId: ID!$imageIds
   }
 }
 `;
+
+export const REMOVE_MEDIA_IMAGES_PRODUCT = `
+  mutation RemoveMediaImagesProduct($defaultDomain: String!, $productId: ID!$imageIds: [ID]!) {
+  removeImagesProduct(defaultDomain: $defaultDomain ,productId: $productId,imageIds: $imageIds) {
+    product {
+      id
+    }
+  }
+}`;
