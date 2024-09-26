@@ -18,6 +18,7 @@ import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
 import { customThemeTable } from "@/lib/constants";
+import Image from "next/image";
 
 export default function Products({ params }) {
   const [error, setError] = useState(false);
@@ -165,6 +166,20 @@ export default function Products({ params }) {
                     <Table.Row key={node.id}>
                       <Table.Cell>
                         <div className="flex justify-start gap-2 items-center">
+                          <Image
+                            src={
+                              node.image?.image
+                                ? `${process.env.NEXT_PUBLIC_ADMIN_URL}/${node.image.image}`
+                                : "/assets/icons/blog.png"
+                            }
+                            loading={"lazy"}
+                            width={40}
+                            height={40}
+                            quality={75}
+                            alt={node.title}
+                            className="rounded-md object-cover cursor-pointer"
+                            style={{ width: "auto", height: "auto" }}
+                          />
                           <Checkbox />
                           <h2>{node.title}</h2>
                         </div>

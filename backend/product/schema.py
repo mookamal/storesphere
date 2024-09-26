@@ -72,6 +72,7 @@ class ImageNode(DjangoObjectType):
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
     seo = graphene.Field(SEOType)
+    image = graphene.Field(ImageNode)
 
     class Meta:
         model = Product
@@ -82,6 +83,9 @@ class ProductNode(DjangoObjectType):
 
     def resolve_product_id(self, info):
         return self.id
+
+    def resolve_image(self, info):
+        return self.images.first() if self.images.first() else None
 
 
 class Query(graphene.ObjectType):
