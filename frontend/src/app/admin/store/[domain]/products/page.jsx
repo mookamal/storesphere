@@ -187,6 +187,7 @@ export default function Products({ params }) {
 
                       <Table.Cell>
                         <Badge
+                          style={{ display: "inline" }}
                           color={
                             node.status === "ACTIVE" ? "success" : "warning"
                           }
