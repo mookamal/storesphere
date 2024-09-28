@@ -46,6 +46,17 @@ export default function AddProduct() {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
 
+  const contentCompare = (
+    <div className="w-64 text-sm text-gray-500 dark:text-gray-400">
+      <div className="px-3 py-2">
+        <p>
+          Please enter the compare price. This price represents the original or
+          previous price of the product before any discount.
+        </p>
+      </div>
+    </div>
+  );
+
   const getStoreData = async () => {
     setLoading(true);
     const dataBody = {
@@ -334,7 +345,7 @@ export default function AddProduct() {
         <div className="lg:col-span-1">
           <div className="card p-3">
             <h2>Pricing</h2>
-            <div className="flex justify-evenly my-5 gap-2">
+            <div className="flex justify-items-start my-5 gap-2">
               <div>
                 <div className="mb-2">
                   <Label htmlFor="price" value="Price" />
@@ -360,6 +371,10 @@ export default function AddProduct() {
                 />
               </div>
             </div>
+            <p>
+              Please enter the compare price. This price represents the original
+              or previous price of the product before any discount.
+            </p>
           </div>
         </div>
       </div>
