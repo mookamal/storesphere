@@ -84,6 +84,15 @@ class Product(models.Model):
         Image, related_name="products", blank=True)
     videos = models.ManyToManyField(
         Video, related_name="products", blank=True)
+    first_variant = models.OneToOneField(
+        'ProductVariant',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="first_variant",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def generate_unique_handle(self, base_handle):
         """ Helper function to generate unique handle. """
