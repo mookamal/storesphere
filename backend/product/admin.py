@@ -1,14 +1,32 @@
 from django.contrib import admin
-from .models import Product,Image,Video
+from . import models
 
-@admin.register(Image)
+
+@admin.register(models.Image)
 class ImageAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(Video)
+
+@admin.register(models.Video)
 class VideoAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(Product)
+
+@admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ProductVariant)
+class ProductVariantAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.ProductOption)
+class ProductOptionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.OptionValue)
+class OptionValueAdmin(admin.ModelAdmin):
     pass
