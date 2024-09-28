@@ -24,12 +24,14 @@ import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import MediaModal from "@/components/admin/product/MediaModal";
+import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 
 export default function AddProduct() {
   const [openMediaModal, setOpenMediaModal] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
+  const [storeData, setStoreData] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
   const { register, handleSubmit, setValue, watch } = useForm({
@@ -43,6 +45,27 @@ export default function AddProduct() {
   const watchedTitle = watch("title");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
+
+  const getStoreData = async () => {
+    setLoading(true);
+    const dataBody = {
+      query: GET_SETTINGS_GENERAL,
+      variables: {
+        domain: domain,
+      },
+    };
+    try {
+      const response = await axios.post("/api/get-data", dataBody);
+      setStoreData(response.data.store);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    getStoreData();
+  }, []);
 
   const handleSelectRemoveImages = (image, isChecked) => {
     if (isChecked) {
@@ -305,6 +328,37 @@ export default function AddProduct() {
                 </Badge>
               </div>
               <TextInput sizing="sm" {...register("handle")} />
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-1">
+          <div className="card p-3">
+            <h2>Pricing</h2>
+            <div className="flex justify-evenly my-5 gap-2">
+              <div>
+                <div className="mb-2">
+                  <Label htmlFor="price" value="Price" />
+                </div>
+                <TextInput
+                  sizing="sm"
+                  addon={storeData?.currencyCode}
+                  type="number"
+                  placeholder="0.00"
+                  {...register("price")}
+                />
+              </div>
+              <div>
+                <div className="mb-2">
+                  <Label htmlFor="compare" value="Compare-at price" />
+                </div>
+                <TextInput
+                  sizing="sm"
+                  addon={storeData?.currencyCode}
+                  type="number"
+                  placeholder="0.00"
+                  {...register("compare")}
+                />
+              </div>
             </div>
           </div>
         </div>
