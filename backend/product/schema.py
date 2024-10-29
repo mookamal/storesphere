@@ -1,7 +1,7 @@
 import graphene
 from stores.models import Store, StaffMember
 from core.models import SEO
-from .models import Product, Image
+from .models import Product, Image, ProductVariant
 import django_filters
 from graphene_django import DjangoObjectType
 from graphene import Scalar
@@ -45,6 +45,17 @@ class SEOInput(graphene.InputObjectType):
     description = graphene.String()
 
 
+class ProductVariantNode(DjangoObjectType):
+    class Meta:
+        model = ProductVariant
+        fields = ["price", "compare_at_price"]
+
+
+class ProductVariantInput(graphene.InputObjectType):
+    price = graphene.Decimal()
+    compare_at_price = graphene.Decimal()
+
+
 class ProductFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(choices=Product.STATUS)
 
@@ -73,6 +84,7 @@ class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
     seo = graphene.Field(SEOType)
     image = graphene.Field(ImageNode)
+    first_variant = graphene.Field(ProductVariantNode)
 
     class Meta:
         model = Product
@@ -167,6 +179,7 @@ class ProductInput(graphene.InputObjectType):
     status = graphene.String(required=True)
     handle = graphene.String(required=True)
     seo = SEOInput(required=True)
+    first_variant = ProductVariantInput(required=True)
 
 
 class CreateProduct(graphene.relay.ClientIDMutation):
@@ -186,6 +199,15 @@ class CreateProduct(graphene.relay.ClientIDMutation):
                               description=product_data.description, status=product_data.status)
             seo = SEO.objects.create(**product_data.seo)
             product.seo = seo
+            product.save()
+            first_variant_data = product_data.first_variant
+            first_variant = ProductVariant(
+                product=product,
+                price=first_variant_data.price,
+                compare_at_price=first_variant_data.compare_at_price,
+            )
+            first_variant.save()
+            product.first_variant = first_variant
             product.save()
             return CreateProduct(product=product)
         else:
