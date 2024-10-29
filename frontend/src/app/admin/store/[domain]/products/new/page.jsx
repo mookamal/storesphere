@@ -151,6 +151,10 @@ export default function AddProduct() {
         title: data.seoTitle,
         description: data.seoDescription,
       },
+      firstVariant: {
+        price: data.price,
+        compareAtPrice: data.compare,
+      },
     };
     const variables = {
       defaultDomain: domain,
