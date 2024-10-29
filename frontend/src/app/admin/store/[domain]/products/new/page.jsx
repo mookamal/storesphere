@@ -366,6 +366,13 @@ export default function AddProduct() {
             </p>
           </div>
         </div>
+        {/* start variants section */}
+        <div className="lg:col-span-2">
+          <div className="card p-3 flex flex-col h-full">
+            <h2>Variants</h2>
+          </div>
+        </div>
+        {/* end variants section */}
       </div>
       <Button
         size="xl"
