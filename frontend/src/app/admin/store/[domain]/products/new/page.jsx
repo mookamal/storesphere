@@ -46,17 +46,6 @@ export default function AddProduct() {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
 
-  const contentCompare = (
-    <div className="w-64 text-sm text-gray-500 dark:text-gray-400">
-      <div className="px-3 py-2">
-        <p>
-          Please enter the compare price. This price represents the original or
-          previous price of the product before any discount.
-        </p>
-      </div>
-    </div>
-  );
-
   const getStoreData = async () => {
     setLoading(true);
     const dataBody = {
