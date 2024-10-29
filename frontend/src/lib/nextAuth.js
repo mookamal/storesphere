@@ -2,14 +2,14 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { checkHasStore } from "../lib/utilities";
 const BACKEND_ACCESS_TOKEN_LIFETIME = 45 * 60; // 45 minutes
-const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60;  // 6 days
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL
+const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60; // 6 days
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 const getCurrentEpochTime = () => {
   return Math.floor(new Date().getTime() / 1000);
 };
 
 const SIGN_IN_HANDLERS = {
-  "credentials": async (user, account, profile, email, credentials) => {
+  credentials: async (user, account, profile, email, credentials) => {
     return true;
   },
 };
@@ -26,7 +26,7 @@ export const authOptions = {
       name: "Credentials",
       credentials: {
         username: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
         try {
@@ -40,7 +40,7 @@ export const authOptions = {
         } catch (error) {
           console.error(error);
         }
-        throw new Error('Invalid email or password');
+        throw new Error("Invalid email or password");
       },
     }),
   ],
@@ -48,17 +48,22 @@ export const authOptions = {
     async signIn({ user, account, profile, email, credentials }) {
       if (!SIGN_IN_PROVIDERS.includes(account.provider)) return false;
       return SIGN_IN_HANDLERS[account.provider](
-        user, account, profile, email, credentials
+        user,
+        account,
+        profile,
+        email,
+        credentials
       );
     },
     async jwt({ user, token, account }) {
       if (user && account) {
-        let backendResponse = account.provider === "credentials" ? user : account.meta;
+        let backendResponse =
+          account.provider === "credentials" ? user : account.meta;
         token["user"] = backendResponse.user;
         token["access_token"] = backendResponse.access;
         token["refresh_token"] = backendResponse.refresh;
         token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
-        token['has_store'] = false;
+        token["has_store"] = false;
         return token;
       }
       if (getCurrentEpochTime() > token["ref"]) {
@@ -83,18 +88,20 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login",
   },
   cookies: {
     sessionToken: {
-      name: `${NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""}next-auth.session-token`,
+      name: `${
+        NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
+      }next-auth.session-token`,
       options: {
         domain: "." + process.env.ROOT_DOMAIN,
         httpOnly: true,
-        sameSite: 'Lax',
-        path: '/',
-        secure: NEXTAUTH_URL.startsWith('https://'),
-      }
-    }
+        sameSite: "Lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
   },
 };
