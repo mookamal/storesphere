@@ -302,7 +302,7 @@ export default function AddProduct() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="card p-3">
+          <div className="card p-3 flex flex-col h-full">
             <h2>SEO data</h2>
 
             <div className="my-2">
@@ -343,7 +343,7 @@ export default function AddProduct() {
           </div>
         </div>
         <div className="lg:col-span-1">
-          <div className="card p-3">
+          <div className="card p-3 flex flex-col h-full">
             <h2>Pricing</h2>
             <div className="flex justify-items-start my-5 gap-2">
               <div>
