@@ -66,6 +66,10 @@ export const GET_PRODUCT_BY_ID = gql`
         title
         description
       }
+      firstVariant {
+        price
+        compareAtPrice
+      }
     }
   }
 `;

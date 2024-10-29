@@ -21,7 +21,11 @@ const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
 });
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
-import { GET_MEDIA_PRODUCT, GET_PRODUCT_BY_ID } from "@/graphql/queries";
+import {
+  GET_MEDIA_PRODUCT,
+  GET_PRODUCT_BY_ID,
+  GET_SETTINGS_GENERAL,
+} from "@/graphql/queries";
 import {
   ADD_MEDIA_IMAGES_PRODUCT,
   REMOVE_MEDIA_IMAGES_PRODUCT,
@@ -29,8 +33,10 @@ import {
 } from "@/graphql/mutations";
 import MediaModal from "@/components/admin/product/MediaModal";
 import LoadingElement from "@/components/LoadingElement";
+import PriceInput from "@/components/admin/product/PriceInput";
 
 export default function UpdateProduct() {
+  const [storeData, setStoreData] = useState(null);
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -49,6 +55,23 @@ export default function UpdateProduct() {
   const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
   const [openMediaModal, setOpenMediaModal] = useState(false);
+
+  const getStoreData = async () => {
+    setLoading(true);
+    const dataBody = {
+      query: GET_SETTINGS_GENERAL,
+      variables: {
+        domain: domain,
+      },
+    };
+    try {
+      const response = await axios.post("/api/get-data", dataBody);
+      setStoreData(response.data.store);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
 
   const handleSelectRemoveImages = (image, isChecked) => {
     if (isChecked) {
@@ -149,6 +172,7 @@ export default function UpdateProduct() {
   }, [title, description]);
 
   useEffect(() => {
+    getStoreData();
     getProductById();
     getMediaProduct();
   }, []);
@@ -201,6 +225,11 @@ export default function UpdateProduct() {
         setValue("handle", response.data.product.handle || null);
         setValue("seoTitle", response.data.product.seo.title || "");
         setValue("seoDescription", response.data.product.seo.description || "");
+        setValue("price", response.data.product.firstVariant.price || null);
+        setValue(
+          "compare",
+          response.data.product.firstVariant.compareAtPrice || null
+        );
       } else {
         toast.error("Failed to fetch product details");
         setIsNotFound(true);
@@ -403,6 +432,14 @@ export default function UpdateProduct() {
               <TextInput sizing="sm" {...register("handle")} />
             </div>
           </div>
+        </div>
+        <div className="lg:col-span-1">
+          <PriceInput
+            register={register}
+            currencyCode={storeData?.currencyCode}
+            defaultPrice={0}
+            defaultCompare={0}
+          />
         </div>
       </div>
       <Button
