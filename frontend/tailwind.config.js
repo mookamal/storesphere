@@ -11,14 +11,14 @@ module.exports = {
   theme: {
     extend: {
       backgroundColor: {
-        "screen-primary": "#F6F8FA",
-        "m-white": "#FFFFFF",
+        "screen-primary": "#f1f3f9",
+        "m-white": "#fff",
       },
       colors: {
-        "primary-text": "#1E3A2B",
-        "m-yellow": '#EFF87A',
+        "primary-text": "#202124",
+        "m-yellow": "#EFF87A",
 
-        "baby-blue": '#CFDCFF',
+        "baby-blue": "#CFDCFF",
         "coal-50": "#1b1c22",
         "coal-100": "#15171c",
         "coal-200": "#13141a",
@@ -27,10 +27,8 @@ module.exports = {
         "coal-500": "#0d0e12",
         "coal-600": "#0b0c10",
         "coal-black": "#000",
-      }
+      },
     },
   },
-  plugins: [
-    flowbite.plugin(),
-  ],
-}
+  plugins: [flowbite.plugin()],
+};

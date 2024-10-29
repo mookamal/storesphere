@@ -7,21 +7,23 @@ import AvatarByLetter from "./Avatar";
 import { DarkThemeToggle } from "flowbite-react";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { useState } from "react";
-import { signOut } from "next-auth/react"
+import { signOut } from "next-auth/react";
 
 export default function AdminNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    const sidebar = document.getElementById('default-sidebar');
-    sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
+    const sidebar = document.getElementById("default-sidebar");
+    sidebar.classList.toggle("-translate-x-full", !isSidebarOpen);
   };
   return (
-    <Navbar fluid className="fixed top-0 z-50 w-full bg-m-white border-b border-gray-200 dark:bg-coal-400 dark:border-coal-100 shadow-sm">
+    <Navbar
+      fluid
+      className="fixed top-0 z-50 w-full bg-m-white border-b border-gray-300 dark:bg-coal-400 dark:border-coal-100"
+    >
       <div className="w-full p-1 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
-
           <div className="flex items-center">
             <button
               onClick={toggleSidebar}
@@ -33,7 +35,11 @@ export default function AdminNavbar() {
             </button>
 
             <Navbar.Brand>
-              <img src={infoData.logo} className="mr-3 h-6 sm:h-9 hidden sm:block" alt={infoData.name} />
+              <img
+                src={infoData.logo}
+                className="mr-3 h-6 sm:h-9 hidden sm:block"
+                alt={infoData.name}
+              />
             </Navbar.Brand>
           </div>
           <Search />
@@ -43,13 +49,13 @@ export default function AdminNavbar() {
             <Dropdown
               arrowIcon={false}
               inline
-              label={
-                <AvatarByLetter storeName="my Store" />
-              }
+              label={<AvatarByLetter storeName="my Store" />}
             >
               <Dropdown.Header>
                 <span className="block text-sm">Bonnie Green</span>
-                <span className="block truncate text-sm font-medium">name@flowbite.com</span>
+                <span className="block truncate text-sm font-medium">
+                  name@flowbite.com
+                </span>
               </Dropdown.Header>
               <Dropdown.Item>Dashboard</Dropdown.Item>
               <Dropdown.Item>Settings</Dropdown.Item>
@@ -58,9 +64,8 @@ export default function AdminNavbar() {
               <Dropdown.Item onClick={() => signOut()}>Sign out</Dropdown.Item>
             </Dropdown>
           </div>
-          
         </div>
       </div>
     </Navbar>
-  )
+  );
 }

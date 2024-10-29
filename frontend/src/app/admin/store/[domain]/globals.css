@@ -1,5 +1,5 @@
 .card {
-    @apply bg-m-white border border-gray-100 rounded-xl dark:bg-coal-300 dark:border-coal-50 dark:text-white shadow-sm font-medium text-sm;
+    @apply bg-m-white border border-gray-100 rounded-xl dark:bg-coal-300 dark:border-coal-50 dark:text-white shadow-lg font-medium text-sm;
   }
 
 .card-header {
