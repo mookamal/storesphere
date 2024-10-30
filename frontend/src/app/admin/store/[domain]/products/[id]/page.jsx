@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  TextInput,
-  Label,
-  Select,
-  Button,
-  Spinner,
-  Checkbox,
-} from "flowbite-react";
+import { TextInput, Label, Button, Spinner, Checkbox } from "flowbite-react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
@@ -33,6 +26,7 @@ import MediaModal from "@/components/admin/product/MediaModal";
 import LoadingElement from "@/components/LoadingElement";
 import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
+import Status from "@/components/admin/product/Status";
 
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
@@ -400,15 +394,8 @@ export default function UpdateProduct() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="card p-3">
-            <div className="mb-2">
-              <Label htmlFor="status" value="Status" />
-            </div>
-            <Select sizing="sm" id="status" {...register("status")}>
-              <option value="ACTIVE">Active</option>
-              <option value="DRAFT">Draft</option>
-            </Select>
-          </div>
+          {/* Status */}
+          <Status register={register} />
         </div>
 
         <div className="lg:col-span-1">
