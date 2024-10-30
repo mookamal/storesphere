@@ -1,12 +1,8 @@
-// components/PriceInput.js
+"use client";
 import { TextInput, Label } from "flowbite-react";
 
-export default function PriceInput({
-  register,
-  currencyCode,
-  defaultPrice = 0,
-  defaultCompare = 0,
-}) {
+export default function PriceInput({ register, currencyCode, price, compare }) {
+  const showWarning = price && compare && price >= compare;
   return (
     <div className="card p-3 flex flex-col h-full">
       <h2>Pricing</h2>
@@ -21,7 +17,6 @@ export default function PriceInput({
             addon={currencyCode}
             type="number"
             placeholder="0.00"
-            defaultValue={defaultPrice}
             {...register("price")}
           />
         </div>
@@ -35,11 +30,15 @@ export default function PriceInput({
             addon={currencyCode}
             type="number"
             placeholder="0.00"
-            defaultValue={defaultCompare}
             {...register("compare")}
           />
         </div>
       </div>
+      {showWarning && (
+        <p className="text-red-500 my-2">
+          Warning: Price should be less than the compare-at price.
+        </p>
+      )}
       <p>
         Please enter the compare price. This price represents the original or
         previous price of the product before any discount.

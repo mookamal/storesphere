@@ -288,8 +288,8 @@ export default function AddProduct() {
           <PriceInput
             register={register}
             currencyCode={storeData?.currencyCode}
-            defaultPrice={0}
-            defaultCompare={0}
+            price={price}
+            compare={compare}
           />
         </div>
         {/* start variants section */}

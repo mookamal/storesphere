@@ -405,8 +405,8 @@ export default function UpdateProduct() {
           <PriceInput
             register={register}
             currencyCode={storeData?.currencyCode}
-            defaultPrice={0}
-            defaultCompare={0}
+            price={price}
+            compare={compare}
           />
         </div>
       </div>
