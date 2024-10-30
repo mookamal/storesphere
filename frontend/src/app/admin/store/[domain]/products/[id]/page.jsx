@@ -51,6 +51,8 @@ export default function UpdateProduct() {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
   const seoDescription = watch("seoDescription");
+  const price = watch("price");
+  const compare = watch("compare");
   const [mediaImages, setMediaImages] = useState([]);
   const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
@@ -123,13 +125,24 @@ export default function UpdateProduct() {
       status !== product?.status ||
       handle !== product?.handle ||
       seoTitle !== product?.seo.title ||
-      seoDescription !== product?.seo.description
+      seoDescription !== product?.seo.description ||
+      price !== product?.firstVariant.price ||
+      compare !== product?.firstVariant.compareAtPrice
     ) {
       setHasChanges(true);
     } else {
       setHasChanges(false);
     }
-  }, [description, title, status, seoTitle, seoDescription, handle]);
+  }, [
+    description,
+    title,
+    status,
+    seoTitle,
+    seoDescription,
+    handle,
+    price,
+    compare,
+  ]);
 
   const addImages = async (productId) => {
     setLoading(true);
@@ -250,6 +263,10 @@ export default function UpdateProduct() {
       seo: {
         title: data.seoTitle,
         description: data.seoDescription,
+      },
+      firstVariant: {
+        price: data.price,
+        compareAtPrice: data.compare,
       },
     };
     const variables = {

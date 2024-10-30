@@ -250,6 +250,10 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         seo.title = product.seo.title
         seo.description = product.seo.description
         seo.save()
+        first_variant = product_instance.first_variant
+        first_variant.price = product.first_variant.price
+        first_variant.compare_at_price = product.first_variant.compare_at_price
+        first_variant.save()
         product_instance.save()
 
         return UpdateProduct(product=product_instance)
