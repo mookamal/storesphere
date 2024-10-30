@@ -39,6 +39,8 @@ export default function AddProduct() {
   const watchedTitle = watch("title");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
+  const price = watch("price");
+  const compare = watch("compare");
 
   const getStoreData = async () => {
     setLoading(true);
