@@ -29,7 +29,7 @@ export default function VariantInputs({ register, control, errors, trigger }) {
               placeholder="Size"
               control={control}
               color={
-                errors.options && errors.options[index] ? "failure" : "default"
+                errors.options && errors.options[index] ? "failure" : "gray"
               }
               onBlur={() => trigger(`options.${index}.name`)}
               helperText={
@@ -52,6 +52,7 @@ export default function VariantInputs({ register, control, errors, trigger }) {
               trigger={trigger}
             />
           </div>
+          <hr />
           <div className="flex justify-between mx-auto w-1/2">
             <Button size="sm" color="red" onClick={() => remove(index)}>
               Delete
