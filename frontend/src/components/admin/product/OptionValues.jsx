@@ -1,5 +1,9 @@
+"use client";
 import { useFieldArray } from "react-hook-form";
 import { TextInput, Button, Label } from "flowbite-react";
+import { useEffect } from "react";
+import { MdDeleteForever } from "react-icons/md";
+
 export default function OptionValues({
   control,
   register,
@@ -16,10 +20,20 @@ export default function OptionValues({
     name: `options.${optionIndex}.values`,
   });
 
+  const handleAddValue = (e) => {
+    appendValue({ value: "" });
+  };
+
+  useEffect(() => {
+    if (valueFields.length === 0) {
+      appendValue({ value: "" });
+    }
+  }, []);
+
   return (
     <div>
       {valueFields.map((value, valueIndex) => (
-        <div key={value.id} className=" my-2">
+        <div key={value.id} className="my-2">
           <div className="my-2">
             <div className="mb-2 block">
               <Label
@@ -29,41 +43,47 @@ export default function OptionValues({
               </Label>
             </div>
 
-            <TextInput
-              {...register(
-                `options.${optionIndex}.values.${valueIndex}.value`,
-                {
-                  required: "Option value is required",
+            <div className="relative">
+              <TextInput
+                {...register(
+                  `options.${optionIndex}.values.${valueIndex}.value`,
+                  {
+                    required: "Option value is required",
+                  }
+                )}
+                placeholder="Option Value"
+                id={`options.${optionIndex}.values.${valueIndex}.value`}
+                onBlur={() =>
+                  trigger(`options.${optionIndex}.values.${valueIndex}.value`)
                 }
+              />
+              {valueIndex && valueIndex != 0 ? (
+                <Button
+                  size="sm"
+                  color="red"
+                  onClick={() => removeValue(valueIndex)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3"
+                >
+                  <MdDeleteForever />
+                </Button>
+              ) : (
+                ""
               )}
-              placeholder="Option Value"
-              id={`options.${optionIndex}.values.${valueIndex}.value`}
-              onBlur={() =>
-                trigger(`options.${optionIndex}.values.${valueIndex}.value`)
-              }
-              helperText={
-                errors.options?.[optionIndex].values?.[valueIndex]?.value
-                  ? errors.options?.[optionIndex].values?.[valueIndex]?.value
-                      .message
-                  : ""
-              }
-            />
-          </div>
+            </div>
 
-          <Button size="sm" color="red" onClick={() => removeValue(valueIndex)}>
-            Remove
-          </Button>
+            {errors.options?.[optionIndex]?.values?.[valueIndex]?.value ? (
+              <p className="text-red-400">
+                {
+                  errors.options?.[optionIndex]?.values?.[valueIndex]?.value
+                    .message
+                }
+              </p>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       ))}
-
-      <Button
-        color="light"
-        size="sm"
-        onClick={() => appendValue({ value: "" })}
-        className="mt-2"
-      >
-        Add Option Value
-      </Button>
     </div>
   );
 }
