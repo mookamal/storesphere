@@ -2,14 +2,14 @@
 import { IoAddCircle } from "react-icons/io5";
 import { TextInput, Button, Label } from "flowbite-react";
 import { useFieldArray } from "react-hook-form";
-
+import OptionValues from "@/components/admin/product/OptionValues";
 export default function VariantInputs({ register, control, errors, trigger }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
   });
   return (
-    <div className="card p-3 flex flex-col h-full">
+    <div className="card p-3 flex flex-col">
       <h2>Variants</h2>
 
       {fields.map((field, index) => (
@@ -17,7 +17,7 @@ export default function VariantInputs({ register, control, errors, trigger }) {
           key={field.id}
           className="border flex flex-col gap-4 my-2 p-3 rounded"
         >
-          <div className="mx-auto w-1/2">
+          <div className="md:mx-auto md:w-1/2">
             <div className="mb-2 block">
               <Label htmlFor={`option-${field.id}`} value="Option name" />
             </div>
@@ -40,6 +40,16 @@ export default function VariantInputs({ register, control, errors, trigger }) {
                   </span>
                 )
               }
+            />
+          </div>
+          {/* Nested field array for option values */}
+          <div className="md:mx-auto md:w-1/2 mt-4">
+            <OptionValues
+              control={control}
+              register={register}
+              errors={errors}
+              optionIndex={index}
+              trigger={trigger}
             />
           </div>
           <div className="flex justify-between mx-auto w-1/2">
