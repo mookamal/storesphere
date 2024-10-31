@@ -3,6 +3,7 @@ import { useFieldArray } from "react-hook-form";
 import { TextInput, Button, Label } from "flowbite-react";
 import { useEffect } from "react";
 import { MdDeleteForever } from "react-icons/md";
+import { IoMdAddCircle } from "react-icons/io";
 
 export default function OptionValues({
   control,
@@ -84,6 +85,9 @@ export default function OptionValues({
           </div>
         </div>
       ))}
+      <Button size="sm" onClick={handleAddValue} className="mb-2" color="light">
+        <IoMdAddCircle />
+      </Button>
     </div>
   );
 }
