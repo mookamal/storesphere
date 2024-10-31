@@ -19,6 +19,7 @@ import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
 import Status from "@/components/admin/product/Status";
+import VariantInputs from "@/components/admin/product/VariantInputs";
 
 export default function AddProduct() {
   const [openMediaModal, setOpenMediaModal] = useState(false);
@@ -28,7 +29,15 @@ export default function AddProduct() {
   const [storeData, setStoreData] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
-  const { register, handleSubmit, setValue, watch } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    control,
+    formState: { errors },
+    trigger,
+  } = useForm({
     defaultValues: {
       title: "",
       description: "",
@@ -296,9 +305,12 @@ export default function AddProduct() {
         </div>
         {/* start variants section */}
         <div className="lg:col-span-2">
-          <div className="card p-3 flex flex-col h-full">
-            <h2>Variants</h2>
-          </div>
+          <VariantInputs
+            register={register}
+            control={control}
+            errors={errors}
+            trigger={trigger}
+          />
         </div>
         {/* end variants section */}
       </div>
