@@ -6,9 +6,9 @@ function Logo() {
       <Image
         src="/assets/site/logo.png"
         alt="Logo"
-        width={200}
-        height={100}
-        className="w-full h-12"
+        className="w-8 h-8 mr-2"
+        width={30}
+        height={24}
       />
     </Link>
   );

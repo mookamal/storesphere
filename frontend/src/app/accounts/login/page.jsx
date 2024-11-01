@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Logo from "@/components/my/Logo";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -64,6 +65,10 @@ export default function Login() {
       <div className="w-full rounded-lg  md:mt-0 sm:max-w-md xl:p-0">
         <Card>
           <CardHeader>
+            <CardTitle className="w1/2">
+              <Logo />
+            </CardTitle>
+
             <CardTitle>Login</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
