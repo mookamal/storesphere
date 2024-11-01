@@ -10,6 +10,7 @@ export default function VariantInputs({
   errors,
   trigger,
   watch,
+  getValues,
 }) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -32,6 +33,14 @@ export default function VariantInputs({
               id={`option-${field.id}`}
               {...register(`options.${index}.name`, {
                 required: "Option name is required",
+                validate: {
+                  unique: (value) =>
+                    (value &&
+                      !fields.some(
+                        (option, i) => i !== index && option.name === value
+                      )) ||
+                    "This option name must be unique.",
+                },
               })}
               placeholder="Size"
               control={control}

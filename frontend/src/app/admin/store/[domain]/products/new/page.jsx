@@ -37,6 +37,7 @@ export default function AddProduct() {
     control,
     formState: { errors },
     trigger,
+    getValues,
   } = useForm({
     defaultValues: {
       title: "",
@@ -311,6 +312,7 @@ export default function AddProduct() {
             errors={errors}
             trigger={trigger}
             watch={watch}
+            getValues={getValues}
           />
         </div>
         {/* end variants section */}
