@@ -64,7 +64,7 @@ export default function Login() {
     <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
       <div className="w-full rounded-lg  md:mt-0 sm:max-w-md xl:p-0">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-col gap-3">
             <CardTitle className="w1/2">
               <Logo />
             </CardTitle>
