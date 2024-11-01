@@ -310,6 +310,7 @@ export default function AddProduct() {
             control={control}
             errors={errors}
             trigger={trigger}
+            watch={watch}
           />
         </div>
         {/* end variants section */}

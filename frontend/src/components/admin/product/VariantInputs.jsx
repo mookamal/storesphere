@@ -3,7 +3,14 @@ import { IoAddCircle } from "react-icons/io5";
 import { TextInput, Button, Label } from "flowbite-react";
 import { useFieldArray } from "react-hook-form";
 import OptionValues from "@/components/admin/product/OptionValues";
-export default function VariantInputs({ register, control, errors, trigger }) {
+import VariantsTable from "./VariantsTable";
+export default function VariantInputs({
+  register,
+  control,
+  errors,
+  trigger,
+  watch,
+}) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
@@ -75,6 +82,7 @@ export default function VariantInputs({ register, control, errors, trigger }) {
           Add options like color or size
         </Button>
       </div>
+      <VariantsTable control={control} />
     </div>
   );
 }
