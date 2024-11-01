@@ -11,6 +11,7 @@ export default function OptionValues({
   errors,
   optionIndex,
   trigger,
+  getValues,
 }) {
   const {
     fields: valueFields,
@@ -50,6 +51,19 @@ export default function OptionValues({
                   `options.${optionIndex}.values.${valueIndex}.value`,
                   {
                     required: "Option value is required",
+                    validate: {
+                      unique: (value) => {
+                        const valuesByOption = getValues(
+                          `options.${optionIndex}.values`
+                        );
+                        // Check for duplicates while excluding the current value being validated
+                        const isDuplicate = valuesByOption.some(
+                          (v, index) =>
+                            index !== valueIndex && v.value === value
+                        );
+                        return !isDuplicate || "Value already exists";
+                      },
+                    },
                   }
                 )}
                 placeholder="Option Value"

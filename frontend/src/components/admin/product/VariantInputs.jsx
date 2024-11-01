@@ -68,6 +68,7 @@ export default function VariantInputs({
               errors={errors}
               optionIndex={index}
               trigger={trigger}
+              getValues={getValues}
             />
           </div>
           <hr />
