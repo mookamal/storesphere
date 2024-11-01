@@ -5,14 +5,16 @@ export default function VariantsTable({ control }) {
   const [showTable, setShowTable] = useState(false);
 
   const watchOptions = useWatch({ control, name: "options" });
-
   useEffect(() => {
-    const hasOption =
+    const hasAtLeastOneValidOption =
       Array.isArray(watchOptions) &&
-      watchOptions.some((option) => option?.name?.trim());
-    if (hasOption) {
-      const valuesOption = watchOptions[0]?.values;
-    }
+      watchOptions.some(
+        (option) =>
+          option?.name?.trim() !== "" &&
+          option?.values?.[0]?.value?.trim() !== ""
+      );
+
+    setShowTable(hasAtLeastOneValidOption);
   }, [watchOptions]);
 
   return <>{showTable && <h1>Tables</h1>}</>;
