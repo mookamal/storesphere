@@ -43,7 +43,7 @@ const formSchema = z
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +54,34 @@ export default function Signup() {
     },
   });
   async function onSubmit(values) {
-    console.log(values);
+    setIsLoading(true);
+    try {
+      const response = await axios.post(SIGNUP_URL, values);
+      if (response.statusText === "OK") {
+        setIsLoading(false);
+        setSuccessMessage(response.data.success);
+        form.reset();
+      } else {
+        console.log("response error".response);
+      }
+    } catch (error) {
+      if (error.response.data.error) {
+        const errorList = error.response.data.error;
+        if (errorList.email) {
+          form.setError("email", { message: errorList.email[0] });
+        }
+        if (errorList.username) {
+          form.setError("username", { message: errorList.username[0] });
+        }
+        if (errorList.password1) {
+          form.setError("password1", { message: errorList.password1[0] });
+        }
+        if (errorList.password2) {
+          form.setError("password2", { message: errorList.password2[0] });
+        }
+      }
+    }
+    setIsLoading(false);
   }
   return (
     <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -137,7 +164,6 @@ export default function Signup() {
                     </FormItem>
                   )}
                 />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
                 {/* button submit */}
                 <Button
                   type="submit"
@@ -150,6 +176,9 @@ export default function Signup() {
                   )}
                   Register
                 </Button>
+                {successMessage && (
+                  <p className="text-green-500  font-bold">{successMessage}</p>
+                )}
               </form>
             </Form>
           </CardContent>
