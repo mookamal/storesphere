@@ -1,7 +1,15 @@
 "use client";
 
-import { Button, Checkbox, Label, TextInput } from "flowbite-react";
-import AuthContainer from "@/components/accounts/AuthContainer";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
@@ -38,30 +46,37 @@ export default function Login() {
   }
 
   return (
-    <AuthContainer>
-      <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-          Log in
-        </h1>
-        <form className="flex max-w-md flex-col gap-4" onSubmit={handleLogin}>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="email" value="Your email" />
+    <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <div className="w-full rounded-lg  md:mt-0 sm:max-w-md xl:p-0">
+        <Card>
+          <CardHeader>
+            <CardTitle>Login</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input type="email" id="email" placeholder="Email" />
             </div>
-            <TextInput id="email" type="text" placeholder="Email" required />
-          </div>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="password1" value="Your password" />
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input type="password" id="password" placeholder="*****" />
             </div>
-            <TextInput id="password1" type="password" required />
-          </div>
-          <div>{error && <p className="text-red-500 text-sm">{error}</p>}</div>
-          <Button type="submit" className="my-3" isProcessing={isLoading}>
-            Login
-          </Button>
-        </form>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+              onClick={handleLogin}
+              size="lg"
+            >
+              Login
+            </Button>
+          </CardContent>
+          <CardFooter>
+            <p>Card Footer</p>
+          </CardFooter>
+        </Card>
       </div>
-    </AuthContainer>
+    </section>
   );
 }
