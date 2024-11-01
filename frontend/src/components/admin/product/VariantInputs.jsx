@@ -34,12 +34,14 @@ export default function VariantInputs({
               {...register(`options.${index}.name`, {
                 required: "Option name is required",
                 validate: {
-                  unique: (value) =>
-                    (value &&
-                      !fields.some(
-                        (option, i) => i !== index && option.name === value
-                      )) ||
-                    "This option name must be unique.",
+                  unique: (value) => {
+                    const values = getValues().options.map(
+                      (option) => option.name
+                    );
+                    const isDuplicate =
+                      values.filter((v) => v === value).length > 1;
+                    return !isDuplicate || "This value must be unique";
+                  },
                 },
               })}
               placeholder="Size"
