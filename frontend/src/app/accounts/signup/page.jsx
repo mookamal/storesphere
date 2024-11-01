@@ -1,183 +1,165 @@
-'use client';
-
-import AuthContainer from "@/components/accounts/AuthContainer";
-import Link from "next/link";
-import { Button , Label , TextInput} from "flowbite-react";
-import { useState } from "react";
-import { HiCheckCircle } from "react-icons/hi";
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IoReload } from "react-icons/io5";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { formatMsgServer } from "@/lib/utilities";
-import axios from 'axios';
-const  SIGNUP_URL = "/auth/signup"
+import axios from "axios";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import Logo from "@/components/my/Logo";
+import Link from "next/link";
+const SIGNUP_URL = "/auth/signup";
+
+const formSchema = z
+  .object({
+    email: z.string().email({ message: "Please enter a valid email address" }),
+    username: z.string().min(2, "Please enter a valid username"),
+    password1: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" }),
+    password2: z.string(),
+  })
+  .refine((data) => data.password1 === data.password2, {
+    message: "Passwords do not match",
+    path: ["password2"],
+  });
 
 export default function Signup() {
-  const [password , setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    if (password !== confirmPassword) {
-        setPasswordError('Passwords do not match');
-        return;
-    }
-
-    setPassword('');
-    setConfirmPassword('');
-    setPasswordError('');
-
-    const formData = new FormData(e.target);
-    const objectFromForm = Object.fromEntries(formData);
-    const jsonData = JSON.stringify(objectFromForm);
-
-    try {
-
-        const response = await axios.post(SIGNUP_URL, jsonData);
-
-        if (response.statusText === "OK") {
-          setSuccessMessage(response.data.success);
-          setFormErrors({});
-          e.target.reset();
-        } else {
-          setFormErrors({general:'Registration failed. Please try again.'});
-        }
-
-    } catch (error) {
-      const errorMessage = error.response.data.error;
-      const err = formatMsgServer(errorMessage);
-      setFormErrors(err);
-    }
-    setIsLoading(false);
-}
-
-
+  const [error, setError] = useState("");
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password1: "",
+      password2: "",
+    },
+  });
+  async function onSubmit(values) {
+    console.log(values);
+  }
   return (
-        <AuthContainer>
-          {successMessage && <div className="w-72 p-3 mx-auto my-2 rounded-md bg-green-200 flex items-center justify-center">
-            <HiCheckCircle /> 
-            <p className="font-bold mx-2">{successMessage}</p>
-          </div>}
+    <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <div className="w-full rounded-lg  md:mt-0 sm:max-w-md xl:p-0">
+        <Card>
+          <CardHeader className="flex flex-col gap-3">
+            <CardTitle className="w1/2">
+              <Logo />
+            </CardTitle>
 
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Create an account
-            </h1>
-            <form className="space-y-4 md:space-y-6" action="#" onSubmit={handleSubmit}>
-              <div>
-                <Label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Your username
-                </Label>
-                <TextInput 
-                  type="text"
-                  name="username"
-                  id="username"
-                  placeholder="username"
-                  required
-                />
-              </div>
-              {formErrors.username && <p className="text-red-500 text-sm">{formErrors.username}</p>}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Your email
-                </label>
-                <TextInput 
-                  type="email"
-                  name="email"
-                  id="email"
-                  placeholder="name@company.com"
-                  required
-                />
-              </div>
-              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Password
-                </label>
-                <TextInput
-                  type="password"
-                  name="password1"
-                  id="password1"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confirm-password"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Confirm password
-                </label>
-                <TextInput
-                  type="password"
-                  name="password2"
-                  id="password2"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-              {formErrors.password1 && <p className="text-red-500 text-sm">{formErrors.password1}</p>}
-              {formErrors.non_field_errors && <p className="text-red-500 text-sm">{formErrors.non_field_errors}</p>}
-              {formErrors.general && <p className="text-red-500 text-sm">{formErrors.general}</p>}
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <TextInput
-                    id="terms"
-                    aria-describedby="terms"
-                    type="checkbox"
-                    required
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label
-                    htmlFor="terms"
-                    className="font-light text-gray-500 dark:text-gray-300"
-                  >
-                    I accept the{" "}
-                    <a
-                      className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                      href="#"
-                    >
-                      Terms and Conditions
-                    </a>
-                  </label>
-                </div>
-              </div>
-              <Button
-              isProcessing={isLoading}
-              size="lg"
-              type="submit"
-              className="w-full text-gray-900 bg-white border border-gray-200 focus:outline-none hover:bg-green-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+            <CardTitle>Login</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
               >
-                Create an account
-              </Button>
-            
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Email" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Username" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {/* button submit */}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isLoading}
                 >
-                  Login here
-                </Link>
-              </p>
-            </form>
-          </div>
-        </AuthContainer>
+                  {isLoading && (
+                    <IoReload className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Register
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter>
+            <p>
+              Already have an account? <Link href="/login"> Login</Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+    </section>
   );
 }
