@@ -1,29 +1,26 @@
-import siteInfo from "../../data/site.json"
-import {
-  Button,
-  Navbar,
-  NavbarBrand,
-  NavbarCollapse,
-  NavbarLink,
-  DarkThemeToggle,
-} from "flowbite-react";
+import Logo from "@/components/my/Logo";
+import { buttonVariants } from "@/components/ui/button";
 
+import Link from "next/link";
 export default function MainNavbar() {
   return (
-    <Navbar>
-      <NavbarBrand href="/">
-        <img src={siteInfo.logo} className="mr-3 h-6 sm:h-9" alt={siteInfo.name} />
-      </NavbarBrand>
-      <NavbarCollapse>
-        <NavbarLink href="#" active>
-          Home
-        </NavbarLink>
-        <NavbarLink href="#">About</NavbarLink>
-        <NavbarLink href="#">Services</NavbarLink>
-        <NavbarLink href="#">Pricing</NavbarLink>
-        <NavbarLink href="#">Contact</NavbarLink>
-      </NavbarCollapse>
-      <DarkThemeToggle />
-    </Navbar>
+    <header className="w-full bg-white dark:bg-black text-black dark:text-white md:px-8 px-2 flex items-center justify-between">
+      <Logo />
+
+      <div className="flex items-center gap-2">
+        <Link
+          className={buttonVariants({ variant: "outline" })}
+          href={`${process.env.NEXTAUTH_URL}/login`}
+        >
+          Login
+        </Link>
+        <Link
+          className={buttonVariants({ variant: "default" })}
+          href={`${process.env.NEXTAUTH_URL}/signup`}
+        >
+          Start free trial
+        </Link>
+      </div>
+    </header>
   );
 }
