@@ -12,8 +12,6 @@ export default function VariantsTable({ control }) {
       watchOptions.some((option) => option?.name?.trim());
     if (hasOption) {
       const valuesOption = watchOptions[0]?.values;
-      const hasValue = valuesOption.some((value) => value?.trim());
-      console.log("hasValue", hasValue);
     }
   }, [watchOptions]);
 
