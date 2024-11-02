@@ -9,6 +9,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { IoHome, IoSettings } from "react-icons/io5";
 import { FaAward } from "react-icons/fa6";
@@ -29,6 +32,16 @@ export default function AdminSidebar() {
       title: "Settings",
       url: `/store/${storeDomain}/settings/general`,
       icon: IoSettings,
+      subLinks: [
+        {
+          title: "General",
+          url: `/store/${storeDomain}/settings/general`,
+        },
+        {
+          title: "Plan",
+          url: `/store/${storeDomain}/settings/plan`,
+        },
+      ],
     },
   ];
   return (
@@ -45,6 +58,19 @@ export default function AdminSidebar() {
                       <span>{link.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {link.subLinks && (
+                    <SidebarMenuSub>
+                      {link.subLinks.map((subLink) => (
+                        <SidebarMenuSubItem key={subLink.title}>
+                          <SidebarMenuSubButton asChild>
+                            <Link href={subLink.url}>
+                              <span>{subLink.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
