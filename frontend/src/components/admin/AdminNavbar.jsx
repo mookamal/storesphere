@@ -4,7 +4,6 @@ import { Dropdown, Navbar } from "flowbite-react";
 import infoData from "../../data/site.json";
 import Search from "./AdminSearch";
 import AvatarByLetter from "./Avatar";
-import { DarkThemeToggle } from "flowbite-react";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
@@ -45,7 +44,6 @@ export default function AdminNavbar() {
           <Search />
 
           <div className="flex gap-2">
-            <DarkThemeToggle />
             <Dropdown
               arrowIcon={false}
               inline
