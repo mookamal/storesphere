@@ -56,17 +56,14 @@ export async function middleware(request) {
   }
 
   if (subdomain === "admin" && session) {
-    if (session.has_store === false) {
-      url.pathname = "/store-create";
-      url.host = "accounts.nour.com";
-      url.port = "80";
-      return NextResponse.redirect(url);
-    }
-    if (session.has_store === true && url.pathname === "/") {
+    if (url.pathname === "/") {
       try {
         const domain = await firstStoreRedirect(session);
         if (domain) {
           url.pathname = `/store/${domain}`;
+          return NextResponse.redirect(url);
+        } else {
+          url.pathname = "/create-store";
           return NextResponse.redirect(url);
         }
       } catch (e) {}
