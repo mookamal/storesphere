@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="dark:bg-coal-500">
         <ThemeProvider attribute="class" defaultTheme="light">
           {children}
