@@ -45,7 +45,8 @@ export default function StoreCreate() {
     setError("");
     const response = await axios.post(CREATE_STORE_URL, values);
     if (response.statusText === "OK") {
-      window.location.href = `/admin/store/${response.data.domain}`;
+      const storeDomain = response.data.domain;
+      window.location.href = `/store/${storeDomain}`;
     } else {
       setError("Failed to create store. Please try again.");
       setIsLoading(false);
