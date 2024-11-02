@@ -1,5 +1,6 @@
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import "./globals.css";
 
 export const metadata = {
@@ -9,12 +10,12 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <>
-      <AdminNavbar />
+    <SidebarProvider>
       <AdminSidebar />
-      <main className="p-4 sm:ml-64 mt-16 min-h-screen bg-screen-primary dark:bg-coal-500">
+      <main className="min-h-screen w-full">
+        <AdminNavbar />
         {children}
       </main>
-    </>
+    </SidebarProvider>
   );
 }
