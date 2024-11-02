@@ -6,11 +6,9 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
 import { IoHome, IoSettings } from "react-icons/io5";
 import { FaAward } from "react-icons/fa6";
