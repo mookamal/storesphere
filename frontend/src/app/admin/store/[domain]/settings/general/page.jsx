@@ -5,29 +5,38 @@ import { MdEditNote } from "react-icons/md";
 import { FaLocationCrosshairs } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
-import axios from 'axios';
+import axios from "axios";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import animation from "@/assets/animation/loading.json";
-import Lottie from 'lottie-react';
+import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
 import { Badge } from "flowbite-react";
 import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
-let cc = require('currency-codes');
+let cc = require("currency-codes");
+
+// shadcn
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function General({ params }) {
-  const [error, setError ] = useState(false);
+  const [error, setError] = useState(false);
   const [data, setData] = useState(null);
   const [openProfileStoreModal, setOpenProfileStoreModal] = useState(false);
-  const [openBillingAddressModel, setOpenBillingAddressModel] = useState(false)
+  const [openBillingAddressModel, setOpenBillingAddressModel] = useState(false);
   const [openStoreCurrencyModel, setOpenStoreCurrencyModel] = useState(null);
   const domain = params.domain;
 
   const getData = async () => {
-
     try {
-
-      const response = await axios.post('/api/get-data', {
+      const response = await axios.post("/api/get-data", {
         query: GET_SETTINGS_GENERAL,
         variables: { domain: domain },
       });
@@ -37,71 +46,76 @@ export default function General({ params }) {
       }
       setData(response.data.store);
     } catch (error) {
-      console.error('Error fetching store details:', error.message);
+      console.error("Error fetching store details:", error.message);
       setData(null);
       setError(true);
     }
-  }
+  };
 
   useEffect(() => {
     getData();
   }, []);
 
   if (error) {
-    return <Error />
+    return <Error />;
   }
 
   if (!data) {
-    return <Lottie animationData={animation} loop={true} />
+    return <Lottie animationData={animation} loop={true} />;
   }
 
-
-
   return (
-    <div className="lg:w-4/6 w-full">
-      {/* title */}
-      <h1 className="h1">General</h1>
-      {/* store details */}
-      <div className="card p-3 font-medium text-sm my-3">
-        <h2>Store details</h2>
-        <div className="border p-3 my-3 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <IoMdHome size={20} className="mr-3 text-gray-500 dark:text-gray-50" />
-              <div>
-                <h2>{data.name}</h2>
-                {data.email && <h2>{data.email}</h2>}
-              </div>
-            </div>
-            <button className="p-1 active-click" onClick={() => setOpenProfileStoreModal(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
-            <ProfileStoreModal openModal={openProfileStoreModal} setOpenModal={setOpenProfileStoreModal} data={data} refreshData={getData} />
+    <div className="grid md:grid-cols-2  gap-3 my-10">
+      {/* Store details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Store details</CardTitle>
+          <hr className="border" />
+          <Button
+            variant="secondary"
+            onClick={() => setOpenProfileStoreModal(true)}
+          >
+            <MdEditNote size={20} />
+          </Button>
+          <ProfileStoreModal
+            openModal={openProfileStoreModal}
+            setOpenModal={setOpenProfileStoreModal}
+            data={data}
+            refreshData={getData}
+          />
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-sm text-muted-foreground text-center">
+            {data.name}
+          </h2>
+        </CardContent>
+      </Card>
+      {/* Billing address */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing address</CardTitle>
+          <hr className="border" />
+
+          <Button
+            variant="secondary"
+            onClick={() => setOpenBillingAddressModel(true)}
+          >
+            <MdEditNote size={20} />
+          </Button>
+          <BillingAddressModal
+            openModal={openBillingAddressModel}
+            setOpenModal={setOpenBillingAddressModel}
+            data={data.billingAddress}
+            refreshData={getData}
+          />
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-sm text-muted-foreground">
+            <h2>Billing address</h2>
+            <h2>{data.billingAddress.phone}</h2>
           </div>
-          <hr className="my-2" />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <FaLocationCrosshairs size={20} className="mr-3 text-gray-500 dark:text-gray-50" />
-              <div>
-                <h2>Billing address</h2>
-                <h2>{data.billingAddress.phone}</h2>
-              </div>
-            </div>
-            <button className="p-1 active-click" onClick={() => setOpenBillingAddressModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
-            <BillingAddressModal openModal={openBillingAddressModel} setOpenModal={setOpenBillingAddressModel} data={data.billingAddress} refreshData={getData} />
-          </div>
-        </div>
-      </div>
-      {/* store defaults */}
-      <div className="card p-3 font-medium text-sm my-3">
-        <h2>Store defaults</h2>
-        <div className="border p-3 my-3 rounded-lg">
-          <div className="flex flex-row justify-between items-center">
-            <h3>Currency display</h3>
-            {data.currencyCode && <Badge color="purple" className="font-bold">{cc.code(data.currencyCode).currency}</Badge>}
-            <button className="p-1 active-click" onClick={() => setOpenStoreCurrencyModel(true)}><MdEditNote size={20} className="text-gray-500 dark:text-gray-50" /></button>
-            <StoreCurrencyModel openModal={openStoreCurrencyModel} setOpenModal={setOpenStoreCurrencyModel} currencyCode={data.currencyCode} refreshData={getData} />
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
