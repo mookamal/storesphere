@@ -1,8 +1,6 @@
 "use client";
 
-import { IoMdHome } from "react-icons/io";
 import { MdEditNote } from "react-icons/md";
-import { FaLocationCrosshairs } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from "axios";
@@ -11,20 +9,13 @@ import animation from "@/assets/animation/loading.json";
 import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
-import { Badge } from "flowbite-react";
 import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
 let cc = require("currency-codes");
 
 // shadcn
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function General({ params }) {
   const [error, setError] = useState(false);
@@ -114,6 +105,33 @@ export default function General({ params }) {
             <h2>Billing address</h2>
             <h2>{data.billingAddress.phone}</h2>
           </div>
+        </CardContent>
+      </Card>
+      {/* store defaults */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Store defaults</CardTitle>
+          <hr className="border" />
+          <Button
+            variant="secondary"
+            onClick={() => setOpenStoreCurrencyModel(true)}
+          >
+            <MdEditNote size={20} className="text-gray-500 dark:text-gray-50" />
+          </Button>
+
+          <StoreCurrencyModel
+            openModal={openStoreCurrencyModel}
+            setOpenModal={setOpenStoreCurrencyModel}
+            currencyCode={data.currencyCode}
+            refreshData={getData}
+          />
+        </CardHeader>
+        <CardContent>
+          {data.currencyCode && (
+            <div className="flex justify-center">
+              <Badge>{cc.code(data.currencyCode).currency}</Badge>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
