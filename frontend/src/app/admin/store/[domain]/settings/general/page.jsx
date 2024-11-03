@@ -20,7 +20,6 @@ import { Badge } from "@/components/ui/badge";
 export default function General({ params }) {
   const [error, setError] = useState(false);
   const [data, setData] = useState(null);
-  const [openBillingAddressModel, setOpenBillingAddressModel] = useState(false);
   const [openStoreCurrencyModel, setOpenStoreCurrencyModel] = useState(null);
   const domain = params.domain;
 
@@ -76,15 +75,7 @@ export default function General({ params }) {
           <CardTitle>Billing address</CardTitle>
           <hr className="border" />
 
-          <Button
-            variant="secondary"
-            onClick={() => setOpenBillingAddressModel(true)}
-          >
-            <MdEditNote size={20} />
-          </Button>
           <BillingAddressModal
-            openModal={openBillingAddressModel}
-            setOpenModal={setOpenBillingAddressModel}
             data={data.billingAddress}
             refreshData={getData}
           />
