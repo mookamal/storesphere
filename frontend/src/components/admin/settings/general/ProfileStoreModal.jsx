@@ -69,7 +69,7 @@ export default function ProfileStoreModal({ data, refreshData }) {
 
   return (
     <Dialog>
-      <DialogTrigger className="bg-slate-100 p-2 rounded-md shadow flex justify-center">
+      <DialogTrigger className="bg-slate-100 dark:bg-black dark:text-white p-2 rounded-md shadow flex justify-center">
         <MdEditNote size={20} />
       </DialogTrigger>
       <DialogContent>
