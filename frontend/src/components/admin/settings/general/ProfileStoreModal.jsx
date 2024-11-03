@@ -84,7 +84,9 @@ export default function ProfileStoreModal({ data, refreshData }) {
         <div className="mt-3">
           <div className="grid md:grid-cols-2 md:gap-6">
             <div className="w-full mb-5">
-              <Label htmlFor="name" value="Store Name" />
+              <div className="mb-2">
+                <Label htmlFor="name">Store Name</Label>
+              </div>
               <Input
                 id="name"
                 name="name"
@@ -95,7 +97,9 @@ export default function ProfileStoreModal({ data, refreshData }) {
             </div>
 
             <div className="w-full mb-5">
-              <Label htmlFor="phone" value="Store Phone" />
+              <div className="mb-2">
+                <Label htmlFor="phone">Store Phone</Label>
+              </div>
               <Input
                 id="phone"
                 name="phone"
@@ -106,7 +110,9 @@ export default function ProfileStoreModal({ data, refreshData }) {
             </div>
           </div>
           <div className="w-full mb-5">
-            <Label htmlFor="email" value="Store Email" />
+            <div className="mb-2">
+              <Label htmlFor="email">Store Email</Label>
+            </div>
             <Input
               id="email"
               name="email"

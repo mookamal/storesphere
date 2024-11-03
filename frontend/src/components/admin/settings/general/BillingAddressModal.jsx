@@ -114,7 +114,7 @@ export default function BillingAddressModal({ data, refreshData }) {
           {/* company */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="company" value="Legal business name" />
+              <Label htmlFor="company">Legal business name</Label>
             </div>
             <Input
               id="company"
@@ -125,7 +125,7 @@ export default function BillingAddressModal({ data, refreshData }) {
           {/* Country */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="country" value="Country" />
+              <Label htmlFor="country">Country</Label>
             </div>
             <Select
               options={optionCountries}
@@ -143,7 +143,7 @@ export default function BillingAddressModal({ data, refreshData }) {
           {/* city */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="city" value="City" />
+              <Label htmlFor="city">City</Label>
             </div>
             <Input
               id="city"
@@ -154,7 +154,7 @@ export default function BillingAddressModal({ data, refreshData }) {
           {/* address1 */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="address1" value="Address" />
+              <Label htmlFor="address1">Address</Label>
             </div>
             <Input
               id="address1"
@@ -166,7 +166,7 @@ export default function BillingAddressModal({ data, refreshData }) {
 
           <div>
             <div className="mb-2">
-              <Label htmlFor="address2" value="Apartment, suite, etc" />
+              <Label htmlFor="address2">Apartment, suite, etc</Label>
             </div>
             <Input
               id="address2"
@@ -177,7 +177,7 @@ export default function BillingAddressModal({ data, refreshData }) {
           {/* postalCode */}
           <div>
             <div className="mb-2">
-              <Label htmlFor="zip" value="Postal code" />
+              <Label htmlFor="zip">Postal code</Label>
             </div>
             <Input
               id="zip"
