@@ -17,7 +17,7 @@ import axios from "axios";
 import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
-
+import { MdEditNote } from "react-icons/md";
 export default function ProfileStoreModal({ data, refreshData }) {
   const [storeName, setStoreName] = useState(data.name || "");
   const [storePhone, setStorePhone] = useState(data.billingAddress.phone || "");
@@ -69,7 +69,11 @@ export default function ProfileStoreModal({ data, refreshData }) {
 
   return (
     <Dialog>
-      <DialogTrigger>Open</DialogTrigger>
+      <DialogTrigger>
+        <Button variant="secondary">
+          <MdEditNote size={20} />
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
