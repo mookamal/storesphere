@@ -1,18 +1,29 @@
 "use client";
 
-import { Button, Modal, Label, TextInput, Spinner } from "flowbite-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { IoReload } from "react-icons/io5";
 import { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
-export default function ProfileStoreModal({ openModal, setOpenModal, data , refreshData }) {
-  const [storeName, setStoreName] = useState(data.name || '');
-  const [storePhone, setStorePhone] = useState(data.billingAddress.phone || '');
-  const [storeEmail, setStoreEmail] = useState(data.email || '');
+export default function ProfileStoreModal({ data, refreshData }) {
+  const [storeName, setStoreName] = useState(data.name || "");
+  const [storePhone, setStorePhone] = useState(data.billingAddress.phone || "");
+  const [storeEmail, setStoreEmail] = useState(data.email || "");
   const [isChanged, setIsChanged] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const domain = useParams().domain;
   useEffect(() => {
     if (
@@ -26,60 +37,53 @@ export default function ProfileStoreModal({ openModal, setOpenModal, data , refr
     }
   }, [storeName, storePhone, storeEmail, data]);
 
-
   const handleSave = async () => {
-    setLoading(true);
+    setIsLoading(true);
     const variables = {
       input: {
         name: storeName,
         email: storeEmail,
         billingAddress: {
-          phone: storePhone
-        }
+          phone: storePhone,
+        },
       },
-      defaultDomain: domain
+      defaultDomain: domain,
     };
     try {
-      const response = await axios.post('/api/set-data', {
+      const response = await axios.post("/api/set-data", {
         query: UPDATE_STORE_PROFILE,
-        variables: variables
-      },);
+        variables: variables,
+      });
 
       refreshData();
-      setOpenModal(false);
-      toast.success('Store profile updated successfully!');
+      toast.success("Store profile updated successfully!");
     } catch (error) {
       if (error.response.data.error) {
         console.error(error.response.data.error);
       }
-      console.error('Error updating store profile:', error.message);
-      toast.error('Failed to update store profile!');
+      console.error("Error updating store profile:", error.message);
+      toast.error("Failed to update store profile!");
     }
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
-    <Modal
-      dismissible
-      className="dark:text-white"
-      show={openModal}
-      onClose={() => setOpenModal(false)}
-    >
-      <Modal.Header className="bg-screen-primary dark:bg-black p-3">
-        <span className="font-semibold text-base">Edit Profile</span>
-      </Modal.Header>
-
-      <Modal.Body className="dark:bg-slate-900">
-        <p className="text-sm">
-          Please be aware that these details might be accessible to the public.
-          Avoid using personal information.
-        </p>
-
+    <Dialog>
+      <DialogTrigger>Open</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <hr />
+          <DialogDescription>
+            Please be aware that these details might be accessible to the
+            public. Avoid using personal information.
+          </DialogDescription>
+        </DialogHeader>
         <div className="mt-3">
           <div className="grid md:grid-cols-2 md:gap-6">
             <div className="w-full mb-5">
               <Label htmlFor="name" value="Store Name" />
-              <TextInput
+              <Input
                 id="name"
                 name="name"
                 type="text"
@@ -90,7 +94,7 @@ export default function ProfileStoreModal({ openModal, setOpenModal, data , refr
 
             <div className="w-full mb-5">
               <Label htmlFor="phone" value="Store Phone" />
-              <TextInput
+              <Input
                 id="phone"
                 name="phone"
                 type="text"
@@ -101,7 +105,7 @@ export default function ProfileStoreModal({ openModal, setOpenModal, data , refr
           </div>
           <div className="w-full mb-5">
             <Label htmlFor="email" value="Store Email" />
-            <TextInput
+            <Input
               id="email"
               name="email"
               type="email"
@@ -110,18 +114,11 @@ export default function ProfileStoreModal({ openModal, setOpenModal, data , refr
             />
           </div>
         </div>
-      </Modal.Body>
-
-      <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
-
-        <Button color="dark" onClick={handleSave} size="xs" disabled={!isChanged}>
-          {loading && <Spinner aria-label="Loading button" className="mr-1" size="xs" />}
+        <Button onClick={handleSave} disabled={!isChanged}>
+          {isLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
           Save
         </Button>
-
-        <Button color="light" size="xs" onClick={() => setOpenModal(false)}>Cancel</Button>
-
-      </Modal.Footer>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }
