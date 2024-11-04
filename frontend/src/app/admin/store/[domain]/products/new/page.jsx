@@ -17,15 +17,15 @@ import SeoInputs from "@/components/admin/product/SeoInputs";
 import Status from "@/components/admin/product/Status";
 import VariantInputs from "@/components/admin/product/VariantInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
+import MediaInputs from "@/components/admin/product/MediaInputs";
 
 export default function AddProduct() {
-  const [openMediaModal, setOpenMediaModal] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   const [storeData, setStoreData] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+
   const {
     register,
     handleSubmit,
@@ -71,23 +71,6 @@ export default function AddProduct() {
   useEffect(() => {
     getStoreData();
   }, []);
-
-  const handleSelectRemoveImages = (image, isChecked) => {
-    if (isChecked) {
-      setSelectedRemoveImages([...selectedRemoveImages, image]);
-    } else {
-      setSelectedRemoveImages(
-        selectedRemoveImages.filter((item) => item.id !== image.id)
-      );
-    }
-  };
-
-  const removeSelectedImages = () => {
-    setSelectedImages(
-      selectedImages.filter((item) => !selectedRemoveImages.includes(item))
-    );
-    setSelectedRemoveImages([]);
-  };
 
   const addImages = async (productId) => {
     if (productId || selectedImages.length > 0) {
@@ -198,6 +181,10 @@ export default function AddProduct() {
             handleBlur={handleBlur}
             description={description}
             setValue={setValue}
+          />
+          <MediaInputs
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
           />
         </div>
       </div>

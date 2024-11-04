@@ -1,0 +1,108 @@
+"use client";
+import { IoCloudUploadOutline } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect } from "react";
+import MediaModal from "@/components/admin/product/MediaModal";
+export default function MediaInputs({ selectedImages, setSelectedImages }) {
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  const [openMediaModal, setOpenMediaModal] = useState(false);
+  const handleSelectRemoveImages = (image, isChecked) => {
+    if (isChecked) {
+      setSelectedRemoveImages([...selectedRemoveImages, image]);
+    } else {
+      setSelectedRemoveImages(
+        selectedRemoveImages.filter((item) => item.id !== image.id)
+      );
+    }
+  };
+  const removeSelectedImages = () => {
+    setSelectedImages(
+      selectedImages.filter((item) => !selectedRemoveImages.includes(item))
+    );
+    setSelectedRemoveImages([]);
+  };
+  return (
+    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+      <CardHeader>
+        <div className="mb-2">
+          {selectedRemoveImages.length > 0 && (
+            <div className="flex items-center justify-between">
+              <h3>{selectedRemoveImages.length} file selected</h3>
+              <Button size="ms" onClick={removeSelectedImages}>
+                Remove
+              </Button>
+            </div>
+          )}
+          {selectedRemoveImages.length === 0 && (
+            <div className="flex justify-between items-center">
+              <h2>Media</h2>
+              <Button onClick={() => setOpenMediaModal(true)}>
+                <IoCloudUploadOutline />
+              </Button>
+              <MediaModal
+                openModal={openMediaModal}
+                setOpenModal={() => setOpenMediaModal(false)}
+                selectedImages={selectedImages}
+                setSelectedImages={setSelectedImages}
+              />
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-center">
+          <Carousel
+            opts={{
+              align: "start",
+            }}
+            className="w-full max-w-sm"
+          >
+            <CarouselContent>
+              {selectedImages.map((image) => (
+                <CarouselItem key={image.id} className="basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div
+                      className={`flex flex-col items-center gap-1 p-2 ${
+                        selectedRemoveImages.some(
+                          (selectedImage) => selectedImage.id === image.id
+                        )
+                          ? "border-2 border-gray-400 shadow-md rounded"
+                          : ""
+                      }`}
+                    >
+                      <Checkbox
+                        id={image.id}
+                        onCheckedChange={(checked) =>
+                          handleSelectRemoveImages(image, checked)
+                        }
+                        checked={selectedRemoveImages.some(
+                          (selectedImage) => selectedImage.id === image.id
+                        )}
+                      />
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
+                        alt={`image-${image.id}`}
+                        className="h-20 w-20 rounded-lg object-cover"
+                      />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
