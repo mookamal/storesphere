@@ -179,7 +179,7 @@ class ProductInput(graphene.InputObjectType):
     status = graphene.String(required=True)
     handle = graphene.String(required=True)
     seo = SEOInput(required=True)
-    first_variant = ProductVariantInput(required=True)
+    first_variant = ProductVariantInput()
 
 
 class CreateProduct(graphene.relay.ClientIDMutation):
@@ -201,6 +201,7 @@ class CreateProduct(graphene.relay.ClientIDMutation):
             product.seo = seo
             product.save()
             first_variant_data = product_data.first_variant
+            print("first_variant_data", first_variant_data)
             first_variant = ProductVariant(
                 product=product,
                 price=first_variant_data.price,

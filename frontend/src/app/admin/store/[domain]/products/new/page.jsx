@@ -42,6 +42,8 @@ export default function AddProduct() {
     defaultValues: {
       title: "",
       description: "",
+      price: 0.0,
+      compare: 0.0,
     },
   });
 
@@ -165,12 +167,13 @@ export default function AddProduct() {
       defaultDomain: domain,
       product: productData,
     };
+
     try {
       const response = await axios.post("/api/set-data", {
         query: CREATE_PRODUCT,
         variables: variables,
       });
-      setLoading(false);
+
       if (response.data.data.createProduct.product.productId) {
         await addImages(response.data.data.createProduct.product.productId);
         router.push(
