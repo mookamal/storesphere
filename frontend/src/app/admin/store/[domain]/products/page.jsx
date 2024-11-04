@@ -11,12 +11,11 @@ import animation from "@/assets/animation/loading.json";
 import { customThemeTable } from "@/lib/constants";
 import Image from "next/image";
 import { RxReload } from "react-icons/rx";
-
+import { Badge } from "@/components/ui/badge";
 // shadcn
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -173,6 +172,57 @@ export default function Products({ params }) {
             <div className="flex justify-center items-center">
               <RxReload className="mr-2 h-4 w-4 animate-spin" /> Loading...
             </div>
+          )}
+          {/* notFoundProducts */}
+          {notFoundProducts && (
+            <div className="text-center text-sm font-semibold dark:text-white">
+              No products found
+            </div>
+          )}
+          {/* products table */}
+          {!notFoundProducts && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map(({ node }) => (
+                  <TableRow key={node.id}>
+                    <TableCell>
+                      <div className="flex justify-start gap-2 items-center">
+                        <Image
+                          src={
+                            node.image?.image
+                              ? `${process.env.NEXT_PUBLIC_ADMIN_URL}/${node.image.image}`
+                              : "/assets/icons/blog.png"
+                          }
+                          loading={"lazy"}
+                          width={40}
+                          height={40}
+                          quality={75}
+                          alt={node.title}
+                          className="rounded-md object-cover cursor-pointer"
+                          style={{ width: "auto", height: "auto" }}
+                        />
+                        <h2>{node.title}</h2>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          node.status === "ACTIVE" ? "outline" : "destructive"
+                        }
+                      >
+                        {node.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
