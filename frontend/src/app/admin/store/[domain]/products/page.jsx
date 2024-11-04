@@ -8,7 +8,6 @@ import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
 import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
-import { customThemeTable } from "@/lib/constants";
 import Image from "next/image";
 import { RxReload } from "react-icons/rx";
 import { Badge } from "@/components/ui/badge";
@@ -186,7 +185,7 @@ export default function Products({ params }) {
           )}
           {/* products table */}
           {!notFoundProducts && (
-            <Table>
+            <Table className="border mt-2">
               <TableHeader>
                 <TableRow>
                   <TableHead>Product</TableHead>
