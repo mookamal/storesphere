@@ -139,7 +139,6 @@ export default function Products({ params }) {
               <Select
                 defaultValue={status}
                 id="status"
-                onChange={(e) => handleFilterChange(e)}
                 onValueChange={(value) =>
                   handleFilterChange({ value: value, name: "status" })
                 }
