@@ -2,7 +2,8 @@
 import { TextInput, Label } from "flowbite-react";
 
 export default function PriceInput({ register, currencyCode, price, compare }) {
-  const showWarning = price && compare && price >= compare;
+  const showWarning = price > 0 && compare > 0 && price >= compare;
+
   return (
     <div className="card p-3 flex flex-col h-full">
       <h2>Pricing</h2>
