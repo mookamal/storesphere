@@ -92,16 +92,8 @@ export default function General({ params }) {
         <CardHeader>
           <CardTitle>Store defaults</CardTitle>
           <hr className="border" />
-          <Button
-            variant="secondary"
-            onClick={() => setOpenStoreCurrencyModel(true)}
-          >
-            <MdEditNote size={20} className="text-gray-500 dark:text-gray-50" />
-          </Button>
 
           <StoreCurrencyModel
-            openModal={openStoreCurrencyModel}
-            setOpenModal={setOpenStoreCurrencyModel}
             currencyCode={data.currencyCode}
             refreshData={getData}
           />
