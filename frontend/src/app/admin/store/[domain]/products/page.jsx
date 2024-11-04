@@ -1,15 +1,6 @@
 "use client";
 
-import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import {
-  Button,
-  Checkbox,
-  Table,
-  Badge,
-  Select,
-  Spinner,
-} from "flowbite-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -19,6 +10,29 @@ import Error from "@/components/admin/Error";
 import animation from "@/assets/animation/loading.json";
 import { customThemeTable } from "@/lib/constants";
 import Image from "next/image";
+import { RxReload } from "react-icons/rx";
+
+// shadcn
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Products({ params }) {
   const [error, setError] = useState(false);
@@ -29,15 +43,17 @@ export default function Products({ params }) {
   const searchParams = useSearchParams();
   const [endCursor, setEndCursor] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
-  const status = searchParams.get("status") || "all";
-  const searchQuery = searchParams.get("search") || "";
+  const [status, setStatus] = useState(searchParams.get("status") || "all");
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
   const [countProduct, setCountProduct] = useState(5);
   const [loading, setLoading] = useState(false);
   const [notFoundProducts, setNotFoundProducts] = useState(false);
 
   const handleFilterChange = (e) => {
     setEndCursor("");
-    const { name, value } = e.target;
+    const { name, value } = e;
     const params = new URLSearchParams(searchParams);
 
     params.set(name, value);
@@ -76,7 +92,10 @@ export default function Products({ params }) {
     }
     setLoading(false);
   };
-
+  useEffect(() => {
+    setStatus(searchParams.get("status") || "all");
+    setSearchQuery(searchParams.get("search") || "");
+  }, [searchParams]);
   useEffect(() => {
     getData();
   }, [searchQuery, status, countProduct]);
@@ -90,157 +109,73 @@ export default function Products({ params }) {
   }
 
   return (
-    <div className="w-full">
-      <div className="flex justify-end">
-        <Link href={`${pathname}/new`}>
-          <Button
-            color="light"
-            className="bg-m-yellow text-primary-text font-bold"
+    <div className="p-5">
+      {/* header section */}
+      <div className="flex justify-between">
+        {/* title */}
+        <h1 className="text-lg font-bold dark:text-white">Products</h1>
+        {/* button actions */}
+        <div className="flex justify-center gap-2">
+          <Link
+            href={`${pathname}/new`}
+            className={buttonVariants({ variant: "outline" })}
           >
             Add product
-          </Button>
-        </Link>
+          </Link>
+        </div>
       </div>
-      {/* card */}
-      <div className="card my-3">
-        {/* header */}
-        <div className="card-header gap-1">
-          {/* status */}
-          <Select
-            name="status"
-            sizing="sm"
-            id="status"
-            onChange={handleFilterChange}
-            value={status}
-          >
-            <option value="all">All</option>
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-          </Select>
-          {/* End status */}
+      {/* products tables */}
+      <Card className="my-3">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            {" "}
+            {/* status input */}
+            <div>
+              <div className="mb-1">
+                <p className="text-sm font-bold">Status</p>
+              </div>
+              <Select
+                defaultValue={status}
+                id="status"
+                onChange={(e) => handleFilterChange(e)}
+                onValueChange={(value) =>
+                  handleFilterChange({ value: value, name: "status" })
+                }
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="DRAFT">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* search input */}
+            <div>
+              <div className="mb-1">
+                <Label htmlFor="search">Search</Label>
+              </div>
+              <Input
+                id="search"
+                type="text"
+                name="search"
+                onChange={(e) => handleFilterChange(e.target)}
+                placeholder="Search"
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
           {/* loading */}
           {loading && (
-            <Spinner color="info" size="lg" aria-label="Loading page" />
-          )}
-          {/* End loading */}
-          {/* search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-              <CiSearch />
-            </div>
-            <input
-              type="text"
-              name="search"
-              onChange={handleFilterChange}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search"
-            />
-          </div>
-          {/* End search */}
-        </div>
-        {/* End header */}
-
-        {/* body */}
-        <div className="card-body">
-          {/* not found */}
-          {notFoundProducts && (
-            <div className="text-center p-2">
-              <h2 className="text-lg font-bold text-coal-black">
-                No products found
-              </h2>
+            <div className="flex justify-center items-center">
+              <RxReload className="mr-2 h-4 w-4 animate-spin" /> Loading...
             </div>
           )}
-          {/* End not found */}
-          {/* products */}
-          {!notFoundProducts && (
-            <div className="overflow-x-auto my-3">
-              <Table hoverable theme={customThemeTable}>
-                <Table.Head>
-                  <Table.HeadCell>Product</Table.HeadCell>
-                  <Table.HeadCell>Status</Table.HeadCell>
-                  <Table.HeadCell></Table.HeadCell>
-                </Table.Head>
-
-                <Table.Body className="divide-y">
-                  {products.map(({ node }) => (
-                    <Table.Row key={node.id}>
-                      <Table.Cell>
-                        <div className="flex justify-start gap-2 items-center">
-                          <Image
-                            src={
-                              node.image?.image
-                                ? `${process.env.NEXT_PUBLIC_ADMIN_URL}/${node.image.image}`
-                                : "/assets/icons/blog.png"
-                            }
-                            loading={"lazy"}
-                            width={40}
-                            height={40}
-                            quality={75}
-                            alt={node.title}
-                            className="rounded-md object-cover cursor-pointer"
-                            style={{ width: "auto", height: "auto" }}
-                          />
-                          <Checkbox />
-                          <h2>{node.title}</h2>
-                        </div>
-                      </Table.Cell>
-
-                      <Table.Cell>
-                        <Badge
-                          style={{ display: "inline" }}
-                          color={
-                            node.status === "ACTIVE" ? "success" : "warning"
-                          }
-                        >
-                          {node.status}
-                        </Badge>
-                      </Table.Cell>
-
-                      <Table.Cell>
-                        <Link href={`${pathname}/${node.productId}`}>
-                          <h2 className="text-blue-600 hover:text-blue-800">
-                            Edit
-                          </h2>
-                        </Link>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
-          )}
-          {/* End products */}
-          <div className="card-footer flex justify-center md:justify-between flex-col md:flex-row gap-2 text-gray-600 text-2sm font-medium">
-            <div className="flex items-center gap-1 justify-between">
-              Show
-              <Select
-                name="showCountProduct"
-                sizing="sm"
-                value={countProduct}
-                onChange={(e) => {
-                  setCountProduct(parseInt(e.target.value));
-                  setEndCursor("");
-                }}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-              </Select>
-              per page
-            </div>
-            <Button
-              size="sm"
-              color="light"
-              className="bg-m-yellow text-primary-text font-bold"
-              disabled={!hasNextPage}
-              onClick={getData}
-            >
-              Load More
-            </Button>
-          </div>
-        </div>
-      </div>
-      {/* End card */}
+        </CardContent>
+      </Card>
     </div>
   );
 }
