@@ -172,13 +172,13 @@ export default function Products({ params }) {
         <CardContent>
           {/* loading */}
           {loading && (
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center my-2">
               <RxReload className="mr-2 h-4 w-4 animate-spin" /> Loading...
             </div>
           )}
           {/* notFoundProducts */}
           {notFoundProducts && (
-            <div className="text-center text-sm font-semibold dark:text-white">
+            <div className="text-center text-sm font-semibold dark:text-white my-2">
               No products found
             </div>
           )}
