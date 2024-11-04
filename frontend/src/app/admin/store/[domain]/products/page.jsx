@@ -130,8 +130,7 @@ export default function Products({ params }) {
       {/* products tables */}
       <Card className="my-3 shadow-md">
         <CardHeader className="border-b-2 py-2 bg-gray-100 dark:bg-slate-800">
-          <div className="flex justify-between items-center">
-            {" "}
+          <div className="flex justify-between items-center gap-2">
             {/* status input */}
             <div>
               <div className="mb-1">
@@ -145,7 +144,7 @@ export default function Products({ params }) {
                   handleFilterChange({ value: value, name: "status" })
                 }
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[85px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -247,7 +246,7 @@ export default function Products({ params }) {
                 setEndCursor("");
               }}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[60px]">
                 <SelectValue placeholder={countProduct} />
               </SelectTrigger>
               <SelectContent>
@@ -259,7 +258,7 @@ export default function Products({ params }) {
             </Select>
             per page
           </div>
-          <Button disabled={!hasNextPage} onClick={getData}>
+          <Button disabled={!hasNextPage} onClick={getData} size="sm">
             Load More
           </Button>
         </CardFooter>
