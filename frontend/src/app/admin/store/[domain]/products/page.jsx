@@ -21,8 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -124,8 +129,8 @@ export default function Products({ params }) {
         </div>
       </div>
       {/* products tables */}
-      <Card className="my-3">
-        <CardHeader>
+      <Card className="my-3 shadow-md">
+        <CardHeader className="border-b-2 py-2 bg-gray-100 dark:bg-slate-800">
           <div className="flex justify-between items-center">
             {" "}
             {/* status input */}
@@ -186,6 +191,7 @@ export default function Products({ params }) {
                 <TableRow>
                   <TableHead>Product</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -219,12 +225,45 @@ export default function Products({ params }) {
                         {node.status}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Link href={`${pathname}/${node.productId}`}>
+                        <h2 className="text-blue-600 hover:text-blue-800">
+                          Edit
+                        </h2>
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           )}
         </CardContent>
+        <CardFooter className="justify-between border-t-2 py-2 bg-gray-100 dark:bg-slate-800">
+          <div className="flex items-center gap-1 justify-between">
+            Show
+            <Select
+              defaultValue={countProduct}
+              onValueChange={(value) => {
+                setCountProduct(parseInt(value));
+                setEndCursor("");
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={countProduct} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            per page
+          </div>
+          <Button disabled={!hasNextPage} onClick={getData}>
+            Load More
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );
