@@ -1,6 +1,6 @@
 "use client";
 
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { IoCloudUploadOutline, IoReload } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
@@ -10,7 +10,6 @@ import { ADD_MEDIA_IMAGES_PRODUCT, CREATE_PRODUCT } from "@/graphql/mutations";
 import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import MediaModal from "@/components/admin/product/MediaModal";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
@@ -18,6 +17,7 @@ import Status from "@/components/admin/product/Status";
 import VariantInputs from "@/components/admin/product/VariantInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
+import { Button } from "@/components/ui/button";
 
 export default function AddProduct() {
   const router = useRouter();
@@ -176,18 +176,45 @@ export default function AddProduct() {
           Add a new product
         </h1>
         <div className="grid lg:grid-cols-2 gap-4 my-3">
+          {/* title , status and description */}
           <GeneralInputs
             register={register}
             handleBlur={handleBlur}
             description={description}
             setValue={setValue}
           />
+          {/* images input */}
           <MediaInputs
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
           />
+          {/* price input */}
+          <PriceInput
+            register={register}
+            currencyCode={storeData?.currencyCode}
+            price={price}
+            compare={compare}
+          />
+          <VariantInputs
+            register={register}
+            control={control}
+            errors={errors}
+            trigger={trigger}
+            watch={watch}
+            getValues={getValues}
+          />
+          {/* variant inputs */}
         </div>
       </div>
+      <Button
+        size="lg"
+        type="submit"
+        className="fixed bottom-5 right-5 rounded-full shadow-md"
+        disabled={loading}
+      >
+        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        Add
+      </Button>
     </form>
   );
 }
