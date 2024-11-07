@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
-import Status from "@/components/admin/product/Status";
 import VariantInputs from "@/components/admin/product/VariantInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
@@ -188,13 +187,17 @@ export default function AddProduct() {
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
           />
-          {/* price input */}
-          <PriceInput
-            register={register}
-            currencyCode={storeData?.currencyCode}
-            price={price}
-            compare={compare}
-          />
+          <div className="flex flex-col gap-3">
+            {/* price input */}
+            <PriceInput
+              register={register}
+              currencyCode={storeData?.currencyCode}
+              price={price}
+              compare={compare}
+            />
+            {/* seo inputs */}
+            <SeoInputs register={register} domain={domain} handle={handle} />
+          </div>
           {/* variant inputs */}
           <VariantInputs
             register={register}

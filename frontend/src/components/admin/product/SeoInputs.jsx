@@ -1,44 +1,48 @@
-import { TextInput, Label, Textarea, Badge } from "flowbite-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 export default function SeoInputs({ register, domain, handle }) {
   return (
-    <div className="card p-3 flex flex-col h-full">
-      <h2>SEO data</h2>
-
-      <div className="my-2">
-        <div className="mb-2">
-          <Label htmlFor="seoTitle" value="Page title" />
+    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+      <CardHeader>SEO data</CardHeader>
+      <CardContent>
+        <div className="my-2">
+          <div className="mb-2">
+            <Label htmlFor="seoTitle">Page title</Label>
+          </div>
+          <Input
+            id="seoTitle"
+            size="sm"
+            type="text"
+            {...register("seoTitle")}
+            placeholder="seo title"
+          />
         </div>
-        <TextInput
-          id="seoTitle"
-          sizing="sm"
-          type="text"
-          {...register("seoTitle")}
-          placeholder="seo title"
-        />
-      </div>
 
-      <div className="my-2">
-        <div className="mb-2">
-          <h2>Page description</h2>
+        <div className="my-2">
+          <div className="mb-2">
+            <Label htmlFor="seoDescription">Seo Description</Label>
+          </div>
+          <Textarea
+            id="seoDescription"
+            size="sm"
+            {...register("seoDescription")}
+            placeholder="seo description"
+          />
         </div>
-        <Textarea
-          id="seoDescription"
-          sizing="sm"
-          {...register("seoDescription")}
-          placeholder="seo description"
-          rows={3}
-        />
-      </div>
 
-      <div className="my-2">
-        <div className="mb-2">
-          <h2>URL handle</h2>
-          <Badge size="xs" className="my-3" color="success">
-            https://{domain}.my-store.com/{handle}
-          </Badge>
+        <div className="my-2">
+          <div className="mb-2">
+            <h2>URL handle</h2>
+            <Badge size="xs" className="my-3">
+              https://{domain}.my-store.com/{handle}
+            </Badge>
+          </div>
+          <Input size="sm" {...register("handle")} />
         </div>
-        <TextInput sizing="sm" {...register("handle")} />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
