@@ -46,6 +46,7 @@ export default function MediaInputs({ selectedImages, setSelectedImages }) {
               <MediaModal
                 selectedImages={selectedImages}
                 setSelectedImages={setSelectedImages}
+                handleSelectRemoveImages={handleSelectRemoveImages}
               />
             </div>
           )}

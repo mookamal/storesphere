@@ -25,6 +25,7 @@ export default function MediaModal({
   selectedImages,
   setSelectedImages,
   externalLoading,
+  handleSelectRemoveImages,
 }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
@@ -154,8 +155,8 @@ export default function MediaModal({
                   {/* Checkbox for each image */}
                   <Checkbox
                     id={image.imageId}
-                    onChange={(e) =>
-                      handleCheckboxChange(image, e.target.checked)
+                    onCheckedChange={(checked) =>
+                      handleSelectRemoveImages(image, checked)
                     }
                     checked={selectedImages.some(
                       (selectedImage) => selectedImage.id === image.imageId
