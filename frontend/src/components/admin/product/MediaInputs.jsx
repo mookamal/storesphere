@@ -45,7 +45,7 @@ export default function MediaInputs({ selectedImages, setSelectedImages }) {
           {selectedRemoveImages.length === 0 && (
             <div className="flex justify-between items-center">
               <h2>Media</h2>
-              <Button onClick={() => setOpenMediaModal(true)}>
+              <Button type="button" onClick={() => setOpenMediaModal(true)}>
                 <IoCloudUploadOutline />
               </Button>
               <MediaModal
