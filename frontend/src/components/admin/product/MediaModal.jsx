@@ -1,23 +1,27 @@
 "use client";
 
 import {
-  Button,
-  Modal,
-  Spinner,
-  FileInput,
-  Label,
-  HR,
-  Checkbox,
-} from "flowbite-react";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { buttonVariants } from "@/components/ui/button";
+import { IoCloudUploadOutline } from "react-icons/io5";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { GET_MEDIA_IMAGES } from "@/graphql/queries";
 import LoadingElement from "@/components/LoadingElement";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 export default function MediaModal({
-  openModal,
-  setOpenModal,
   selectedImages,
   setSelectedImages,
   externalLoading,
@@ -102,22 +106,19 @@ export default function MediaModal({
     }
   };
 
-  const handleSave = async () => {
-    setOpenModal(false);
-  };
   return (
-    <Modal
-      dismissible
-      className="dark:text-white"
-      size="6xl"
-      show={openModal}
-      onClose={() => setOpenModal(false)}
-    >
-      <Modal.Header className="bg-screen-primary dark:bg-black p-3">
-        <span className="font-semibold text-base">Select file</span>
-      </Modal.Header>
-
-      <Modal.Body className="dark:bg-slate-900">
+    <Dialog>
+      <DialogTrigger className={buttonVariants({ variant: "outline" })}>
+        <IoCloudUploadOutline />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Select file</DialogTitle>
+          <hr />
+          <VisuallyHidden>
+            <DialogDescription>Select file</DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
         {externalLoading && <LoadingElement />}
         <div className="flex flex-col">
           <div className="flex w-full items-center justify-center">
@@ -134,15 +135,16 @@ export default function MediaModal({
                   SVG, PNG, JPG or GIF
                 </p>
               </div>
-              <FileInput
+              <Input
                 id="dropzone-file"
+                type="file"
                 className="hidden"
                 onChange={(e) => uploadImage(e.target.files[0])}
               />
             </Label>
           </div>
         </div>
-        <HR.Trimmed />
+
         {data && (
           <div className="grid grid-rows-1 grid-flow-col gap-4 overflow-x-auto p-4">
             {data.map((edge) => {
@@ -152,7 +154,6 @@ export default function MediaModal({
                   {/* Checkbox for each image */}
                   <Checkbox
                     id={image.imageId}
-                    color="light"
                     onChange={(e) =>
                       handleCheckboxChange(image, e.target.checked)
                     }
@@ -173,28 +174,14 @@ export default function MediaModal({
           </div>
         )}
         <Button
-          color="light"
-          size="xs"
+          size="sm"
           className="my-2"
           disabled={!hasNextPage}
           onClick={getData}
         >
           Load more
         </Button>
-      </Modal.Body>
-
-      <Modal.Footer className="bg-screen-primary dark:bg-black p-3">
-        <Button color="dark" onClick={handleSave} size="xs" disabled={loading}>
-          {loading && (
-            <Spinner aria-label="Loading button" className="mr-1" size="xs" />
-          )}
-          Save
-        </Button>
-
-        <Button color="light" size="xs" onClick={() => setOpenModal(false)}>
-          Cancel
-        </Button>
-      </Modal.Footer>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

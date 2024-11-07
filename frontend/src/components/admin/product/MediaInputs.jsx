@@ -1,5 +1,4 @@
 "use client";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -14,7 +13,6 @@ import { useState, useEffect } from "react";
 import MediaModal from "@/components/admin/product/MediaModal";
 export default function MediaInputs({ selectedImages, setSelectedImages }) {
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
-  const [openMediaModal, setOpenMediaModal] = useState(false);
   const handleSelectRemoveImages = (image, isChecked) => {
     if (isChecked) {
       setSelectedRemoveImages([...selectedRemoveImages, image]);
@@ -45,12 +43,7 @@ export default function MediaInputs({ selectedImages, setSelectedImages }) {
           {selectedRemoveImages.length === 0 && (
             <div className="flex justify-between items-center">
               <h2>Media</h2>
-              <Button type="button" onClick={() => setOpenMediaModal(true)}>
-                <IoCloudUploadOutline />
-              </Button>
               <MediaModal
-                openModal={openMediaModal}
-                setOpenModal={() => setOpenMediaModal(false)}
                 selectedImages={selectedImages}
                 setSelectedImages={setSelectedImages}
               />
