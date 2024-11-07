@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import MediaModal from "@/components/admin/product/MediaModal";
 export default function MediaInputs({ selectedImages, setSelectedImages }) {
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  // handleSelectRemoveImages
   const handleSelectRemoveImages = (image, isChecked) => {
     if (isChecked) {
       setSelectedRemoveImages([...selectedRemoveImages, image]);
@@ -46,7 +47,6 @@ export default function MediaInputs({ selectedImages, setSelectedImages }) {
               <MediaModal
                 selectedImages={selectedImages}
                 setSelectedImages={setSelectedImages}
-                handleSelectRemoveImages={handleSelectRemoveImages}
               />
             </div>
           )}
