@@ -195,6 +195,7 @@ export default function AddProduct() {
             price={price}
             compare={compare}
           />
+          {/* variant inputs */}
           <VariantInputs
             register={register}
             control={control}
