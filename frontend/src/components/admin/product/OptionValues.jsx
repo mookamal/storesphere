@@ -1,6 +1,8 @@
 "use client";
 import { useFieldArray } from "react-hook-form";
-import { TextInput, Button, Label } from "flowbite-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import { IoMdAddCircle } from "react-icons/io";
@@ -46,7 +48,7 @@ export default function OptionValues({
             </div>
 
             <div className="relative">
-              <TextInput
+              <Input
                 {...register(
                   `options.${optionIndex}.values.${valueIndex}.value`,
                   {
@@ -75,7 +77,6 @@ export default function OptionValues({
               {valueIndex && valueIndex != 0 ? (
                 <Button
                   size="sm"
-                  color="red"
                   onClick={() => removeValue(valueIndex)}
                   className="absolute inset-y-0 right-0 flex items-center px-3"
                 >
@@ -99,7 +100,7 @@ export default function OptionValues({
           </div>
         </div>
       ))}
-      <Button size="sm" onClick={handleAddValue} className="mb-2" color="light">
+      <Button size="sm" onClick={handleAddValue} className="mb-2">
         <IoMdAddCircle />
       </Button>
     </div>
