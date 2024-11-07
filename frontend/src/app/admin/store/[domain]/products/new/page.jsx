@@ -1,6 +1,6 @@
 "use client";
 
-import { IoCloudUploadOutline, IoReload } from "react-icons/io5";
+import { IoReload } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
