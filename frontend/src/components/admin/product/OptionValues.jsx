@@ -25,12 +25,12 @@ export default function OptionValues({
   });
 
   const handleAddValue = (e) => {
-    appendValue({ value: "" });
+    appendValue({ name: "" });
   };
 
   useEffect(() => {
     if (valueFields.length === 0) {
-      appendValue({ value: "" });
+      appendValue({ name: "" });
     }
   }, []);
 
@@ -41,7 +41,7 @@ export default function OptionValues({
           <div className="my-2">
             <div className="mb-2 block">
               <Label
-                htmlFor={`options.${optionIndex}.values.${valueIndex}.value`}
+                htmlFor={`options.${optionIndex}.values.${valueIndex}.name`}
               >
                 Option Value
               </Label>
@@ -50,7 +50,7 @@ export default function OptionValues({
             <div className="relative">
               <Input
                 {...register(
-                  `options.${optionIndex}.values.${valueIndex}.value`,
+                  `options.${optionIndex}.values.${valueIndex}.name`,
                   {
                     required: "Option value is required",
                     validate: {
@@ -60,8 +60,7 @@ export default function OptionValues({
                         );
                         // Check for duplicates while excluding the current value being validated
                         const isDuplicate = valuesByOption.some(
-                          (v, index) =>
-                            index !== valueIndex && v.value === value
+                          (v, index) => index !== valueIndex && v.name === value
                         );
                         return !isDuplicate || "Value already exists";
                       },
@@ -69,9 +68,9 @@ export default function OptionValues({
                   }
                 )}
                 placeholder="Option Value"
-                id={`options.${optionIndex}.values.${valueIndex}.value`}
+                id={`options.${optionIndex}.values.${valueIndex}.name`}
                 onBlur={() =>
-                  trigger(`options.${optionIndex}.values.${valueIndex}.value`)
+                  trigger(`options.${optionIndex}.values.${valueIndex}.name`)
                 }
               />
               {valueIndex && valueIndex != 0 ? (
@@ -87,10 +86,10 @@ export default function OptionValues({
               )}
             </div>
 
-            {errors.options?.[optionIndex]?.values?.[valueIndex]?.value ? (
+            {errors.options?.[optionIndex]?.values?.[valueIndex]?.name ? (
               <p className="text-red-400">
                 {
-                  errors.options?.[optionIndex]?.values?.[valueIndex]?.value
+                  errors.options?.[optionIndex]?.values?.[valueIndex]?.name
                     .message
                 }
               </p>

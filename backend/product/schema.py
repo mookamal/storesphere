@@ -1,7 +1,7 @@
 import graphene
 from stores.models import Store, StaffMember
 from core.models import SEO
-from .models import Product, Image, ProductVariant
+from .models import Product, Image, ProductVariant, ProductOption, OptionValue
 import django_filters
 from graphene_django import DjangoObjectType
 from graphene import Scalar
@@ -32,6 +32,37 @@ class HTML(Scalar):
 @convert_django_field.register(CKEditor5Field)
 def convert_ckeditor_field_to_html(field, registry=None):
     return HTML()
+
+# GraphQL Type for OptionValue
+
+
+class OptionValueType(DjangoObjectType):
+    class Meta:
+        model = OptionValue
+        fields = ["id", "name"]
+
+
+class OptionValueInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+# GraphQL Type for ProductOption
+
+
+class ProductOptionType(DjangoObjectType):
+    # Define a custom field to get the related values
+    values = graphene.List(OptionValueType)
+
+    class Meta:
+        model = ProductOption
+        fields = ["id", "name", "values"]
+
+
+class ProductOptionInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    values = graphene.List(OptionValueInput)
+
+    def resolve_values(self, info):
+        # Resolving the related OptionValues for this ProductOption
+        return self.values.all()
 
 
 class SEOType(DjangoObjectType):
@@ -85,6 +116,7 @@ class ProductNode(DjangoObjectType):
     seo = graphene.Field(SEOType)
     image = graphene.Field(ImageNode)
     first_variant = graphene.Field(ProductVariantNode)
+    options = graphene.List(ProductOptionType)
 
     class Meta:
         model = Product
@@ -92,6 +124,10 @@ class ProductNode(DjangoObjectType):
             'exact', 'icontains', 'istartswith']}
         interfaces = (graphene.relay.Node, )
         exclude = ('store',)
+
+    def resolve_options(self, info):
+        # Resolving the related ProductOptions for this Product
+        return self.options.all()
 
     def resolve_product_id(self, info):
         return self.id
@@ -180,6 +216,7 @@ class ProductInput(graphene.InputObjectType):
     handle = graphene.String(required=True)
     seo = SEOInput(required=True)
     first_variant = ProductVariantInput()
+    options = graphene.List(ProductOptionInput)
 
 
 class CreateProduct(graphene.relay.ClientIDMutation):
@@ -210,6 +247,14 @@ class CreateProduct(graphene.relay.ClientIDMutation):
             first_variant.save()
             product.first_variant = first_variant
             product.save()
+            # to create options and values
+            for option_data in product_data.options:
+                option = ProductOption.objects.create(
+                    product=product, name=option_data.name)
+                for value_data in option_data.values:
+                    OptionValue.objects.create(
+                        option=option, name=value_data.name)
+
             return CreateProduct(product=product)
         else:
             raise PermissionDenied(

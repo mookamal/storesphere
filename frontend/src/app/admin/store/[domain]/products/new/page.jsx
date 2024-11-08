@@ -141,6 +141,7 @@ export default function AddProduct() {
         price: data.price,
         compareAtPrice: data.compare,
       },
+      options: data.options,
     };
     const variables = {
       defaultDomain: domain,
