@@ -23,6 +23,7 @@ import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
+import VariantInputs from "@/components/admin/product/VariantInputs";
 
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
@@ -33,7 +34,16 @@ export default function UpdateProduct() {
   const [data, setData] = useState(null);
   const [product, setProduct] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    trigger,
+    control,
+    formState: { errors },
+    watch,
+  } = useForm();
   const description = watch("description");
   const title = watch("title");
   const status = watch("status");
@@ -232,6 +242,7 @@ export default function UpdateProduct() {
           "compare",
           response.data.product.firstVariant.compareAtPrice || null
         );
+        setValue("options", response.data.product.options || []);
       } else {
         toast.error("Failed to fetch product details");
         setIsNotFound(true);
@@ -326,6 +337,16 @@ export default function UpdateProduct() {
             {/* seo inputs */}
             <SeoInputs register={register} domain={domain} handle={handle} />
           </div>
+          {/* variant inputs */}
+          {/* variant inputs */}
+          <VariantInputs
+            register={register}
+            control={control}
+            errors={errors}
+            trigger={trigger}
+            watch={watch}
+            getValues={getValues}
+          />
         </div>
       </div>
       <Button

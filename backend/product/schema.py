@@ -55,6 +55,10 @@ class ProductOptionType(DjangoObjectType):
         model = ProductOption
         fields = ["id", "name", "values"]
 
+    def resolve_values(self, info):
+        # Resolving the related OptionValues for this ProductOption
+        return self.values.all()
+
 
 class ProductOptionInput(graphene.InputObjectType):
     name = graphene.String(required=True)
@@ -238,7 +242,6 @@ class CreateProduct(graphene.relay.ClientIDMutation):
             product.seo = seo
             product.save()
             first_variant_data = product_data.first_variant
-            print("first_variant_data", first_variant_data)
             first_variant = ProductVariant(
                 product=product,
                 price=first_variant_data.price,

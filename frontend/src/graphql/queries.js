@@ -70,6 +70,14 @@ export const GET_PRODUCT_BY_ID = gql`
         price
         compareAtPrice
       }
+      options {
+        id
+        name
+        values {
+          id
+          name
+        }
+      }
     }
   }
 `;
