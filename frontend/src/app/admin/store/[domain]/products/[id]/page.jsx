@@ -302,10 +302,6 @@ export default function UpdateProduct() {
     }
   };
 
-  const handleEditorChange = (content) => {
-    setValue("description", content);
-  };
-
   if (isNotFound) return notFound();
 
   if (!data) {
