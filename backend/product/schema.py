@@ -10,6 +10,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import PermissionDenied
+from .utils import update_product_options_and_values
 
 
 class HTML(Scalar):
@@ -43,6 +44,7 @@ class OptionValueType(DjangoObjectType):
 
 
 class OptionValueInput(graphene.InputObjectType):
+    id = graphene.ID()
     name = graphene.String(required=True)
 # GraphQL Type for ProductOption
 
@@ -61,6 +63,7 @@ class ProductOptionType(DjangoObjectType):
 
 
 class ProductOptionInput(graphene.InputObjectType):
+    id = graphene.ID()
     name = graphene.String(required=True)
     values = graphene.List(OptionValueInput)
 
@@ -304,7 +307,8 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         first_variant.compare_at_price = product.first_variant.compare_at_price
         first_variant.save()
         product_instance.save()
-
+        # update options
+        update_product_options_and_values(product_instance, product.options)
         return UpdateProduct(product=product_instance)
 
 # Media for product

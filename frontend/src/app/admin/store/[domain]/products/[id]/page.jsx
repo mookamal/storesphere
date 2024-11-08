@@ -264,6 +264,17 @@ export default function UpdateProduct() {
     }
   };
 
+  function cleanOptionsData(options) {
+    return options.map((option) => ({
+      name: option.name,
+      id: option.id,
+      values: option.values.map((value) => ({
+        name: value.name,
+        id: value.id,
+      })),
+    }));
+  }
+
   const onSubmit = async (data) => {
     setLoading(true);
     const productData = {
@@ -279,6 +290,7 @@ export default function UpdateProduct() {
         price: data.price,
         compareAtPrice: data.compare,
       },
+      options: cleanOptionsData(data.options),
     };
     const variables = {
       defaultDomain: domain,
