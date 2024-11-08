@@ -52,10 +52,10 @@ export default function UpdateProduct() {
   const seoDescription = watch("seoDescription");
   const price = watch("price");
   const compare = watch("compare");
+  const options = watch("options");
   const [mediaImages, setMediaImages] = useState([]);
   const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
-  const [openMediaModal, setOpenMediaModal] = useState(false);
 
   const getStoreData = async () => {
     setLoading(true);
@@ -118,7 +118,7 @@ export default function UpdateProduct() {
   };
 
   useEffect(() => {
-    if (
+    const hasBasicChanges =
       title !== product?.title ||
       description !== product?.description ||
       status !== product?.status ||
@@ -126,8 +126,9 @@ export default function UpdateProduct() {
       seoTitle !== product?.seo.title ||
       seoDescription !== product?.seo.description ||
       price !== product?.firstVariant.price ||
-      compare !== product?.firstVariant.compareAtPrice
-    ) {
+      compare !== product?.firstVariant.compareAtPrice;
+
+    if (hasBasicChanges) {
       setHasChanges(true);
     } else {
       setHasChanges(false);
