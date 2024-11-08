@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
 import axios from "axios";
@@ -53,6 +53,14 @@ export default function UpdateProduct() {
   const price = watch("price");
   const compare = watch("compare");
   const options = watch("options");
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
+  const controlledFieldOptions = fields.map((field, index) => ({
+    ...field,
+    ...options[index],
+  }));
   const [mediaImages, setMediaImages] = useState([]);
   const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
@@ -126,7 +134,8 @@ export default function UpdateProduct() {
       seoTitle !== product?.seo.title ||
       seoDescription !== product?.seo.description ||
       price !== product?.firstVariant.price ||
-      compare !== product?.firstVariant.compareAtPrice;
+      compare !== product?.firstVariant.compareAtPrice ||
+      JSON.stringify(options) !== JSON.stringify(product?.options);
 
     if (hasBasicChanges) {
       setHasChanges(true);
@@ -142,6 +151,7 @@ export default function UpdateProduct() {
     handle,
     price,
     compare,
+    controlledFieldOptions,
   ]);
 
   const addImages = async (productId) => {
@@ -338,7 +348,6 @@ export default function UpdateProduct() {
             {/* seo inputs */}
             <SeoInputs register={register} domain={domain} handle={handle} />
           </div>
-          {/* variant inputs */}
           {/* variant inputs */}
           <VariantInputs
             register={register}
