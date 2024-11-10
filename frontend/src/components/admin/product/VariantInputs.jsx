@@ -14,11 +14,17 @@ export default function VariantInputs({
   trigger,
   watch,
   getValues,
+  setValue,
 }) {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: "options",
   });
+
+  const toggleEdit = (index) => {
+    const currentEditingState = watch(`options.${index}.isEditing`);
+    setValue(`options.${index}.isEditing`, !currentEditingState);
+  };
   return (
     <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
       <CardHeader>Variants</CardHeader>
@@ -80,9 +86,15 @@ export default function VariantInputs({
               >
                 Delete
               </Button>
-              <Button size="sm" variant="outline">
+              <Button
+                size="sm"
+                variant="outline"
+                type="button"
+                onClick={() => toggleEdit(index)}
+              >
                 Done
               </Button>
+              {watch(`options.${index}.isEditing`) && "is Editing"}
             </div>
           </div>
         ))}

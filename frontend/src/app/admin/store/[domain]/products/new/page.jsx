@@ -207,6 +207,7 @@ export default function AddProduct() {
             trigger={trigger}
             watch={watch}
             getValues={getValues}
+            setValue={setValue}
           />
           {/* variant inputs */}
         </div>
