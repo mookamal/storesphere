@@ -73,10 +73,14 @@ export default function VariantInputs({
             </div>
             <hr />
             <div className="flex justify-between mx-auto w-1/2">
-              <Button size="sm" color="red" onClick={() => remove(index)}>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => remove(index)}
+              >
                 Delete
               </Button>
-              <Button size="sm" color="dark">
+              <Button size="sm" variant="outline">
                 Done
               </Button>
             </div>
