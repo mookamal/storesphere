@@ -126,6 +126,15 @@ export default function AddProduct() {
     };
   }, [watchedTitle, description]);
 
+  function cleanOptionsData(options) {
+    return options.map((option) => ({
+      name: option.name,
+      values: option.values.map((value) => ({
+        name: value.name,
+      })),
+    }));
+  }
+
   const onSubmit = async (data) => {
     setLoading(true);
     const productData = {
@@ -141,7 +150,7 @@ export default function AddProduct() {
         price: data.price,
         compareAtPrice: data.compare,
       },
-      options: data.options,
+      options: cleanOptionsData(data.options),
     };
     const variables = {
       defaultDomain: domain,

@@ -364,6 +364,7 @@ export default function UpdateProduct() {
             trigger={trigger}
             watch={watch}
             getValues={getValues}
+            setValue={setValue}
           />
         </div>
       </div>
