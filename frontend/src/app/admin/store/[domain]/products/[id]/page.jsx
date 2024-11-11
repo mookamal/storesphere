@@ -108,7 +108,6 @@ export default function UpdateProduct() {
   };
 
   useEffect(() => {
-    console.log("Removing");
     removeSelectedImages();
   }, [selectedRemoveImages]);
 
