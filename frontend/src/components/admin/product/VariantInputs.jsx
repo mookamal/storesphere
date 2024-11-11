@@ -16,14 +16,23 @@ export default function VariantInputs({
   getValues,
   setValue,
 }) {
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
   });
 
   const toggleEdit = (index) => {
-    const currentEditingState = watch(`options.${index}.isEditing`);
-    setValue(`options.${index}.isEditing`, !currentEditingState);
+    const nameValue = watch(`options.${index}.name`);
+    const optionValue = watch(`options.${index}.values.0.name`);
+    if (
+      nameValue !== undefined &&
+      nameValue !== "" &&
+      optionValue !== undefined &&
+      optionValue !== ""
+    ) {
+      const currentEditingState = watch(`options.${index}.isEditing`);
+      setValue(`options.${index}.isEditing`, !currentEditingState);
+    }
   };
   return (
     <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
@@ -94,7 +103,6 @@ export default function VariantInputs({
               >
                 Done
               </Button>
-              {watch(`options.${index}.isEditing`) && "is Editing"}
             </div>
           </div>
         ))}
