@@ -24,6 +24,7 @@ export default function AddProduct() {
   const domain = useParams().domain;
   const [storeData, setStoreData] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
 
   const {
     register,
@@ -196,6 +197,9 @@ export default function AddProduct() {
           <MediaInputs
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
+            externalLoading={loading}
+            selectedRemoveImages={selectedRemoveImages}
+            setSelectedRemoveImages={setSelectedRemoveImages}
           />
           <div className="flex flex-col gap-3">
             {/* price input */}

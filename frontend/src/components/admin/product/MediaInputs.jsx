@@ -9,7 +9,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
 import MediaModal from "@/components/admin/product/MediaModal";
 export default function MediaInputs({
   selectedImages,
@@ -37,15 +36,14 @@ export default function MediaInputs({
     <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
       <CardHeader>
         <div className="mb-2">
-          {selectedRemoveImages.length > 0 && (
+          {selectedRemoveImages && selectedRemoveImages.length > 0 ? (
             <div className="flex items-center justify-between">
-              <h3>{selectedRemoveImages.length} file selected</h3>
+              <h3>{selectedRemoveImages.length} file(s) selected</h3>
               <Button size="ms" onClick={removeSelectedImages}>
                 Remove
               </Button>
             </div>
-          )}
-          {selectedRemoveImages.length === 0 && (
+          ) : (
             <div className="flex justify-between items-center">
               <h2>Media</h2>
               <MediaModal
@@ -56,6 +54,7 @@ export default function MediaInputs({
           )}
         </div>
       </CardHeader>
+
       <CardContent>
         <div className="flex justify-center">
           <Carousel
