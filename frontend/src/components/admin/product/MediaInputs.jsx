@@ -9,10 +9,14 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MediaModal from "@/components/admin/product/MediaModal";
-export default function MediaInputs({ selectedImages, setSelectedImages }) {
-  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+export default function MediaInputs({
+  selectedImages,
+  setSelectedImages,
+  selectedRemoveImages,
+  setSelectedRemoveImages,
+}) {
   // handleSelectRemoveImages
   const handleSelectRemoveImages = (image, isChecked) => {
     if (isChecked) {

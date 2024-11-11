@@ -82,15 +82,6 @@ export default function UpdateProduct() {
     setLoading(false);
   };
 
-  const handleSelectRemoveImages = (image, isChecked) => {
-    if (isChecked) {
-      setSelectedRemoveImages([...selectedRemoveImages, image]);
-    } else {
-      setSelectedRemoveImages(
-        selectedRemoveImages.filter((item) => item.id !== image.id)
-      );
-    }
-  };
   const removeSelectedImages = async () => {
     setLoading(true);
     if (selectedRemoveImages.length > 0) {
@@ -115,6 +106,11 @@ export default function UpdateProduct() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    console.log("Removing");
+    removeSelectedImages();
+  }, [selectedRemoveImages]);
 
   const handleBlur = () => {
     if (!handle) {
@@ -344,6 +340,8 @@ export default function UpdateProduct() {
             selectedImages={mediaImages}
             setSelectedImages={setMediaImages}
             externalLoading={loading}
+            selectedRemoveImages={selectedRemoveImages}
+            setSelectedRemoveImages={setSelectedRemoveImages}
           />
           <div className="flex flex-col gap-3">
             {/* price input */}
