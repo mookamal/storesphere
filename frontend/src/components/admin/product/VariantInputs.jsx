@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IoAddCircle } from "react-icons/io5";
 import { useFieldArray } from "react-hook-form";
-import OptionValues from "@/components/admin/product/OptionValues";
+import OptionValues from "@/components/admin/product/option/OptionValues";
 import VariantsTable from "./VariantsTable";
 import { Button } from "@/components/ui/button";
 export default function VariantInputs({
