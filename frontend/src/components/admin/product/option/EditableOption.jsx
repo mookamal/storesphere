@@ -21,7 +21,7 @@ export default function EditableOption({
   const optionValues = watch(`options.${index}.values`);
   return (
     <>
-      {!isEditing ? (
+      {isEditing ? (
         <>
           <div className="md:mx-auto md:w-1/2">
             <div className="mb-2 block">

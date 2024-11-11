@@ -60,7 +60,7 @@ export default function VariantInputs({
           <Button
             className="my-2 w-full"
             size="sm"
-            onClick={() => append({ name: "" })}
+            onClick={() => append({ name: "", isEditing: true })}
           >
             <IoAddCircle className="mr-3 w-4 h-4" />
             Add options like color or size

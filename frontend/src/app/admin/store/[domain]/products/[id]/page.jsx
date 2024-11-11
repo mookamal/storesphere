@@ -248,12 +248,14 @@ export default function UpdateProduct() {
           "compare",
           response.data.product.firstVariant.compareAtPrice || null
         );
-        const optionsData = response.data.product.options;
-        console.log("optionsData", optionsData);
+        const optionsData = response.data.product.options || [];
         if (optionsData.length > 0) {
-          console.log("has data option");
+          const optionsWithEditingState = optionsData.map((option) => ({
+            ...option,
+            isEditing: false,
+          }));
+          setValue("options", optionsWithEditingState);
         }
-        setValue("options", response.data.product.options || []);
       } else {
         toast.error("Failed to fetch product details");
         setIsNotFound(true);
