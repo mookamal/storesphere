@@ -248,6 +248,11 @@ export default function UpdateProduct() {
           "compare",
           response.data.product.firstVariant.compareAtPrice || null
         );
+        const optionsData = response.data.product.options;
+        console.log("optionsData", optionsData);
+        if (optionsData.length > 0) {
+          console.log("has data option");
+        }
         setValue("options", response.data.product.options || []);
       } else {
         toast.error("Failed to fetch product details");
