@@ -182,7 +182,7 @@ export default function AddProduct() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="p-5">
-        <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-3xl flex items-center">
+        <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-3xl flex items-center text-primary">
           Add a new product
         </h1>
         <div className="grid lg:grid-cols-2 gap-4 my-3">
