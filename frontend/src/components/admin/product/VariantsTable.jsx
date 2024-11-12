@@ -11,7 +11,7 @@ export default function VariantsTable({ control }) {
       watchOptions.some(
         (option) =>
           option?.name?.trim() !== "" &&
-          option?.values?.[0]?.value?.trim() !== ""
+          option?.values?.[0]?.name?.trim() !== ""
       );
 
     setShowTable(hasAtLeastOneValidOption);
