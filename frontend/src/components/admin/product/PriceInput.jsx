@@ -7,7 +7,7 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
   const showWarning = price > 0 && compare > 0 && price >= compare;
 
   return (
-    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+    <Card className="card">
       <CardHeader>
         <h2>Pricing</h2>
       </CardHeader>

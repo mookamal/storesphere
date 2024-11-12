@@ -33,7 +33,7 @@ export default function MediaInputs({
     setSelectedRemoveImages([]);
   };
   return (
-    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+    <Card className="card">
       <CardHeader>
         <div className="mb-2">
           {selectedRemoveImages && selectedRemoveImages.length > 0 ? (

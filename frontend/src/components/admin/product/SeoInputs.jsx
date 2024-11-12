@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 export default function SeoInputs({ register, domain, handle }) {
   return (
-    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+    <Card className="card">
       <CardHeader>SEO data</CardHeader>
       <CardContent>
         <div className="my-2">

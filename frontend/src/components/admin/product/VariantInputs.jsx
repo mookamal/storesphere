@@ -34,7 +34,7 @@ export default function VariantInputs({
     }
   };
   return (
-    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+    <Card className="card">
       <CardHeader>Variants</CardHeader>
       <CardContent>
         {fields.map((field, index) => (

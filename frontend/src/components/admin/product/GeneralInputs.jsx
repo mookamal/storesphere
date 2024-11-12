@@ -16,7 +16,7 @@ export default function GeneralInputs({
     setValue("description", content);
   };
   return (
-    <Card className="bg-gray-100 dark:bg-slate-900 shadow-md border-1">
+    <Card className="card">
       <CardHeader>
         <div className="flex justify-between items-center">
           General information
