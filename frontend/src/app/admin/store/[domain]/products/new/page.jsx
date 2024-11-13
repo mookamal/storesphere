@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
 import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
-import VariantInputs from "@/components/admin/product/VariantInputs";
+import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
 import { Button } from "@/components/ui/button";
@@ -210,8 +210,8 @@ export default function AddProduct() {
             {/* seo inputs */}
             <SeoInputs register={register} domain={domain} handle={handle} />
           </div>
-          {/* variant inputs */}
-          <VariantInputs
+          {/* OptionInputs */}
+          <OptionInputs
             register={register}
             control={control}
             errors={errors}
@@ -220,7 +220,6 @@ export default function AddProduct() {
             getValues={getValues}
             setValue={setValue}
           />
-          {/* variant inputs */}
         </div>
       </div>
       <Button

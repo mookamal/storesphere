@@ -23,7 +23,7 @@ import PriceInput from "@/components/admin/product/PriceInput";
 import SeoInputs from "@/components/admin/product/SeoInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
-import VariantInputs from "@/components/admin/product/VariantInputs";
+import OptionInputs from "@/components/admin/product/option/OptionInputs";
 
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
@@ -359,7 +359,7 @@ export default function UpdateProduct() {
             <SeoInputs register={register} domain={domain} handle={handle} />
           </div>
           {/* variant inputs */}
-          <VariantInputs
+          <OptionInputs
             register={register}
             control={control}
             errors={errors}

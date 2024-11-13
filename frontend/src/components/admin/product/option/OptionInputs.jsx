@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { IoAddCircle } from "react-icons/io5";
 import { useFieldArray } from "react-hook-form";
 import { usePathname } from "next/navigation";
+import EditableOption from "./EditableOption";
 
-import EditableOption from "./option/EditableOption";
-export default function VariantInputs({
+export default function OptionInputs({
   register,
   control,
   errors,
