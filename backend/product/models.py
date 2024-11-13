@@ -46,7 +46,7 @@ class ProductVariant(models.Model):
     price = models.DecimalField(default=0.00, max_digits=10, decimal_places=2)
     compare_at_price = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2)
-    option_values = models.ManyToManyField(
+    selected_options = models.ManyToManyField(
         OptionValue, related_name="variants", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
