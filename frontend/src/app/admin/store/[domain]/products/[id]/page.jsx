@@ -330,9 +330,7 @@ export default function UpdateProduct() {
     <form onSubmit={handleSubmit(onSubmit)}>
       {loading && <LoadingElement />}
       <div className="p-5">
-        <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-3xl flex items-center">
-          Update Product Details
-        </h1>
+        <h1 className="h1">Update Product Details</h1>
         <div className="grid lg:grid-cols-2 gap-4 my-3">
           {/* title , status and description */}
           <GeneralInputs
