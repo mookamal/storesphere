@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IoAddCircle } from "react-icons/io5";
 import { useFieldArray } from "react-hook-form";
-import VariantsTable from "./VariantsTable";
+import { usePathname } from "next/navigation";
 
 import EditableOption from "./option/EditableOption";
 export default function VariantInputs({
@@ -15,6 +15,8 @@ export default function VariantInputs({
   getValues,
   setValue,
 }) {
+  const pathname = usePathname();
+  const isAddPage = pathname.endsWith("/new");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
@@ -66,7 +68,11 @@ export default function VariantInputs({
             Add options like color or size
           </Button>
         </div>
-        <VariantsTable control={control} />
+        {isAddPage && (
+          <h3 className="font-bold text-center mt-4 text-yellow-400">
+            Please save the product before adding variants.
+          </h3>
+        )}
       </CardContent>
     </Card>
   );
