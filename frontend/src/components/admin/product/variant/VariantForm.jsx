@@ -1,3 +1,5 @@
+"use client";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
+import { toast } from "react-toastify";
 export default function VariantForm({ currencyCode, watch }) {
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
@@ -38,8 +42,25 @@ export default function VariantForm({ currencyCode, watch }) {
     }
     setError("");
     setLoading(true);
-
-    console.log("selectedOptions", selectedOptions);
+    const variables = {
+      productId: productId,
+      price: variantPrice,
+      optionValues: Object.values(selectedOptions),
+    };
+    try {
+      const response = await axios.post("/api/set-data", {
+        query: CREATE_PRODUCT_VARIANT,
+        variables: variables,
+      });
+      if (response.data.data.createProductVariant.productVariant) {
+        toast.success("Variant created successfully!");
+        setVariantPrice(0.0);
+        setError(null);
+      }
+    } catch (error) {
+      toast.error(error.response.data.error);
+      setError(error.response.data.error);
+    }
     setLoading(false);
   };
   const handleOptionChange = (optionId, value) => {

@@ -61,7 +61,7 @@ def add_values_to_variant(variant, option_value_ids):
     for existing_variant in get_variant_has_same_values:
         existing_option_values = set(existing_variant.selected_options.all())
         if existing_option_values == set(option_values):
-            raise ValueError("This variant already has the same values.")
+            raise ValueError("This variant already exists.")
 
     variant.selected_options.add(*option_values)
     variant.save()
