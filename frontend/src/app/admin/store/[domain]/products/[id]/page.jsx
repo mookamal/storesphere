@@ -121,6 +121,18 @@ export default function UpdateProduct() {
     }
   };
 
+  function cleanOptionsData(options) {
+    if (!options) return [];
+    return options.map((option) => ({
+      name: option.name,
+      id: option.id,
+      values: option.values.map((value) => ({
+        name: value.name,
+        id: value.id,
+      })),
+    }));
+  }
+
   useEffect(() => {
     const hasBasicChanges =
       title !== product?.title ||
@@ -131,7 +143,8 @@ export default function UpdateProduct() {
       seoDescription !== product?.seo.description ||
       price !== product?.firstVariant.price ||
       compare !== product?.firstVariant.compareAtPrice ||
-      JSON.stringify(options) !== JSON.stringify(product?.options);
+      JSON.stringify(cleanOptionsData(options)) !==
+        JSON.stringify(cleanOptionsData(product?.options));
 
     if (hasBasicChanges) {
       setHasChanges(true);
@@ -266,17 +279,6 @@ export default function UpdateProduct() {
       setIsNotFound(true);
     }
   };
-
-  function cleanOptionsData(options) {
-    return options.map((option) => ({
-      name: option.name,
-      id: option.id,
-      values: option.values.map((value) => ({
-        name: value.name,
-        id: value.id,
-      })),
-    }));
-  }
 
   const onSubmit = async (data) => {
     setLoading(true);
