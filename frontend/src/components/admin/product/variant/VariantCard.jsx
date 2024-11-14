@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import VariantForm from "./VariantForm";
-export default function VariantCard({ watch }) {
+export default function VariantCard({ watch, currencyCode }) {
   const options = watch("options");
   const hasValidOptions = options && options.some((option) => option.id);
 
@@ -10,7 +10,7 @@ export default function VariantCard({ watch }) {
       <CardHeader>
         <div className="flex justify-between items-center">
           Variants
-          <VariantForm />
+          <VariantForm currencyCode={currencyCode} />
         </div>
       </CardHeader>
       <CardContent>
