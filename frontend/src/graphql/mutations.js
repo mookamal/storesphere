@@ -51,6 +51,16 @@ export const CREATE_PRODUCT = `
   }
 `;
 
+export const CREATE_PRODUCT_VARIANT = `
+    mutation CreateProductVariantMutation($productId: ID!,$price: Decimal!,$optionValues: [ID]) {
+      createProductVariant(productId: $productId,price: $price , optionValues:$optionValues ) {
+        productVariant {
+          id
+        }
+      }
+    }
+  `;
+
 export const UPDATE_PRODUCT = `
   mutation ProductSaveUpdate($id:ID! , $defaultDomain: String! , $product: ProductInput!) {
   updateProduct(input: {id: $id ,defaultDomain: $defaultDomain , product: $product }) {
