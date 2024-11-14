@@ -20,9 +20,9 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
             <Input
               id="price"
               size="sm"
-              addon={currencyCode}
               type="number"
               placeholder="0.00"
+              step="0.01"
               {...register("price")}
             />
           </div>
@@ -33,9 +33,9 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
             <Input
               id="compare"
               size="sm"
-              addon={currencyCode}
               type="number"
               placeholder="0.00"
+              step="0.01"
               {...register("compare")}
             />
           </div>
