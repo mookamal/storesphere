@@ -370,7 +370,7 @@ export default function UpdateProduct() {
             setValue={setValue}
           />
           {/* Variant card */}
-          <VariantCard />
+          <VariantCard watch={watch} />
         </div>
       </div>
       <Button
