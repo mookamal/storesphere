@@ -10,7 +10,9 @@ export default function VariantCard({ watch, currencyCode }) {
       <CardHeader>
         <div className="flex justify-between items-center">
           Variants
-          {hasValidOptions && <VariantForm currencyCode={currencyCode} />}
+          {hasValidOptions && (
+            <VariantForm currencyCode={currencyCode} watch={watch} />
+          )}
         </div>
       </CardHeader>
       <CardContent>

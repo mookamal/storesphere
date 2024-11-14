@@ -13,17 +13,26 @@ import { Label } from "@/components/ui/label";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import LoadingElement from "@/components/LoadingElement";
-export default function VariantForm({ currencyCode }) {
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+export default function VariantForm({ currencyCode, watch }) {
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
   const [optionValues, setOptionValues] = useState([]);
   const [error, setError] = useState(null);
+  const options = watch("options");
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log("optionValues", optionValues);
     if (optionValues.length == 0) {
-      setError("Please select at least one option value");
+      setError("Please select at least one option value.");
       setLoading(false);
       return;
     }
@@ -48,6 +57,7 @@ export default function VariantForm({ currencyCode }) {
         </DialogHeader>
         {error && <div className="text-red-500">{error}</div>}
         <div className="flex flex-col gap-2">
+          {/* v-price */}
           <div>
             <div className="mb-2">
               <Label htmlFor="v-price">Price</Label>
@@ -65,6 +75,12 @@ export default function VariantForm({ currencyCode }) {
               />
             </div>
           </div>
+          <div className="flex flex-col gap-2 items-center justify-center">
+            {/* select options */}
+            {options.map((option) => (
+              <InputSelectOption key={option.id} option={option} />
+            ))}
+          </div>
         </div>
         <DialogFooter>
           <Button type="button" onClick={handleSubmit}>
@@ -73,5 +89,27 @@ export default function VariantForm({ currencyCode }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InputSelectOption({ option }) {
+  return (
+    <div>
+      <Select>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder={`Select a ${option.name}`} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>{option.name}</SelectLabel>
+            {option.values?.map((value) => (
+              <SelectItem key={value.id} value={value.id}>
+                {value.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
