@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import LoadingElement from "@/components/LoadingElement";
+import { useParams } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
 export default function VariantForm({ currencyCode, watch }) {
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
+  const productId = useParams().id;
   const [error, setError] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState({});
   const options = watch("options");
