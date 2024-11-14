@@ -86,7 +86,7 @@ class SEOInput(graphene.InputObjectType):
 class ProductVariantNode(DjangoObjectType):
     class Meta:
         model = ProductVariant
-        fields = ["price", "compare_at_price"]
+        fields = ["id", "price", "compare_at_price"]
 
 
 class ProductVariantInput(graphene.InputObjectType):
