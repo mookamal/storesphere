@@ -25,18 +25,26 @@ import {
 export default function VariantForm({ currencyCode, watch }) {
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
-  const [optionValues, setOptionValues] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState({});
   const options = watch("options");
 
   const handleSubmit = async () => {
-    setLoading(true);
-    if (optionValues.length == 0) {
-      setError("Please select at least one option value.");
-      setLoading(false);
+    if (Object.keys(selectedOptions).length === 0) {
+      setError("Please select options");
       return;
     }
-    // Add variant to the product
+    setError("");
+    setLoading(true);
+
+    console.log("selectedOptions", selectedOptions);
+    setLoading(false);
+  };
+  const handleOptionChange = (optionId, value) => {
+    setSelectedOptions((prevSelectedOptions) => ({
+      ...prevSelectedOptions,
+      [optionId]: value,
+    }));
   };
   return (
     <Dialog>
@@ -78,7 +86,11 @@ export default function VariantForm({ currencyCode, watch }) {
           <div className="flex flex-col gap-2 items-center justify-center">
             {/* select options */}
             {options.map((option) => (
-              <InputSelectOption key={option.id} option={option} />
+              <InputSelectOption
+                key={option.id}
+                option={option}
+                onOptionChange={handleOptionChange}
+              />
             ))}
           </div>
         </div>
@@ -92,10 +104,18 @@ export default function VariantForm({ currencyCode, watch }) {
   );
 }
 
-function InputSelectOption({ option }) {
+function InputSelectOption({ option, onOptionChange }) {
+  const [selectedValue, setSelectedValue] = useState(null);
+  const handleOptionChange = (value) => {
+    setSelectedValue(value);
+    onOptionChange(option.id, value);
+  };
   return (
     <div>
-      <Select>
+      <Select
+        onValueChange={(v) => handleOptionChange(v)}
+        defaultValue={selectedValue}
+      >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder={`Select a ${option.name}`} />
         </SelectTrigger>
