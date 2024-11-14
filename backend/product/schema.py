@@ -311,6 +311,36 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         update_product_options_and_values(product_instance, product.options)
         return UpdateProduct(product=product_instance)
 
+# product variant
+
+
+class CreateProductVariant(graphene.Mutation):
+    class Arguments:
+        product_id = graphene.ID(required=True)
+        price = graphene.Decimal()
+
+    product_variant = graphene.Field(ProductVariantNode)
+
+    @classmethod
+    def mutate(cls, root, info, product_id, price):
+        user = info.context.user
+        # Verify that the user has permission to add product variant
+        try:
+            product = Product.objects.get(pk=product_id)
+            if not StaffMember.objects.filter(user=user, store=product.store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to add product variants for this store.")
+        except Product.DoesNotExist:
+            raise Exception(
+                "Product not found or you do not have access to this product.")
+
+        variant = ProductVariant.objects.create(
+            product=product,
+            price=price,
+        )
+        variant.save()
+        return CreateProductVariant(product_variant=variant)
+
 # Media for product
 
 
@@ -371,5 +401,6 @@ class RemoveImagesProduct(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
+    create_product_variant = CreateProductVariant.Field()
     add_images_product = AddImagesProduct.Field()
     remove_images_product = RemoveImagesProduct.Field()
