@@ -37,7 +37,7 @@ export default function OptionInputs({
   };
   return (
     <Card className="card">
-      <CardHeader>Variants</CardHeader>
+      <CardHeader>Options</CardHeader>
       <CardContent>
         {fields.map((field, index) => (
           <div

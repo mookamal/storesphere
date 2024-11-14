@@ -24,6 +24,7 @@ import SeoInputs from "@/components/admin/product/SeoInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
+import VariantCard from "@/components/admin/product/variant/VariantCard";
 
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
@@ -368,6 +369,8 @@ export default function UpdateProduct() {
             getValues={getValues}
             setValue={setValue}
           />
+          {/* Variant card */}
+          <VariantCard />
         </div>
       </div>
       <Button
