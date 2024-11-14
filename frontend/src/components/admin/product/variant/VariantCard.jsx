@@ -1,6 +1,5 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 export default function VariantCard({ watch }) {
   const options = watch("options");
   const hasValidOptions = options && options.some((option) => option.id);
