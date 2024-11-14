@@ -10,7 +10,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import PermissionDenied
-from .utils import update_product_options_and_values
+from .utils import update_product_options_and_values, add_values_to_variant
 
 
 class HTML(Scalar):
@@ -318,11 +318,12 @@ class CreateProductVariant(graphene.Mutation):
     class Arguments:
         product_id = graphene.ID(required=True)
         price = graphene.Decimal()
+        option_values = graphene.List(graphene.ID)
 
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
-    def mutate(cls, root, info, product_id, price):
+    def mutate(cls, root, info, product_id, price, option_values):
         user = info.context.user
         # Verify that the user has permission to add product variant
         try:
@@ -338,7 +339,7 @@ class CreateProductVariant(graphene.Mutation):
             product=product,
             price=price,
         )
-        variant.save()
+        add_values_to_variant(variant, option_values)
         return CreateProductVariant(product_variant=variant)
 
 # Media for product
