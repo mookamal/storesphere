@@ -1,15 +1,21 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import VariantForm from "./VariantForm";
 export default function VariantCard({ watch }) {
   const options = watch("options");
   const hasValidOptions = options && options.some((option) => option.id);
 
   return (
     <Card className="card">
-      <CardHeader>Variants</CardHeader>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          Variants
+          <VariantForm />
+        </div>
+      </CardHeader>
       <CardContent>
         {hasValidOptions ? (
-          <h2>hasValidOptions</h2>
+          <h2>Tables variants</h2>
         ) : (
           <div className="text-center">
             Set up options and values to enable variant creation.
