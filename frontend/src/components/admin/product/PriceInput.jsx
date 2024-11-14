@@ -17,27 +17,33 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
             <div className="mb-2">
               <Label htmlFor="price">Price</Label>
             </div>
-            <Input
-              id="price"
-              size="sm"
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              {...register("price")}
-            />
+            <div className="flex items-center gap-1">
+              <span>{currencyCode}</span>
+              <Input
+                id="price"
+                size="sm"
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                {...register("price")}
+              />
+            </div>
           </div>
           <div>
             <div className="mb-2">
               <Label htmlFor="compare">Compare-at price</Label>
             </div>
-            <Input
-              id="compare"
-              size="sm"
-              type="number"
-              placeholder="0.00"
-              step="0.01"
-              {...register("compare")}
-            />
+            <div className="flex items-center gap-1">
+              <span>{currencyCode}</span>
+              <Input
+                id="compare"
+                size="sm"
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                {...register("compare")}
+              />
+            </div>
           </div>
         </div>
         {showWarning && (
