@@ -60,7 +60,15 @@ export const CREATE_PRODUCT_VARIANT = `
       }
     }
   `;
-
+export const UPDATE_PRODUCT_VARIANT = `
+    mutation UpdateProductVariantMutation($variantId: ID!,$price: Decimal!) {
+    updateProductVariant(variantId: $variantId,price: $price  ) {
+      productVariant {
+        variantId
+      }
+    }
+  }
+  `;
 export const UPDATE_PRODUCT = `
   mutation ProductSaveUpdate($id:ID! , $defaultDomain: String! , $product: ProductInput!) {
   updateProduct(input: {id: $id ,defaultDomain: $defaultDomain , product: $product }) {
