@@ -13,16 +13,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 export default function VariantsTable({ currencyCode }) {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
   const [loading, setLoading] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [countVariant, setCountVariant] = useState(5);
+
+  const handleLoadMore = () => {
+    setCountVariant(countVariant + 5);
+  };
 
   const getVariantsByProductID = async () => {
     setLoading(true);
     const variables = {
       productId: productId,
-      first: 2,
+      first: countVariant,
       after: "",
     };
     try {
@@ -33,6 +40,9 @@ export default function VariantsTable({ currencyCode }) {
       if (response.statusText === "OK") {
         if (response.data.productDetailsVariants.edges.length > 0) {
           setVariants(response.data.productDetailsVariants.edges);
+          setHasNextPage(
+            response.data.productDetailsVariants.pageInfo.hasNextPage
+          );
         }
       }
     } catch (error) {
@@ -44,14 +54,24 @@ export default function VariantsTable({ currencyCode }) {
 
   useEffect(() => {
     getVariantsByProductID();
-  }, []);
+  }, [countVariant]);
 
   if (loading) return <div>Loading...</div>;
   return (
     <>
       {variants ? (
         <Table>
-          <TableCaption>Variants</TableCaption>
+          <TableCaption>
+            {hasNextPage && (
+              <Button
+                disabled={!hasNextPage}
+                type="button"
+                onClick={handleLoadMore}
+              >
+                Load More
+              </Button>
+            )}
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Price</TableHead>
