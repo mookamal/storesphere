@@ -31,6 +31,7 @@ export default function VariantCard({ watch, currencyCode }) {
             currencyCode={currencyCode}
             shouldRefetch={shouldRefetch}
             onRefetchHandled={() => setShouldRefetch(false)}
+            setShouldRefetch={setShouldRefetch}
           />
         ) : (
           <div className="text-center">

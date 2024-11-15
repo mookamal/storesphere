@@ -18,7 +18,7 @@ import { BiEdit } from "react-icons/bi";
 import axios from "axios";
 import { UPDATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
-export default function EditVariantModal({ variant, currencyCode }) {
+export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   const [loading, setLoading] = useState(false);
   const [hasChange, setHasChange] = useState(false);
   const [variantPrice, setVariantPrice] = useState(variant.price);
@@ -36,6 +36,8 @@ export default function EditVariantModal({ variant, currencyCode }) {
       });
       if (response.data.data.updateProductVariant.productVariant) {
         toast.success("Variant updated successfully!");
+        // refetch variants
+        onRefetch();
       }
     } catch (error) {
       console.error(error);

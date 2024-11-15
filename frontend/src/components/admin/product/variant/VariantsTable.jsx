@@ -20,6 +20,7 @@ export default function VariantsTable({
   currencyCode,
   shouldRefetch,
   onRefetchHandled,
+  setShouldRefetch,
 }) {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
@@ -114,6 +115,7 @@ export default function VariantsTable({
                     <EditVariantModal
                       variant={node}
                       currencyCode={currencyCode}
+                      onRefetch={() => setShouldRefetch(true)}
                     />
                     <DeleteVariantDialog variant={node} />
                   </div>
