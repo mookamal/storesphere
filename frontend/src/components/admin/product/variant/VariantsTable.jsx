@@ -15,7 +15,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
-export default function VariantsTable({ currencyCode }) {
+export default function VariantsTable({
+  currencyCode,
+  shouldRefetch,
+  onRefetchHandled,
+}) {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
   const [loading, setLoading] = useState(false);
@@ -54,8 +58,17 @@ export default function VariantsTable({ currencyCode }) {
   };
 
   useEffect(() => {
-    getVariantsByProductID();
-  }, [countVariant]);
+    console.log("Starting!");
+    const fetchData = async () => {
+      if (shouldRefetch || countVariant) {
+        await getVariantsByProductID();
+        if (shouldRefetch && onRefetchHandled) {
+          onRefetchHandled();
+        }
+      }
+    };
+    fetchData();
+  }, [shouldRefetch, countVariant]);
 
   if (loading) return <div>Loading...</div>;
   return (

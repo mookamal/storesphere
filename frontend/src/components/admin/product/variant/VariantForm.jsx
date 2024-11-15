@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
-export default function VariantForm({ currencyCode, watch }) {
+export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
   const productId = useParams().id;
@@ -53,6 +53,7 @@ export default function VariantForm({ currencyCode, watch }) {
         variables: variables,
       });
       if (response.data.data.createProductVariant.productVariant) {
+        onVariantAdded();
         toast.success("Variant created successfully!");
         setVariantPrice(0.0);
         setError(null);
