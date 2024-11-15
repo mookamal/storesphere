@@ -191,6 +191,24 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
+    def resolve_product_details_variants(self, info, product_id, **kwargs):
+        try:
+            user = info.context.user
+            product = Product.objects.get(pk=product_id)
+            store = product.store
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                variants = product.variants.all().order_by('-created_at')
+                if product.first_variant:
+                    variants = variants.exclude(id=product.first_variant.id)
+                return variants
+            else:
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
+        except Product.DoesNotExist:
+            raise PermissionDenied("Product not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
     def resolve_all_media_images(self, info, default_domain, **kwargs):
         try:
             user = info.context.user
