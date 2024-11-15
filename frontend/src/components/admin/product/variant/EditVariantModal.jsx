@@ -15,11 +15,35 @@ import LoadingElement from "@/components/LoadingElement";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { BiEdit } from "react-icons/bi";
+import axios from "axios";
+import { UPDATE_PRODUCT_VARIANT } from "@/graphql/mutations";
+import { toast } from "react-toastify";
 export default function EditVariantModal({ variant, currencyCode }) {
   const [loading, setLoading] = useState(false);
   const [hasChange, setHasChange] = useState(false);
   const [variantPrice, setVariantPrice] = useState(variant.price);
-  const handleSave = async () => {};
+  const handleSave = async () => {
+    setLoading(true);
+    const variables = {
+      variantId: variant.variantId,
+      price: variantPrice,
+    };
+    try {
+      // Update variant
+      const response = await axios.post("/api/set-data", {
+        query: UPDATE_PRODUCT_VARIANT,
+        variables: variables,
+      });
+      if (response.data.data.updateProductVariant.productVariant) {
+        toast.success("Variant updated successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update variant");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (variantPrice !== variant.price) {
