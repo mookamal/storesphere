@@ -84,9 +84,15 @@ class SEOInput(graphene.InputObjectType):
 
 
 class ProductVariantNode(DjangoObjectType):
+    variant_id = graphene.Int()
+
     class Meta:
         model = ProductVariant
-        fields = ["id", "price", "compare_at_price"]
+        interfaces = (graphene.relay.Node,)
+        filter_fields = ["created_at",]
+
+    def resolve_variant_id(self, info):
+        return self.id
 
 
 class ProductVariantInput(graphene.InputObjectType):
@@ -151,6 +157,8 @@ class Query(graphene.ObjectType):
         ImageNode, default_domain=graphene.String(required=True))
     get_images_product = DjangoFilterConnectionField(
         ImageNode, product_id=graphene.ID(required=True))
+    product_details_variants = DjangoFilterConnectionField(
+        ProductVariantNode, product_id=graphene.ID(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
