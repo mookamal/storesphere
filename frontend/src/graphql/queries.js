@@ -117,3 +117,29 @@ export const GET_MEDIA_PRODUCT = gql`
     }
   }
 `;
+
+export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
+  query AdminProductDetailsVariants(
+    $productId: ID!
+    $first: Int
+    $after: String!
+  ) {
+    productDetailsVariants(
+      productId: $productId
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          variantId
+          price
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
