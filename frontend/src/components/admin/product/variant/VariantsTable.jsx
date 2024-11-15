@@ -58,7 +58,6 @@ export default function VariantsTable({
   };
 
   useEffect(() => {
-    console.log("Starting!");
     const fetchData = async () => {
       if (shouldRefetch || countVariant) {
         await getVariantsByProductID();
