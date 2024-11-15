@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-export default function VariantsTable() {
+export default function VariantsTable({ currencyCode }) {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export default function VariantsTable() {
             {variants.map(({ node }) => (
               <TableRow key={node.id}>
                 <TableCell>
-                  <Badge variant="outline">USD</Badge>
+                  <Badge variant="outline">{currencyCode}</Badge>
                   {node.price}
                 </TableCell>
               </TableRow>

@@ -18,7 +18,7 @@ export default function VariantCard({ watch, currencyCode }) {
       </CardHeader>
       <CardContent>
         {hasValidOptions ? (
-          <VariantsTable />
+          <VariantsTable currencyCode={currencyCode} />
         ) : (
           <div className="text-center">
             Set up options and values to enable variant creation.
