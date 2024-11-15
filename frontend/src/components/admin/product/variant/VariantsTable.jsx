@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 export default function VariantsTable() {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
@@ -59,7 +60,10 @@ export default function VariantsTable() {
           <TableBody>
             {variants.map(({ node }) => (
               <TableRow key={node.id}>
-                <TableCell>{node.price}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">USD</Badge>
+                  {node.price}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
