@@ -85,6 +85,7 @@ class SEOInput(graphene.InputObjectType):
 
 class ProductVariantNode(DjangoObjectType):
     variant_id = graphene.Int()
+    selected_options = graphene.List(OptionValueType)
 
     class Meta:
         model = ProductVariant
@@ -93,6 +94,9 @@ class ProductVariantNode(DjangoObjectType):
 
     def resolve_variant_id(self, info):
         return self.id
+
+    def resolve_selected_options(self, info):
+        return self.selected_options.all()
 
 
 class ProductVariantInput(graphene.InputObjectType):
