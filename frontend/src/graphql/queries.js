@@ -134,6 +134,10 @@ export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
           id
           variantId
           price
+          selectedOptions {
+            id
+            name
+          }
         }
       }
       pageInfo {
