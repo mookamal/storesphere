@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 export default function VariantsTable() {
   const productId = useParams().id;
-  const [variants, setVariants] = useState([]);
+  const [variants, setVariants] = useState();
   const [loading, setLoading] = useState(false);
 
   const getVariantsByProductID = async () => {
@@ -30,7 +30,9 @@ export default function VariantsTable() {
         variables: variables,
       });
       if (response.statusText === "OK") {
-        setVariants(response.data.productDetailsVariants.edges);
+        if (response.data.productDetailsVariants.edges.length > 0) {
+          setVariants(response.data.productDetailsVariants.edges);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -45,20 +47,26 @@ export default function VariantsTable() {
 
   if (loading) return <div>Loading...</div>;
   return (
-    <Table>
-      <TableCaption>Variants</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Price</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {variants.map(({ node }) => (
-          <TableRow key={node.id}>
-            <TableCell>{node.price}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      {variants ? (
+        <Table>
+          <TableCaption>Variants</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Price</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {variants.map(({ node }) => (
+              <TableRow key={node.id}>
+                <TableCell>{node.price}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <h3 className="text-center">No variants found for this product.</h3>
+      )}
+    </>
   );
 }
