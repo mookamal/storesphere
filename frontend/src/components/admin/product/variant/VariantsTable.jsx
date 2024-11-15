@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import EditVariantModal from "./EditVariantModal";
 export default function VariantsTable({ currencyCode }) {
   const productId = useParams().id;
   const [variants, setVariants] = useState();
@@ -76,6 +77,7 @@ export default function VariantsTable({ currencyCode }) {
             <TableRow>
               <TableHead>Price</TableHead>
               <TableHead>Options</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,6 +95,12 @@ export default function VariantsTable({ currencyCode }) {
                       </Badge>
                     ))}
                   </div>
+                </TableCell>
+                <TableCell>
+                  <EditVariantModal
+                    variant={node}
+                    currencyCode={currencyCode}
+                  />
                 </TableCell>
               </TableRow>
             ))}
