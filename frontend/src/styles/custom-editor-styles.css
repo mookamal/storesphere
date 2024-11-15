@@ -11,7 +11,7 @@
 }
 
 .ck-editor__editable p {
-    @apply text-base  text-gray-400;
+    @apply text-sm text-muted-foreground;
 }
 
 .ck-editor__editable ul {
@@ -25,3 +25,23 @@
 .ck-editor__editable li {
     @apply mb-1 text-gray-700;
 }
+
+.ck-editor__editable img {
+    @apply max-w-full h-auto;
+  }
+
+.ck-editor__editable {
+    max-width: 100%;
+    overflow-x: auto;
+    word-wrap: break-word; 
+    box-sizing: border-box; 
+  }
+  
+  .ck-editor__main {
+    width: 100%;
+  }
+  
+  .ck-editor__editable p {
+    word-break: break-word;
+  }
+  
