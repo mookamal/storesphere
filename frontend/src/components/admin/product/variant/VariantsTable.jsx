@@ -55,6 +55,7 @@ export default function VariantsTable({ currencyCode }) {
           <TableHeader>
             <TableRow>
               <TableHead>Price</TableHead>
+              <TableHead>Options</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -63,6 +64,15 @@ export default function VariantsTable({ currencyCode }) {
                 <TableCell>
                   <Badge variant="outline">{currencyCode}</Badge>
                   {node.price}
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    {node.selectedOptions.map((value) => (
+                      <Badge key={`${value.name}-${value.id}`}>
+                        {value.name}
+                      </Badge>
+                    ))}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
