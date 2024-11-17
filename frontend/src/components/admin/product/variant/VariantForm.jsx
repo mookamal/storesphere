@@ -46,9 +46,11 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
     setLoading(true);
     const variables = {
       productId: productId,
-      price: variantPrice,
-      stock: parseInt(variantStock),
-      optionValues: Object.values(selectedOptions),
+      variantInputs: {
+        price: variantPrice,
+        stock: parseInt(variantStock),
+        optionValues: Object.values(selectedOptions),
+      },
     };
     try {
       const response = await axios.post("/api/set-data", {

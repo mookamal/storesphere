@@ -100,12 +100,6 @@ class ProductVariantNode(DjangoObjectType):
         return self.selected_options.all()
 
 
-class ProductVariantInput(graphene.InputObjectType):
-    price = graphene.Decimal()
-    compare_at_price = graphene.Decimal()
-    stock = graphene.Int()
-
-
 class ProductFilter(django_filters.FilterSet):
     status = django_filters.ChoiceFilter(choices=Product.STATUS)
 
@@ -248,6 +242,13 @@ class Query(graphene.ObjectType):
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
 
+class ProductVariantInput(graphene.InputObjectType):
+    price = graphene.Decimal()
+    compare_at_price = graphene.Decimal()
+    stock = graphene.Int()
+    option_values = graphene.List(graphene.ID)
+
+
 class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String()
@@ -366,14 +367,12 @@ class VariantActions(graphene.Enum):
 class CreateProductVariant(graphene.Mutation):
     class Arguments:
         product_id = graphene.ID(required=True)
-        price = graphene.Decimal()
-        stock = graphene.Int()
-        option_values = graphene.List(graphene.ID)
+        variant_inputs = ProductVariantInput(required=True)
 
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
-    def mutate(cls, root, info, product_id, price, stock, option_values):
+    def mutate(cls, root, info, product_id, variant_inputs):
         user = info.context.user
         # Verify that the user has permission to add product variant
         try:
@@ -387,10 +386,10 @@ class CreateProductVariant(graphene.Mutation):
 
         variant = ProductVariant.objects.create(
             product=product,
-            price=price,
-            stock=stock,
+            price=variant_inputs.price,
+            stock=variant_inputs.stock,
         )
-        add_values_to_variant(variant, option_values)
+        add_values_to_variant(variant, variant_inputs.option_values)
         return CreateProductVariant(product_variant=variant)
 
 
