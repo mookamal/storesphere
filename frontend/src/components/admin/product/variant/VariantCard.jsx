@@ -8,9 +8,7 @@ export default function VariantCard({ watch, currencyCode }) {
   const options = watch("options");
   const hasValidOptions = options && options.some((option) => option.id);
   const [shouldRefetch, setShouldRefetch] = useState(false);
-  const handleVariantAdded = () => {
-    setShouldRefetch(true);
-  };
+
   return (
     <Card className="card">
       <CardHeader>
@@ -20,7 +18,7 @@ export default function VariantCard({ watch, currencyCode }) {
             <VariantForm
               currencyCode={currencyCode}
               watch={watch}
-              onVariantAdded={handleVariantAdded}
+              onVariantAdded={() => setShouldRefetch(true)}
             />
           )}
         </div>
