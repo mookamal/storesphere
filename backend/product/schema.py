@@ -344,6 +344,11 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
 # product variant
 
 
+class VariantActions(graphene.Enum):
+    DELETE = "DELETE"
+    UPDATE_PRICE = "UPDATE_PRICE "
+
+
 class CreateProductVariant(graphene.Mutation):
     class Arguments:
         product_id = graphene.ID(required=True)
@@ -393,6 +398,31 @@ class UpdateProductVariant(graphene.Mutation):
         variant.price = price
         variant.save()
         return UpdateProductVariant(product_variant=variant)
+
+
+class PerformActionOnVariants(graphene.Mutation):
+    class Arguments:
+        action = VariantActions(required=True)
+        variant_ids = graphene.List(graphene.ID, required=True)
+    success = graphene.Boolean()
+    message = graphene.String()
+    errors = graphene.List(graphene.String)
+
+    @classmethod
+    def mutate(cls, root, info, action, variant_ids):
+        user = info.context.user
+        # get variant objects and Verify that the user has permission to perform action on product variants
+        try:
+            variants = ProductVariant.objects.filter(id__in=variant_ids)
+            if not StaffMember.objects.filter(user=user, store=variants.first().product.store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to perform action on product variants for this store.")
+        except ProductVariant.DoesNotExist:
+            raise Exception("Product variant not found.")
+        if action == VariantActions.DELETE:
+            variants.delete()
+            return PerformActionOnVariants(success=True, message="Product variants deleted successfully.")
+
 # Media for product
 
 
@@ -455,5 +485,6 @@ class Mutation(graphene.ObjectType):
     update_product = UpdateProduct.Field()
     create_product_variant = CreateProductVariant.Field()
     update_product_variant = UpdateProductVariant.Field()
+    perform_action_on_variants = PerformActionOnVariants.Field()
     add_images_product = AddImagesProduct.Field()
     remove_images_product = RemoveImagesProduct.Field()
