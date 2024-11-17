@@ -28,6 +28,7 @@ import {
 import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
   const productId = useParams().id;
@@ -57,6 +58,8 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
         toast.success("Variant created successfully!");
         setVariantPrice(0.0);
         setError(null);
+        setSelectedOptions({});
+        setOpen(false);
       }
     } catch (error) {
       toast.error(error.response.data.error);
@@ -71,7 +74,7 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
     }));
   };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Add</Button>
       </DialogTrigger>
