@@ -1,3 +1,4 @@
+from decimal import Decimal
 import graphene
 from stores.models import Store, StaffMember
 from core.models import SEO
@@ -102,6 +103,7 @@ class ProductVariantNode(DjangoObjectType):
 class ProductVariantInput(graphene.InputObjectType):
     price = graphene.Decimal()
     compare_at_price = graphene.Decimal()
+    stock = graphene.Int()
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -248,11 +250,11 @@ class Query(graphene.ObjectType):
 
 class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
-    description = graphene.String(required=True)
-    status = graphene.String(required=True)
-    handle = graphene.String(required=True)
-    seo = SEOInput(required=True)
-    first_variant = ProductVariantInput()
+    description = graphene.String()
+    status = graphene.String()
+    handle = graphene.String()
+    seo = SEOInput()
+    first_variant = ProductVariantInput(required=True)
     options = graphene.List(ProductOptionInput)
 
 
@@ -269,27 +271,39 @@ class CreateProduct(graphene.relay.ClientIDMutation):
         user = info.context.user
         store = Store.objects.get(default_domain=default_domain)
         if StaffMember.objects.filter(user=user, store=store).exists():
-            product = Product(store=store, title=product_data.title,
-                              description=product_data.description, status=product_data.status)
-            seo = SEO.objects.create(**product_data.seo)
+
+            product = Product(
+                store=store,
+                title=product_data.title,
+                description=product_data.description or "",
+                status=product_data.status if product_data.status in dict(
+                    Product.STATUS) else "DRAFT"
+            )
+
+            if product_data.seo and isinstance(product_data.seo, dict):
+                seo = SEO.objects.create(**product_data.seo)
+            else:
+                seo = None
             product.seo = seo
             product.save()
             first_variant_data = product_data.first_variant
             first_variant = ProductVariant(
                 product=product,
-                price=first_variant_data.price,
-                compare_at_price=first_variant_data.compare_at_price,
+                price=first_variant_data.price if first_variant_data.price != None else 0.0,
+                compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
+                stock=first_variant_data.stock if first_variant_data.stock != None else 0,
             )
             first_variant.save()
             product.first_variant = first_variant
             product.save()
             # to create options and values
-            for option_data in product_data.options:
-                option = ProductOption.objects.create(
-                    product=product, name=option_data.name)
-                for value_data in option_data.values:
-                    OptionValue.objects.create(
-                        option=option, name=value_data.name)
+            if product_data.options:
+                for option_data in product_data.options:
+                    option = ProductOption.objects.create(
+                        product=product, name=option_data.name)
+                    for value_data in option_data.values:
+                        OptionValue.objects.create(
+                            option=option, name=value_data.name)
 
             return CreateProduct(product=product)
         else:
