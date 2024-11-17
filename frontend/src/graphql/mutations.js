@@ -52,8 +52,8 @@ export const CREATE_PRODUCT = `
 `;
 
 export const CREATE_PRODUCT_VARIANT = `
-    mutation CreateProductVariantMutation($productId: ID!,$price: Decimal!,$optionValues: [ID]) {
-      createProductVariant(productId: $productId,price: $price , optionValues:$optionValues ) {
+    mutation CreateProductVariantMutation($productId: ID!,$price: Decimal! ,$stock: Int,$optionValues: [ID]) {
+      createProductVariant(productId: $productId,price: $price ,stock: $stock, optionValues:$optionValues ) {
         productVariant {
           id
         }

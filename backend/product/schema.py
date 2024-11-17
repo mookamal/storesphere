@@ -367,12 +367,13 @@ class CreateProductVariant(graphene.Mutation):
     class Arguments:
         product_id = graphene.ID(required=True)
         price = graphene.Decimal()
+        stock = graphene.Int()
         option_values = graphene.List(graphene.ID)
 
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
-    def mutate(cls, root, info, product_id, price, option_values):
+    def mutate(cls, root, info, product_id, price, stock, option_values):
         user = info.context.user
         # Verify that the user has permission to add product variant
         try:
@@ -387,6 +388,7 @@ class CreateProductVariant(graphene.Mutation):
         variant = ProductVariant.objects.create(
             product=product,
             price=price,
+            stock=stock,
         )
         add_values_to_variant(variant, option_values)
         return CreateProductVariant(product_variant=variant)

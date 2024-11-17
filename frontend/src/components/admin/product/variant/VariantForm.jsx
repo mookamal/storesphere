@@ -31,6 +31,7 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
+  const [variantStock, setVariantStock] = useState(0);
   const productId = useParams().id;
   const [error, setError] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -46,6 +47,7 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
     const variables = {
       productId: productId,
       price: variantPrice,
+      stock: parseInt(variantStock),
       optionValues: Object.values(selectedOptions),
     };
     try {
@@ -109,6 +111,20 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
                 onChange={(e) => setVariantPrice(e.target.value)}
               />
             </div>
+          </div>
+          <div>
+            <div className="mb-2">
+              <Label htmlFor="v-stock">Stock</Label>
+            </div>
+
+            <Input
+              id="v-stock"
+              name="v-stock"
+              size="sm"
+              type="number"
+              value={variantStock}
+              onChange={(e) => setVariantStock(e.target.value)}
+            />
           </div>
           <div className="flex flex-col gap-2 items-center justify-center">
             {/* select options */}
