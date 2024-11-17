@@ -69,6 +69,7 @@ export const GET_PRODUCT_BY_ID = gql`
       firstVariant {
         price
         compareAtPrice
+        stock
       }
       options {
         id

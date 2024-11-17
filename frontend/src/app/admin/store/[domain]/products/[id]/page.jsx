@@ -53,6 +53,7 @@ export default function UpdateProduct() {
   const seoDescription = watch("seoDescription");
   const price = watch("price");
   const compare = watch("compare");
+  const stock = watch("stock");
   const options = watch("options");
   const { fields, append, remove } = useFieldArray({
     control,
@@ -143,6 +144,7 @@ export default function UpdateProduct() {
       seoDescription !== product?.seo.description ||
       price !== product?.firstVariant.price ||
       compare !== product?.firstVariant.compareAtPrice ||
+      stock !== product?.firstVariant.stock ||
       JSON.stringify(cleanOptionsData(options)) !==
         JSON.stringify(cleanOptionsData(product?.options));
 
@@ -160,6 +162,7 @@ export default function UpdateProduct() {
     handle,
     price,
     compare,
+    stock,
     controlledFieldOptions,
   ]);
 
@@ -257,11 +260,12 @@ export default function UpdateProduct() {
         setValue("handle", response.data.product.handle || null);
         setValue("seoTitle", response.data.product.seo.title || "");
         setValue("seoDescription", response.data.product.seo.description || "");
-        setValue("price", response.data.product.firstVariant.price || null);
+        setValue("price", response.data.product.firstVariant.price || 0.0);
         setValue(
           "compare",
-          response.data.product.firstVariant.compareAtPrice || null
+          response.data.product.firstVariant.compareAtPrice || 0.0
         );
+        setValue("stock", response.data.product.firstVariant.stock || 0);
         const optionsData = response.data.product.options || [];
         if (optionsData.length > 0) {
           const optionsWithEditingState = optionsData.map((option) => ({
@@ -294,6 +298,7 @@ export default function UpdateProduct() {
       firstVariant: {
         price: data.price,
         compareAtPrice: data.compare,
+        stock: parseInt(data.stock),
       },
       options: cleanOptionsData(data.options),
     };
