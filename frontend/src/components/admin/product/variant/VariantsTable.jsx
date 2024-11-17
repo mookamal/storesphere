@@ -113,6 +113,7 @@ export default function VariantsTable({
               <TableHead></TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Options</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead>
                 {selectedVariantIDs.length > 0 && (
                   <DropdownMenu>
@@ -170,6 +171,7 @@ export default function VariantsTable({
                     ))}
                   </div>
                 </TableCell>
+                <TableCell>{node.stock}</TableCell>
                 <TableCell>
                   <EditVariantModal
                     variant={node}

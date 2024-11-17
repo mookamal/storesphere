@@ -135,6 +135,7 @@ export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
           id
           variantId
           price
+          stock
           selectedOptions {
             id
             name
