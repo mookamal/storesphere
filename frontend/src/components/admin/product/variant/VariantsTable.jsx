@@ -132,7 +132,13 @@ export default function VariantsTable({
                           e.preventDefault();
                         }}
                       >
-                        <DeleteVariantsDialog variantIDs={selectedVariantIDs} />
+                        <DeleteVariantsDialog
+                          variantIDs={selectedVariantIDs}
+                          onRefetch={() => setShouldRefetch(true)}
+                          clearSelectedVariantIDs={() =>
+                            setSelectedVariantIDs([])
+                          }
+                        />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
