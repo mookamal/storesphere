@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { ADMIN_PRODUCT_DETAILS_VARIANTS } from "@/graphql/queries";
 import { useState, useEffect } from "react";
+import { HiDotsHorizontal } from "react-icons/hi";
 import {
   Table,
   TableBody,
@@ -12,10 +13,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
 import { Checkbox } from "@/components/ui/checkbox";
+import DeleteVariantsDialog from "./DeleteVariantsDialog";
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
@@ -27,19 +37,19 @@ export default function VariantsTable({
   const [loading, setLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [countVariant, setCountVariant] = useState(5);
-  const [selectedVariantIDS, setSelectedVariantIDS] = useState([]);
+  const [selectedVariantIDs, setSelectedVariantIDs] = useState([]);
 
   const handleLoadMore = () => {
     setCountVariant(countVariant + 5);
   };
 
   const handleSelectVariantIDS = (variantId) => {
-    if (selectedVariantIDS.includes(variantId)) {
-      setSelectedVariantIDS(
-        selectedVariantIDS.filter((id) => id !== variantId)
+    if (selectedVariantIDs.includes(variantId)) {
+      setSelectedVariantIDs(
+        selectedVariantIDs.filter((id) => id !== variantId)
       );
     } else {
-      setSelectedVariantIDS([...selectedVariantIDS, variantId]);
+      setSelectedVariantIDs([...selectedVariantIDs, variantId]);
     }
   };
 
@@ -103,7 +113,31 @@ export default function VariantsTable({
               <TableHead></TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Options</TableHead>
-              <TableHead></TableHead>
+              <TableHead>
+                {selectedVariantIDs.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      className={`${buttonVariants({
+                        variant: "outline",
+                        size: "sm",
+                      })}`}
+                    >
+                      <HiDotsHorizontal />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
+                        <DeleteVariantsDialog variantIDs={selectedVariantIDs} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,7 +145,7 @@ export default function VariantsTable({
               <TableRow key={node.id}>
                 <TableCell>
                   <Checkbox
-                    checked={selectedVariantIDS.includes(node.variantId)}
+                    checked={selectedVariantIDs.includes(node.variantId)}
                     onCheckedChange={(checked) =>
                       handleSelectVariantIDS(node.variantId)
                     }

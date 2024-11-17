@@ -11,23 +11,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { MdDeleteOutline } from "react-icons/md";
 
-export default function DeleteVariantsDialog({ variants }) {
+export default function DeleteVariantsDialog({ variantIDs }) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button size="sm" variant="destructive">
-          <MdDeleteOutline />
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger>Delete</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this variant? This action cannot be
-            undone.
+            Are you sure you want to delete the selected variants? This action
+            cannot be undone. ({variantIDs.length}) variants
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
