@@ -97,3 +97,18 @@ export const REMOVE_MEDIA_IMAGES_PRODUCT = `
     }
   }
 }`;
+
+export const PERFORM_ACTION_ON_VARIANTS = `
+  mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]!) {
+    performActionOnVariants(action: $action, variantIds: $variantIds) {
+      success
+      message
+      errors
+    }
+  }
+`;
+
+export const VariantActions = Object.freeze({
+  DELETE: "DELETE",
+  UPDATE_PRICE: "UPDATE_PRICE",
+});
