@@ -15,7 +15,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
-import DeleteVariantDialog from "./DeleteVariantDialog";
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
@@ -91,7 +90,7 @@ export default function VariantsTable({
             <TableRow>
               <TableHead>Price</TableHead>
               <TableHead>Options</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,14 +110,11 @@ export default function VariantsTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    <EditVariantModal
-                      variant={node}
-                      currencyCode={currencyCode}
-                      onRefetch={() => setShouldRefetch(true)}
-                    />
-                    <DeleteVariantDialog variant={node} />
-                  </div>
+                  <EditVariantModal
+                    variant={node}
+                    currencyCode={currencyCode}
+                    onRefetch={() => setShouldRefetch(true)}
+                  />
                 </TableCell>
               </TableRow>
             ))}
