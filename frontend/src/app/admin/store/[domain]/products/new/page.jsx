@@ -150,6 +150,7 @@ export default function AddProduct() {
       firstVariant: {
         price: data.price,
         compareAtPrice: data.compare,
+        stock: parseInt(data.stock),
       },
       options: cleanOptionsData(data.options),
     };
@@ -163,7 +164,6 @@ export default function AddProduct() {
         query: CREATE_PRODUCT,
         variables: variables,
       });
-
       if (response.data.data.createProduct.product.productId) {
         await addImages(response.data.data.createProduct.product.productId);
         router.push(

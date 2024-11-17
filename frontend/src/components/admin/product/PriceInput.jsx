@@ -55,6 +55,19 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
           Please enter the compare price. This price represents the original or
           previous price of the product before any discount.
         </p>
+        <div className="max-w-xs">
+          <div className="mb-2">
+            <Label htmlFor="stock">Stock Quantity</Label>
+          </div>
+
+          <Input
+            id="stock"
+            size="sm"
+            type="number"
+            placeholder="0"
+            {...register("stock")}
+          />
+        </div>
       </CardContent>
     </Card>
   );
