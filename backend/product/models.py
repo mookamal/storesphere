@@ -48,6 +48,7 @@ class ProductVariant(models.Model):
         default=0.00, max_digits=10, decimal_places=2)
     selected_options = models.ManyToManyField(
         OptionValue, related_name="variants", blank=True)
+    stock = models.PositiveIntegerField(default=0, help_text="Available stock")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
