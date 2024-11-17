@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
+import { Checkbox } from "@/components/ui/checkbox";
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
@@ -26,9 +27,21 @@ export default function VariantsTable({
   const [loading, setLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [countVariant, setCountVariant] = useState(5);
+  const [selectedVariantIDS, setSelectedVariantIDS] = useState([]);
 
   const handleLoadMore = () => {
     setCountVariant(countVariant + 5);
+  };
+
+  const handleSelectVariantIDS = (variantId) => {
+    if (selectedVariantIDS.includes(variantId)) {
+      setSelectedVariantIDS(
+        selectedVariantIDS.filter((id) => id !== variantId)
+      );
+    } else {
+      setSelectedVariantIDS([...selectedVariantIDS, variantId]);
+    }
+    console.log("selectedVariantIDS", selectedVariantIDS);
   };
 
   const getVariantsByProductID = async () => {
@@ -88,6 +101,7 @@ export default function VariantsTable({
           </TableCaption>
           <TableHeader>
             <TableRow>
+              <TableHead></TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Options</TableHead>
               <TableHead></TableHead>
@@ -96,6 +110,14 @@ export default function VariantsTable({
           <TableBody>
             {variants.map(({ node }) => (
               <TableRow key={node.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedVariantIDS.includes(node.variantId)}
+                    onCheckedChange={(checked) =>
+                      handleSelectVariantIDS(node.variantId)
+                    }
+                  />
+                </TableCell>
                 <TableCell>
                   <Badge variant="outline">{currencyCode}</Badge>
                   {node.price}
