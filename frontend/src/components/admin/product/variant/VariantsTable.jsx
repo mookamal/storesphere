@@ -41,7 +41,6 @@ export default function VariantsTable({
     } else {
       setSelectedVariantIDS([...selectedVariantIDS, variantId]);
     }
-    console.log("selectedVariantIDS", selectedVariantIDS);
   };
 
   const getVariantsByProductID = async () => {
