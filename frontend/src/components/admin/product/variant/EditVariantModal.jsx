@@ -22,12 +22,14 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   const [loading, setLoading] = useState(false);
   const [hasChange, setHasChange] = useState(false);
   const [variantPrice, setVariantPrice] = useState(variant.price);
+  const [variantStock, setVariantStock] = useState(variant.stock);
   const handleSave = async () => {
     setLoading(true);
     const variables = {
       variantInputs: {
         variantId: variant.variantId,
         price: variantPrice,
+        stock: parseInt(variantStock),
       },
     };
     try {
@@ -50,12 +52,12 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   };
 
   useEffect(() => {
-    if (variantPrice !== variant.price) {
+    if (variantPrice !== variant.price || variantStock !== variant.stock) {
       setHasChange(true);
     } else {
       setHasChange(false);
     }
-  }, [variantPrice]);
+  }, [variantPrice, variantStock]);
 
   return (
     <Dialog>
@@ -92,6 +94,20 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
               onChange={(e) => setVariantPrice(e.target.value)}
             />
           </div>
+        </div>
+        <div>
+          <div className="mb-2">
+            <Label htmlFor="v-stock">Stock</Label>
+          </div>
+
+          <Input
+            id="v-stock"
+            name="v-stock"
+            size="sm"
+            type="number"
+            value={variantStock}
+            onChange={(e) => setVariantStock(e.target.value)}
+          />
         </div>
         <DialogFooter>
           <Button type="button" disabled={!hasChange} onClick={handleSave}>
