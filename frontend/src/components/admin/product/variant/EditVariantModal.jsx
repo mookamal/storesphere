@@ -25,8 +25,10 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   const handleSave = async () => {
     setLoading(true);
     const variables = {
-      variantId: variant.variantId,
-      price: variantPrice,
+      variantInputs: {
+        variantId: variant.variantId,
+        price: variantPrice,
+      },
     };
     try {
       // Update variant

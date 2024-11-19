@@ -243,6 +243,7 @@ class Query(graphene.ObjectType):
 
 
 class ProductVariantInput(graphene.InputObjectType):
+    variant_id = graphene.ID()
     price = graphene.Decimal()
     compare_at_price = graphene.Decimal()
     stock = graphene.Int()
@@ -396,22 +397,22 @@ class CreateProductVariant(graphene.Mutation):
 
 class UpdateProductVariant(graphene.Mutation):
     class Arguments:
-        variant_id = graphene.ID(required=True)
-        price = graphene.Decimal()
+        variant_inputs = ProductVariantInput(required=True)
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
-    def mutate(cls, root, info, variant_id, price):
+    def mutate(cls, root, info, variant_inputs):
         user = info.context.user
         # get variant object and Verify that the user has permission to update product variant
         try:
-            variant = ProductVariant.objects.get(id=variant_id)
+            variant = ProductVariant.objects.get(id=variant_inputs.variant_id)
             if not StaffMember.objects.filter(user=user, store=variant.product.store).exists():
                 raise PermissionDenied(
                     "You are not authorized to update product variants for this store.")
         except ProductVariant.DoesNotExist:
             raise Exception("Product variant not found.")
-        variant.price = price
+        variant.price = variant_inputs.price
+        variant.stock = variant_inputs.stock
         variant.save()
         return UpdateProductVariant(product_variant=variant)
 

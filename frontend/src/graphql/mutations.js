@@ -61,8 +61,8 @@ export const CREATE_PRODUCT_VARIANT = `
     }
   `;
 export const UPDATE_PRODUCT_VARIANT = `
-    mutation UpdateProductVariantMutation($variantId: ID!,$price: Decimal!) {
-    updateProductVariant(variantId: $variantId,price: $price  ) {
+    mutation UpdateProductVariantMutation($variantInputs: ProductVariantInput!) {
+    updateProductVariant(variantInputs: $variantInputs  ) {
       productVariant {
         variantId
       }
