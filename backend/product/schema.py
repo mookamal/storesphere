@@ -350,6 +350,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         first_variant = product_instance.first_variant
         first_variant.price = product.first_variant.price
         first_variant.compare_at_price = product.first_variant.compare_at_price
+        first_variant.stock = product.first_variant.stock
         first_variant.save()
         product_instance.save()
         # update options
