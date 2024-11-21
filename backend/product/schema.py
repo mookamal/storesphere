@@ -130,6 +130,7 @@ class CollectionNode(DjangoObjectType):
 
     class Meta:
         model = Collection
+        filter_fields = ['created_at']
         interfaces = (graphene.relay.Node,)
         exclude = ('store',)
 
@@ -172,6 +173,8 @@ class Query(graphene.ObjectType):
         ImageNode, product_id=graphene.ID(required=True))
     product_details_variants = DjangoFilterConnectionField(
         ProductVariantNode, product_id=graphene.ID(required=True))
+    all_collections = DjangoFilterConnectionField(
+        CollectionNode, default_domain=graphene.String(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -251,6 +254,22 @@ class Query(graphene.ObjectType):
                     "You are not authorized to access this store.")
         except Product.DoesNotExist:
             raise PermissionDenied("Product not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+    def resolve_all_collections(self, info, default_domain, **kwargs):
+        try:
+            user = info.context.user
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                collections = Collection.objects.filter(
+                    store=store).order_by('-created_at')
+                return collections
+            else:
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
+        except Store.DoesNotExist:
+            raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 

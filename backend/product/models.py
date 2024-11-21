@@ -144,6 +144,7 @@ class Collection(models.Model):
     handle = models.CharField(max_length=255, null=True, blank=True)
     seo = models.OneToOneField(
         SEO, on_delete=models.CASCADE, related_name="collection", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def generate_unique_handle(self, base_handle):
         """ Helper function to generate unique handle. """
