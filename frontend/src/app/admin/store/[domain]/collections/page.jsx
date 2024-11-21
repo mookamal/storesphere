@@ -18,8 +18,6 @@ export default function collections({ params }) {
   const currentPath = usePathname();
   const [collections, setCollections] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [endCursor, setEndCursor] = useState("");
-  const [hasNextPage, setHasNextPage] = useState(false);
 
   const getData = async () => {
     setIsLoading(true);
@@ -33,8 +31,6 @@ export default function collections({ params }) {
       });
       if (response.data.allCollections.edges.length > 0) {
         setCollections(response.data.allCollections.edges);
-        setHasNextPage(response.data.allCollections.pageInfo.hasNextPage);
-        setEndCursor(response.data.allCollections.pageInfo.endCursor);
       }
     } catch (error) {
       console.error(error);
