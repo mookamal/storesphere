@@ -133,6 +133,9 @@ class CollectionNode(DjangoObjectType):
         interfaces = (graphene.relay.Node,)
         exclude = ('store',)
 
+    def resolve_collection_id(self, info):
+        return self.id
+
 
 class ProductNode(DjangoObjectType):
     product_id = graphene.Int()
