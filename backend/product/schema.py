@@ -1,8 +1,7 @@
-from decimal import Decimal
 import graphene
 from stores.models import Store, StaffMember
 from core.models import SEO
-from .models import Product, Image, ProductVariant, ProductOption, OptionValue
+from .models import Product, Image, ProductVariant, ProductOption, OptionValue, Collection
 import django_filters
 from graphene_django import DjangoObjectType
 from graphene import Scalar
@@ -122,6 +121,17 @@ class ImageNode(DjangoObjectType):
 
     def resolve_image_id(self, info):
         return self.id
+
+
+class CollectionNode(DjangoObjectType):
+    collection_id = graphene.Int()
+    seo = graphene.Field(SEOType)
+    image = graphene.Field(ImageNode)
+
+    class Meta:
+        model = Collection
+        interfaces = (graphene.relay.Node,)
+        exclude = ('store',)
 
 
 class ProductNode(DjangoObjectType):
