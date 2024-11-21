@@ -137,7 +137,7 @@ class Collection(models.Model):
     store = models.ForeignKey(
         Store, on_delete=models.CASCADE, related_name="collections")
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     image = models.ForeignKey(
         Image, on_delete=models.SET_NULL, blank=True, null=True)
     handle = models.CharField(max_length=255, null=True, blank=True)
