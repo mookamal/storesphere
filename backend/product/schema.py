@@ -127,6 +127,7 @@ class CollectionNode(DjangoObjectType):
     collection_id = graphene.Int()
     seo = graphene.Field(SEOType)
     image = graphene.Field(ImageNode)
+    products_count = graphene.Int()
 
     class Meta:
         model = Collection
@@ -136,6 +137,9 @@ class CollectionNode(DjangoObjectType):
 
     def resolve_collection_id(self, info):
         return self.id
+
+    def resolve_products_count(self, info):
+        return self.products.all().count()
 
 
 class ProductNode(DjangoObjectType):
