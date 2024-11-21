@@ -83,7 +83,8 @@ class Product(models.Model):
     status = models.CharField(max_length=10, choices=STATUS, default="DRAFT")
     images = models.ManyToManyField(
         Image, related_name="products", blank=True)
-    collections = models.ManyToManyField("Collection", related_name="products")
+    collections = models.ManyToManyField(
+        "Collection", related_name="products", blank=True)
     videos = models.ManyToManyField(
         Video, related_name="products", blank=True)
     first_variant = models.OneToOneField(
