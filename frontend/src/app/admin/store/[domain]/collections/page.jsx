@@ -21,12 +21,6 @@ export default function collections({ params }) {
   const [endCursor, setEndCursor] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
 
-  // Mock data for collections
-  const mockCollections = [
-    { title: "Collection 1", products: 5 },
-    { title: "Collection 2", products: 0 },
-    { title: "Collection 3", products: 12 },
-  ];
   const getData = async () => {
     setIsLoading(true);
     try {
