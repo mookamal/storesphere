@@ -149,3 +149,29 @@ export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
     }
   }
 `;
+
+export const ADMIN_ALL_COLLECTIONS = gql`
+  query AdminCollectionsList($domain: String!) {
+    allCollections(defaultDomain: $domain) {
+      edges {
+        node {
+          id
+          collectionId
+          title
+          description
+          image {
+            image
+          }
+          seo {
+            title
+            description
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
