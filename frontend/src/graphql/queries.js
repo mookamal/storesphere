@@ -159,6 +159,7 @@ export const ADMIN_ALL_COLLECTIONS = gql`
           collectionId
           title
           description
+          productsCount
           image {
             image
           }
