@@ -30,3 +30,8 @@ class ProductOptionAdmin(admin.ModelAdmin):
 @admin.register(models.OptionValue)
 class OptionValueAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    pass

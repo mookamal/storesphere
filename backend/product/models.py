@@ -83,6 +83,7 @@ class Product(models.Model):
     status = models.CharField(max_length=10, choices=STATUS, default="DRAFT")
     images = models.ManyToManyField(
         Image, related_name="products", blank=True)
+    collections = models.ManyToManyField("Collection", related_name="products")
     videos = models.ManyToManyField(
         Video, related_name="products", blank=True)
     first_variant = models.OneToOneField(
@@ -130,3 +131,41 @@ class Product(models.Model):
                 fields=['store', 'handle'], name='unique_store_handle'
             ),
         ]
+
+
+class Collection(models.Model):
+    store = models.ForeignKey(
+        Store, on_delete=models.CASCADE, related_name="collections")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    image = models.ForeignKey(
+        Image, on_delete=models.SET_NULL, blank=True, null=True)
+    handle = models.CharField(max_length=255, null=True, blank=True)
+    seo = models.OneToOneField(
+        SEO, on_delete=models.CASCADE, related_name="collection", null=True, blank=True)
+
+    def generate_unique_handle(self, base_handle):
+        """ Helper function to generate unique handle. """
+        unique_handle = base_handle
+        num = 1
+        while Collection.objects.filter(store=self.store, handle=unique_handle).exclude(pk=self.pk).exists():
+            unique_handle = f"{base_handle}-{num}"
+            num += 1
+        return unique_handle
+
+    def clean(self):
+        """
+        This method is used for validation before saving the model.
+        """
+        if not self.handle:
+            base_handle = slugify(self.title)
+            self.handle = self.generate_unique_handle(base_handle)
+        else:
+            self.handle = self.generate_unique_handle(slugify(self.handle))
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
