@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function GeneralInputs({ register }) {
+export default function GeneralInputs({ register, handleBlur }) {
   return (
     <Card className="card w-full md:w-[60%]">
       <CardHeader>General information</CardHeader>
@@ -17,6 +17,7 @@ export default function GeneralInputs({ register }) {
             size="sm"
             type="text"
             {...register("title")}
+            onBlur={handleBlur}
             required
             placeholder="Collection title (e.g., Men's Clothing)"
           />
