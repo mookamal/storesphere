@@ -5,8 +5,10 @@ import { useState } from "react";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
+import AddProducts from "@/components/admin/collection/AddProducts";
 export default function CreateCollection({ params }) {
   const [loading, setLoading] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const { register, handleSubmit, watch, setValue } = useForm();
   const watchedTitle = watch("title");
   const handle = watch("handle");
@@ -28,6 +30,11 @@ export default function CreateCollection({ params }) {
         <h1 className="h1">Add a new collection</h1>
         <div className="flex flex-col items-center my-5 gap-3">
           <GeneralInputs register={register} handleBlur={handleBlur} />
+          <AddProducts
+            domain={params.domain}
+            selectedProducts={selectedProducts}
+            setSelectedProducts={setSelectedProducts}
+          />
           <SeoInputs register={register} domain={params.domain} handle="test" />
         </div>
       </div>
