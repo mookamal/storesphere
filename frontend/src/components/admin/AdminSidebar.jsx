@@ -27,6 +27,12 @@ export default function AdminSidebar() {
       title: "Products",
       url: `/store/${storeDomain}/products`,
       icon: FaAward,
+      subLinks: [
+        {
+          title: "Collections",
+          url: `/store/${storeDomain}/collections`,
+        },
+      ],
     },
     {
       title: "Settings",
