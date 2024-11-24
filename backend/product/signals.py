@@ -5,9 +5,11 @@ from .models import Product, Collection
 
 @receiver(post_delete, sender=Product)
 def delete_seo_related_to_product(sender, instance, **kwargs):
-    instance.seo.delete()
+    if instance.seo:
+        instance.seo.delete()
 
 
 @receiver(post_delete, sender=Collection)
 def delete_seo_related_to_collection(sender, instance, **kwargs):
-    instance.seo.delete()
+    if instance.seo:
+        instance.seo.delete()

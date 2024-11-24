@@ -22,7 +22,7 @@ export default function CreateCollection({ params }) {
     }
   };
   const onSubmit = async (data) => {
-    console.log(data);
+    console.log(selectedProducts);
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

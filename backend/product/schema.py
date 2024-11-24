@@ -532,6 +532,55 @@ class RemoveImagesProduct(graphene.Mutation):
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
+# Collection
+
+
+class CollectionInputs(graphene.InputObjectType):
+    title = graphene.String(required=True)
+    description = graphene.String()
+    handle = graphene.String()
+    image_id = graphene.ID()
+    product_ids = graphene.List(graphene.ID)
+    seo = SEOInput()
+
+
+class CreateCollection(graphene.Mutation):
+    class Arguments:
+        default_domain = graphene.String(required=True)
+        collection_inputs = CollectionInputs(required=True)
+
+    collection = graphene.Field(CollectionNode)
+
+    @classmethod
+    def mutate(cls, root, info, default_domain, collection_inputs):
+        user = info.context.user
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+        except Store.DoesNotExist:
+            raise Exception("Store with the provided domain does not exist.")
+        if not StaffMember.objects.filter(user=user, store=store).exists():
+            raise PermissionDenied(
+                "You are not authorized to create collections for this store.")
+        collection = Collection.objects.create(
+            store=store,
+            title=collection_inputs.title,
+            description=collection_inputs.description or "",
+            handle=collection_inputs.handle,
+            image_id=collection_inputs.image_id or None,
+        )
+        seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
+            "title": collection.title, "description": ""}
+        seo = SEO.objects.create(**seo_data)
+        collection.seo = seo
+        if collection_inputs.product_ids:
+            products = Product.objects.filter(
+                pk__in=collection_inputs.product_ids)
+            if not products.exists():
+                raise ValueError("No valid products were found.")
+
+            collection.products.add(*products)
+        return CreateCollection(collection=collection)
+
 
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
@@ -541,3 +590,4 @@ class Mutation(graphene.ObjectType):
     perform_action_on_variants = PerformActionOnVariants.Field()
     add_images_product = AddImagesProduct.Field()
     remove_images_product = RemoveImagesProduct.Field()
+    create_collection = CreateCollection.Field()
