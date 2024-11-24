@@ -11,6 +11,9 @@ export default function AddProducts({
   selectedProducts,
   setSelectedProducts,
 }) {
+  const handleRemoveProduct = (product) => {
+    setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
+  };
   return (
     <Card className="card w-full md:w-[60%]">
       <CardHeader>
@@ -36,7 +39,12 @@ export default function AddProducts({
                 >
                   {product.status}
                 </Badge>
-                <Button type="button" size="sm" variant="outline">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleRemoveProduct(product)}
+                >
                   <MdCancel />
                 </Button>
               </div>
