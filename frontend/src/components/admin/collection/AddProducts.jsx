@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MdCancel } from "react-icons/md";
 import { TbDatabaseExclamation } from "react-icons/tb";
+import ProductsList from "./ProductsList";
 
 export default function AddProducts({
   domain,
@@ -15,7 +16,11 @@ export default function AddProducts({
       <CardHeader>
         <div className="flex justify-between items-center">
           <h2>Products</h2>
-          <Button type="button">Browse</Button>
+          <ProductsList
+            domain={domain}
+            selectedProducts={selectedProducts}
+            setSelectedProducts={setSelectedProducts}
+          />
         </div>
       </CardHeader>
       <CardContent>
