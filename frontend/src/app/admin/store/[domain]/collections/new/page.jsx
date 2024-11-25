@@ -19,11 +19,13 @@ export default function CreateCollection({ params }) {
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
   const handleBlur = () => {
-    if (!handle) {
-      setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
-    }
-    if (!seoTitle) {
-      setValue("seoTitle", watchedTitle);
+    if (watchedTitle) {
+      if (!handle) {
+        setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
+      }
+      if (!seoTitle) {
+        setValue("seoTitle", watchedTitle);
+      }
     }
   };
   const onSubmit = async (data) => {
