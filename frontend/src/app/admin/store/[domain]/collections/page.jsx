@@ -70,7 +70,7 @@ export default function collections({ params }) {
             {collections.map(({ node }) => (
               <TableRow key={node.id}>
                 <TableCell className="border-r">
-                  <Link href={`/${currentPath}/${node.handle}`}>
+                  <Link href={`${currentPath}/${node.collectionId}`}>
                     {node.title}
                   </Link>
                 </TableCell>
