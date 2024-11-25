@@ -108,6 +108,16 @@ export const PERFORM_ACTION_ON_VARIANTS = `
   }
 `;
 
+export const ADMIN_CREATE_COLLECTION = `
+  mutation AdminCreateCollection($collectionInputs:CollectionInputs!,$domain: String!) {
+    createCollection(collectionInputs:$collectionInputs,defaultDomain:$domain) {
+      collection {
+        collectionId
+      }
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",

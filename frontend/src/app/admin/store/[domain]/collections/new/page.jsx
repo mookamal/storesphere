@@ -6,7 +6,12 @@ import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import AddProducts from "@/components/admin/collection/AddProducts";
+import axios from "axios";
+import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 export default function CreateCollection({ params }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const { register, handleSubmit, watch, setValue } = useForm();
@@ -22,7 +27,41 @@ export default function CreateCollection({ params }) {
     }
   };
   const onSubmit = async (data) => {
-    console.log(selectedProducts);
+    setLoading(true);
+    const productIds =
+      selectedProducts.length > 0
+        ? selectedProducts.map((p) => p.productId)
+        : [];
+    const variables = {
+      domain: params.domain,
+      collectionInputs: {
+        title: data.title,
+        description: data.description,
+        handle: data.handle,
+        productIds: productIds,
+        seo: {
+          title: data.seoTitle,
+          description: data.seoDescription,
+        },
+      },
+    };
+    try {
+      const response = await axios.post("/api/set-data", {
+        query: ADMIN_CREATE_COLLECTION,
+        variables: variables,
+      });
+      if (response.data.data.createCollection.collection.collectionId) {
+        toast.success("Collection created successfully!");
+        router.push(
+          `/store/${params.domain}/collections/${response.data.data.createCollection.collection.collectionId}`
+        );
+      }
+    } catch (e) {
+      console.error("Error creating collection", e);
+      toast.error("Failed to create collection");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
