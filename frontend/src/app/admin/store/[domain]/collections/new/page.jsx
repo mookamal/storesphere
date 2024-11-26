@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 export default function CreateCollection({ params }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const { register, handleSubmit, watch, setValue } = useForm();
   const watchedTitle = watch("title");
@@ -70,7 +71,12 @@ export default function CreateCollection({ params }) {
       <div className="p-5">
         <h1 className="h1">Add a new collection</h1>
         <div className="flex flex-col items-center my-5 gap-3">
-          <GeneralInputs register={register} handleBlur={handleBlur} />
+          <GeneralInputs
+            register={register}
+            handleBlur={handleBlur}
+            setImage={setImage}
+            image={image}
+          />
           <AddProducts
             domain={params.domain}
             selectedProducts={selectedProducts}
