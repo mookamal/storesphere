@@ -42,6 +42,7 @@ export default function CreateCollection({ params }) {
         description: data.description,
         handle: data.handle,
         productIds: productIds,
+        imageId: image ? image.imageId : null,
         seo: {
           title: data.seoTitle,
           description: data.seoDescription,
