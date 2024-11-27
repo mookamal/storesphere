@@ -1,5 +1,6 @@
 "use client";
 import { ADMIN_COLLECTION_BY_ID } from "@/graphql/queries";
+import { handleGraphQLError } from "@/lib/utilities";
 import axios from "axios";
 import { useParams, notFound } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -25,7 +26,8 @@ export default function updateCollection() {
         setCollection(response.data.collectionById);
       }
     } catch (error) {
-      console.error(error);
+      const errorDetails = handleGraphQLError(error);
+      setError(errorDetails);
     } finally {
       setLoading(false);
     }
@@ -34,5 +36,45 @@ export default function updateCollection() {
   useEffect(() => {
     getCollectionById();
   }, []);
-  return <div></div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    switch (error.type) {
+      case "NOT_FOUND":
+        notFound();
+        break;
+      case "UNAUTHORIZED":
+        return (
+          <div className="error-message">
+            You need to log in to access this page.
+          </div>
+        );
+      case "SERVER_ERROR":
+        return (
+          <div className="error-message">
+            An internal server error occurred. Please try again later.
+          </div>
+        );
+      case "NO_RESPONSE":
+        return (
+          <div className="error-message">
+            No response from the server. Check your network.
+          </div>
+        );
+      default:
+        return <div className="error-message">{error.message}</div>;
+    }
+  }
+  return (
+    <div>
+      <h1>Update Collection</h1>
+      {collection && (
+        <div>
+          <h2>{collection.title}</h2>
+          <p>{collection.description}</p>
+        </div>
+      )}
+    </div>
+  );
 }
