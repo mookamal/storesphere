@@ -589,6 +589,7 @@ class CreateCollection(graphene.Mutation):
             "title": collection.title, "description": ""}
         seo = SEO.objects.create(**seo_data)
         collection.seo = seo
+        collection.save()
         if collection_inputs.image_id:
             image = Image.objects.get(pk=collection_inputs.image_id)
             collection.image = image
