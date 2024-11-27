@@ -179,6 +179,8 @@ class Query(graphene.ObjectType):
         ProductVariantNode, product_id=graphene.ID(required=True))
     all_collections = DjangoFilterConnectionField(
         CollectionNode, default_domain=graphene.String(required=True))
+    collection_by_id = graphene.Field(
+        CollectionNode, id=graphene.ID(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -274,6 +276,21 @@ class Query(graphene.ObjectType):
                     "You are not authorized to access this store.")
         except Store.DoesNotExist:
             raise PermissionDenied("Store not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+    def resolve_collection_by_id(self, info, id, **kwargs):
+        try:
+            user = info.context.user
+            collection = Collection.objects.get(pk=id)
+            store = collection.store
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                return collection
+            else:
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
+        except Collection.DoesNotExist:
+            raise PermissionDenied("Collection not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
