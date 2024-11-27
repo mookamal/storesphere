@@ -1,3 +1,4 @@
+from graphql import GraphQLError
 import graphene
 from stores.models import Store, StaffMember
 from core.models import SEO
@@ -287,12 +288,25 @@ class Query(graphene.ObjectType):
             if StaffMember.objects.filter(user=user, store=store).exists():
                 return collection
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise PermissionDenied("Collection not found.")
+            raise GraphQLError("Collection not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
 
 class ProductVariantInput(graphene.InputObjectType):
@@ -374,7 +388,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    @classmethod
+    @ classmethod
     def mutate_and_get_payload(cls, root, info, id, product, default_domain):
         user = info.context.user
 
@@ -426,7 +440,7 @@ class CreateProductVariant(graphene.Mutation):
 
     product_variant = graphene.Field(ProductVariantNode)
 
-    @classmethod
+    @ classmethod
     def mutate(cls, root, info, product_id, variant_inputs):
         user = info.context.user
         # Verify that the user has permission to add product variant
@@ -453,7 +467,7 @@ class UpdateProductVariant(graphene.Mutation):
         variant_inputs = ProductVariantInput(required=True)
     product_variant = graphene.Field(ProductVariantNode)
 
-    @classmethod
+    @ classmethod
     def mutate(cls, root, info, variant_inputs):
         user = info.context.user
         # get variant object and Verify that the user has permission to update product variant
@@ -478,7 +492,7 @@ class PerformActionOnVariants(graphene.Mutation):
     message = graphene.String()
     errors = graphene.List(graphene.String)
 
-    @classmethod
+    @ classmethod
     def mutate(cls, root, info, action, variant_ids):
         user = info.context.user
         # get variant objects and Verify that the user has permission to perform action on product variants
@@ -568,7 +582,7 @@ class CreateCollection(graphene.Mutation):
 
     collection = graphene.Field(CollectionNode)
 
-    @classmethod
+    @ classmethod
     def mutate(cls, root, info, default_domain, collection_inputs):
         user = info.context.user
         try:

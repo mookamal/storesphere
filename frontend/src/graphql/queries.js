@@ -176,3 +176,22 @@ export const ADMIN_ALL_COLLECTIONS = gql`
     }
   }
 `;
+
+export const ADMIN_COLLECTION_BY_ID = gql`
+  query AdminCollectionById($id: ID!) {
+    collectionById(id: $id) {
+      collectionId
+      title
+      description
+      productsCount
+      seo {
+        title
+        description
+      }
+      image {
+        image
+        imageId
+      }
+    }
+  }
+`;
