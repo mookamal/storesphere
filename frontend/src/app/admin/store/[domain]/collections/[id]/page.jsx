@@ -3,7 +3,10 @@ import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import { Button } from "@/components/ui/button";
-import { ADMIN_COLLECTION_BY_ID } from "@/graphql/queries";
+import {
+  ADMIN_COLLECTION_BY_ID,
+  ADMIN_PRODUCTS_BY_COLLECTION_ID,
+} from "@/graphql/queries";
 import { handleGraphQLError } from "@/lib/utilities";
 import axios from "axios";
 import { useParams, notFound } from "next/navigation";
@@ -34,6 +37,23 @@ export default function updateCollection() {
       }
     }
   };
+  // Fetch products by collection ID
+  const fetchProducts = async (collectionId) => {
+    try {
+      const response = await axios.post("/api/get-data", {
+        query: ADMIN_PRODUCTS_BY_COLLECTION_ID,
+        variables: { collectionId: collectionId, first: 1, after: "" },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      setSelectedProducts(
+        response.data.productsByCollection.edges.map(({ node }) => node)
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
   // Fetch the collection data using the provided ID and domain.
   const getCollectionById = async () => {
     setLoading(true);
@@ -56,6 +76,7 @@ export default function updateCollection() {
           response.data.collectionById.seo.description
         );
         setImage(response.data.collectionById.image);
+        fetchProducts(collectionId);
       }
     } catch (error) {
       const errorDetails = handleGraphQLError(error);
