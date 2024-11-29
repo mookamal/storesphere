@@ -10,7 +10,7 @@ import {
 import { handleGraphQLError } from "@/lib/utilities";
 import axios from "axios";
 import { useParams, notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoReload } from "react-icons/io5";
 
@@ -24,6 +24,7 @@ export default function updateCollection() {
   const { register, handleSubmit, watch, setValue } = useForm();
   const [image, setImage] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const renderCountEffect = useRef(0);
   const watchedTitle = watch("title");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
@@ -50,10 +51,21 @@ export default function updateCollection() {
       setSelectedProducts(
         response.data.productsByCollection.edges.map(({ node }) => node)
       );
+      if (renderCountEffect.current < 3) {
+        renderCountEffect.current++;
+      }
     } catch (error) {
       console.error(error);
     }
   };
+  // Handle change in selected products
+  useEffect(() => {
+    if (renderCountEffect.current < 3) {
+      renderCountEffect.current++;
+      return;
+    }
+    console.log("selectedProducts", selectedProducts);
+  }, [selectedProducts]);
   // Fetch the collection data using the provided ID and domain.
   const getCollectionById = async () => {
     setLoading(true);
