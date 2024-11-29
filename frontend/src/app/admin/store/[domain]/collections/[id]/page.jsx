@@ -1,16 +1,39 @@
 "use client";
+import AddProducts from "@/components/admin/collection/AddProducts";
+import GeneralInputs from "@/components/admin/collection/GeneralInputs";
+import SeoInputs from "@/components/admin/collection/SeoInputs";
+import { Button } from "@/components/ui/button";
 import { ADMIN_COLLECTION_BY_ID } from "@/graphql/queries";
 import { handleGraphQLError } from "@/lib/utilities";
 import axios from "axios";
 import { useParams, notFound } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { IoReload } from "react-icons/io5";
 
 export default function updateCollection() {
   const collectionId = useParams().id;
+  const domain = useParams().domain;
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [hasChanges, setHasChanges] = useState(false);
+  const { register, handleSubmit, watch, setValue } = useForm();
+  const [image, setImage] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const watchedTitle = watch("title");
+  const handle = watch("handle");
+  const seoTitle = watch("seoTitle");
+  const handleBlur = () => {
+    if (watchedTitle) {
+      if (!handle) {
+        setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
+      }
+      if (!seoTitle) {
+        setValue("seoTitle", watchedTitle);
+      }
+    }
+  };
   // Fetch the collection data using the provided ID and domain.
   const getCollectionById = async () => {
     setLoading(true);
@@ -24,6 +47,15 @@ export default function updateCollection() {
       }
       if (response.data.collectionById) {
         setCollection(response.data.collectionById);
+        setValue("title", response.data.collectionById.title);
+        setValue("handle", response.data.collectionById.handle);
+        setValue("description", response.data.collectionById.description);
+        setValue("seoTitle", response.data.collectionById.seo.title);
+        setValue(
+          "seoDescription",
+          response.data.collectionById.seo.description
+        );
+        setImage(response.data.collectionById.image);
       }
     } catch (error) {
       const errorDetails = handleGraphQLError(error);
@@ -36,8 +68,11 @@ export default function updateCollection() {
   useEffect(() => {
     getCollectionById();
   }, []);
+  const onSubmit = async (data) => {
+    console.log(data);
+  };
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center mt-24">Loading...</div>;
   }
   if (error) {
     switch (error.type) {
@@ -67,14 +102,33 @@ export default function updateCollection() {
     }
   }
   return (
-    <div>
-      <h1>Update Collection</h1>
-      {collection && (
-        <div>
-          <h2>{collection.title}</h2>
-          <p>{collection.description}</p>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="p-5">
+        <h1 className="h1">Update Collection</h1>
+        <div className="flex flex-col items-center my-5 gap-3">
+          <GeneralInputs
+            register={register}
+            handleBlur={handleBlur}
+            setImage={setImage}
+            image={image}
+          />
+          <AddProducts
+            domain={domain}
+            selectedProducts={selectedProducts}
+            setSelectedProducts={setSelectedProducts}
+          />
+          <SeoInputs register={register} domain={domain} handle={handle} />
         </div>
-      )}
-    </div>
+      </div>
+      <Button
+        size="lg"
+        type="submit"
+        className="fixed bottom-5 right-5 rounded-full shadow-md"
+        disabled={!hasChanges}
+      >
+        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        Update
+      </Button>
+    </form>
   );
 }

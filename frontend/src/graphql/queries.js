@@ -184,6 +184,7 @@ export const ADMIN_COLLECTION_BY_ID = gql`
       title
       description
       productsCount
+      handle
       seo {
         title
         description
@@ -191,6 +192,33 @@ export const ADMIN_COLLECTION_BY_ID = gql`
       image {
         image
         imageId
+      }
+    }
+  }
+`;
+
+export const ADMIN_PRODUCTS_BY_COLLECTION_ID = gql`
+  query Admin_products_by_collection(
+    $collectionId: ID!
+    $first: Int
+    $after: String!
+  ) {
+    productsByCollection(
+      collectionId: $collectionId
+      first: $first
+      after: $after
+    ) {
+      edges {
+        node {
+          id
+          productId
+          title
+          status
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
       }
     }
   }

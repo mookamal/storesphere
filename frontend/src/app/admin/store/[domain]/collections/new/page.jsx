@@ -83,7 +83,11 @@ export default function CreateCollection({ params }) {
             selectedProducts={selectedProducts}
             setSelectedProducts={setSelectedProducts}
           />
-          <SeoInputs register={register} domain={params.domain} handle="test" />
+          <SeoInputs
+            register={register}
+            domain={params.domain}
+            handle={handle}
+          />
         </div>
       </div>
       <Button
