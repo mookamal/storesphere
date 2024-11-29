@@ -1,6 +1,5 @@
 from django.db import transaction
-from .models import ProductOption, OptionValue, ProductVariant
-from django.db import models
+from .models import Product, ProductOption, OptionValue, ProductVariant, Collection
 
 
 @transaction.atomic
@@ -65,3 +64,30 @@ def add_values_to_variant(variant, option_value_ids):
 
     variant.selected_options.add(*option_values)
     variant.save()
+
+
+def update_products_in_collection(collection, product_ids):
+    if not collection:
+        raise ValueError("Collection is required.")
+
+    try:
+        current_product_ids = set(
+            collection.products.values_list("id", flat=True))
+        new_product_ids = set([int(id) for id in product_ids])
+        products_to_add = new_product_ids - current_product_ids
+        products_to_remove = current_product_ids - new_product_ids
+
+        if not new_product_ids:
+            collection.products.clear()
+        else:
+            if products_to_add:
+                products_instances_to_add = Product.objects.filter(
+                    id__in=products_to_add)
+                collection.products.add(*products_instances_to_add)
+            if products_to_remove:
+
+                products_instances_to_remove = Product.objects.filter(
+                    id__in=products_to_remove)
+                collection.products.remove(*products_instances_to_remove)
+    except Product.DoesNotExist:
+        raise Exception("Product not found.")
