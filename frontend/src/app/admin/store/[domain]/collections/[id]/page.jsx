@@ -45,7 +45,7 @@ export default function updateCollection() {
     try {
       const response = await axios.post("/api/get-data", {
         query: ADMIN_PRODUCTS_BY_COLLECTION_ID,
-        variables: { collectionId: collectionId, first: 100, after: "" },
+        variables: { collectionId: collectionId, first: 15, after: "" },
       });
       if (response.data.error) {
         throw new Error(response.data.error);
