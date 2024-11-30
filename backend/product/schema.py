@@ -144,6 +144,7 @@ class CollectionNode(DjangoObjectType):
 
 
 class ProductNode(DjangoObjectType):
+    in_collection = graphene.Boolean()
     product_id = graphene.Int()
     seo = graphene.Field(SEOType)
     image = graphene.Field(ImageNode)
@@ -167,6 +168,12 @@ class ProductNode(DjangoObjectType):
     def resolve_image(self, info):
         return self.images.first() if self.images.first() else None
 
+    def resolve_in_collection(self, info):
+        collection_id = info.variable_values.get("collectionId")
+        if not collection_id:
+            return False
+        return self.collections.filter(pk=collection_id).exists()
+
 
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(
@@ -182,6 +189,8 @@ class Query(graphene.ObjectType):
         CollectionNode, default_domain=graphene.String(required=True))
     collection_by_id = graphene.Field(
         CollectionNode, id=graphene.ID(required=True))
+    product_resource_collection = DjangoFilterConnectionField(
+        ProductNode, collection_id=graphene.ID(required=True))
     products_by_collection = DjangoFilterConnectionField(
         ProductNode, collection_id=graphene.ID(required=True))
 
@@ -318,6 +327,21 @@ class Query(graphene.ObjectType):
             if StaffMember.objects.filter(user=user, store=store).exists():
                 products = collection.products.all().order_by('-created_at')
                 return products
+            else:
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
+        except Collection.DoesNotExist:
+            raise PermissionDenied("Collection not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+    def resolve_product_resource_collection(self, info, collection_id, **kwargs):
+        try:
+            user = info.context.user
+            collection = Collection.objects.get(pk=collection_id)
+            store = collection.store
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                pass
             else:
                 raise PermissionDenied(
                     "You are not authorized to access this store.")
