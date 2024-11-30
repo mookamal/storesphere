@@ -14,21 +14,38 @@ import { ADMIN_PRODUCT_RESOURCE_COLLECTION } from "@/graphql/queries";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export default function ProductsList({
-  collectionId,
-  selectedProducts,
-  setSelectedProducts,
-}) {
+export default function ProductsList({ collectionId }) {
   const [loadingData, setLoadingData] = useState(false);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const handleSelectProduct = (product) => {
-    const newSelectedProducts = selectedProducts.some(
-      (p) => p.id === product.id
-    )
-      ? selectedProducts.filter((p) => p.id !== product.id)
-      : [...selectedProducts, product];
-    setSelectedProducts(newSelectedProducts);
+  const [toRemove, setToRemove] = useState([]);
+  const [toAdd, setToAdd] = useState([]);
+  const handleSelectProduct = (node, isChecked) => {
+    const nodeProductId = node.productId;
+
+    if (isChecked) {
+      if (node.inCollection) {
+        setToRemove((prev) =>
+          prev.filter((productId) => productId !== nodeProductId)
+        );
+      } else {
+        setToAdd((prev) => [...prev, nodeProductId]);
+      }
+    } else {
+      if (node.inCollection) {
+        setToRemove((prev) => [...prev, nodeProductId]);
+      } else {
+        setToAdd((prev) =>
+          prev.filter((productId) => productId !== nodeProductId)
+        );
+      }
+    }
+  };
+
+  const isChecked = (node) => {
+    if (toAdd.includes(node.productId)) return true;
+    if (toRemove.includes(node.productId)) return false;
+    return node.inCollection;
   };
 
   const getProducts = async () => {
@@ -89,7 +106,7 @@ export default function ProductsList({
                     onCheckedChange={(isChecked) =>
                       handleSelectProduct(node, isChecked)
                     }
-                    checked={selectedProducts.some((p) => p.id === node.id)}
+                    checked={isChecked(node)}
                   />
 
                   <h2>{node.title}</h2>

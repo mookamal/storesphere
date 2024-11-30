@@ -19,11 +19,7 @@ export default function AddProducts({
       <CardHeader>
         <div className="flex justify-between items-center">
           <h2>Products</h2>
-          <ProductsList
-            collectionId={collectionId}
-            selectedProducts={selectedProducts}
-            setSelectedProducts={setSelectedProducts}
-          />
+          <ProductsList collectionId={collectionId} />
         </div>
       </CardHeader>
       <CardContent>
