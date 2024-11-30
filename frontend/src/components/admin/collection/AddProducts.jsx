@@ -7,7 +7,7 @@ import { TbDatabaseExclamation } from "react-icons/tb";
 import ProductsList from "./ProductsList";
 
 export default function AddProducts({
-  domain,
+  collectionId,
   selectedProducts,
   setSelectedProducts,
 }) {
@@ -20,7 +20,7 @@ export default function AddProducts({
         <div className="flex justify-between items-center">
           <h2>Products</h2>
           <ProductsList
-            domain={domain}
+            collectionId={collectionId}
             selectedProducts={selectedProducts}
             setSelectedProducts={setSelectedProducts}
           />

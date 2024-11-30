@@ -165,7 +165,7 @@ export default function updateCollection() {
             image={image}
           />
           <AddProducts
-            domain={domain}
+            collectionId={collectionId}
             selectedProducts={selectedProducts}
             setSelectedProducts={setSelectedProducts}
           />

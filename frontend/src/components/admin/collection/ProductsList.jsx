@@ -10,12 +10,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
+import { ADMIN_PRODUCT_RESOURCE_COLLECTION } from "@/graphql/queries";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function ProductsList({
-  domain,
+  collectionId,
   selectedProducts,
   setSelectedProducts,
 }) {
@@ -35,19 +35,18 @@ export default function ProductsList({
     setLoadingData(true);
     try {
       const response = await axios.post("/api/get-data", {
-        query: PRODUCTS_ADMIN_PAGE,
+        query: ADMIN_PRODUCT_RESOURCE_COLLECTION,
         variables: {
-          domain: domain,
           search: searchQuery,
-          status: null,
           first: 10,
           after: "",
+          collectionId: collectionId,
         },
       });
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-      setProducts(response.data.allProducts.edges);
+      setProducts(response.data.productResourceCollection.edges);
     } catch (error) {
       console.error(error);
     } finally {

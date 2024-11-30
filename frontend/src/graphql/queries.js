@@ -223,3 +223,28 @@ export const ADMIN_PRODUCTS_BY_COLLECTION_ID = gql`
     }
   }
 `;
+
+export const ADMIN_PRODUCT_RESOURCE_COLLECTION = gql`
+  query AdminProductResourceCollection(
+    $collectionId: ID!
+    $first: Int
+    $after: String!
+    $search: String!
+  ) {
+    productResourceCollection(
+      collectionId: $collectionId
+      first: $first
+      after: $after
+      title_Icontains: $search
+    ) {
+      edges {
+        node {
+          id
+          productId
+          title
+          inCollection
+        }
+      }
+    }
+  }
+`;
