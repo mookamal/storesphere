@@ -78,11 +78,11 @@ export default function CreateCollection({ params }) {
             setImage={setImage}
             image={image}
           />
-          <AddProducts
-            domain={params.domain}
-            selectedProducts={selectedProducts}
-            setSelectedProducts={setSelectedProducts}
-          />
+
+          <h2 className="font-bold text-orange-400 my-3">
+            You need to save the collection before adding products to it.
+          </h2>
+
           <SeoInputs
             register={register}
             domain={params.domain}
