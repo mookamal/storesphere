@@ -118,6 +118,24 @@ export const ADMIN_CREATE_COLLECTION = `
   }
 `;
 
+export const ADMIN_MODIFY_PRODUCTS_IN_COLLECTION = `
+  mutation adminModifyProductsInCollection($collectionId: ID!,$productIds: [ID]!) {
+    modifyProductsInCollection(collectionId:$collectionId,productIds:$productIds) {
+      collection {
+        id
+        products {
+          edges {
+            node {
+              title
+            }
+          }
+          
+        }
+      }
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",
