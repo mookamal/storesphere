@@ -11,7 +11,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import PermissionDenied
-from .utils import update_product_options_and_values, add_values_to_variant, update_products_in_collection
+from .utils import update_product_options_and_values, add_values_to_variant
 
 
 class HTML(Scalar):
@@ -651,26 +651,6 @@ class CreateCollection(graphene.Mutation):
         return CreateCollection(collection=collection)
 
 
-class ModifyProductsInCollection(graphene.Mutation):
-    class Arguments:
-        collection_id = graphene.ID(required=True)
-        product_ids = graphene.List(graphene.ID)
-    collection = graphene.Field(CollectionNode)
-
-    @classmethod
-    def mutate(cls, root, info, collection_id, product_ids):
-        user = info.context.user
-        try:
-            collection = Collection.objects.get(pk=collection_id)
-            if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to modify products in this collection.")
-        except Collection.DoesNotExist:
-            raise Exception("Collection not found.")
-        update_products_in_collection(collection, product_ids)
-        return ModifyProductsInCollection(collection=collection)
-
-
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
@@ -680,4 +660,3 @@ class Mutation(graphene.ObjectType):
     add_images_product = AddImagesProduct.Field()
     remove_images_product = RemoveImagesProduct.Field()
     create_collection = CreateCollection.Field()
-    modify_products_in_collection = ModifyProductsInCollection.Field()

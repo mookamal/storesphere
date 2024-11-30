@@ -3,7 +3,6 @@ import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import { Button } from "@/components/ui/button";
-import { ADMIN_MODIFY_PRODUCTS_IN_COLLECTION } from "@/graphql/mutations";
 import {
   ADMIN_COLLECTION_BY_ID,
   ADMIN_PRODUCTS_BY_COLLECTION_ID,
@@ -60,31 +59,6 @@ export default function updateCollection() {
       console.error(error);
     }
   };
-  // Handle change in selected products
-  const handleUpdateSelectedProducts = async () => {
-    try {
-      const variables = {
-        collectionId: collectionId,
-        productIds: selectedProducts.map((product) => product.productId),
-      };
-      const response = await axios.post("/api/set-data", {
-        query: ADMIN_MODIFY_PRODUCTS_IN_COLLECTION,
-        variables: variables,
-      });
-      if (response.data.data.modifyProductsInCollection.collection) {
-        toast.success("Products updated successfully!");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(() => {
-    if (renderCountEffect.current < 3) {
-      renderCountEffect.current++;
-      return;
-    }
-    handleUpdateSelectedProducts();
-  }, [selectedProducts]);
   // Fetch the collection data using the provided ID and domain.
   const getCollectionById = async () => {
     setLoading(true);
