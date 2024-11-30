@@ -589,7 +589,6 @@ class CollectionInputs(graphene.InputObjectType):
     description = graphene.String()
     handle = graphene.String()
     image_id = graphene.ID()
-    product_ids = graphene.List(graphene.ID)
     seo = SEOInput()
 
 
@@ -625,13 +624,6 @@ class CreateCollection(graphene.Mutation):
         if collection_inputs.image_id:
             image = Image.objects.get(pk=collection_inputs.image_id)
             collection.image = image
-        if collection_inputs.product_ids:
-            products = Product.objects.filter(
-                pk__in=collection_inputs.product_ids)
-            if not products.exists():
-                raise ValueError("No valid products were found.")
-
-            collection.products.add(*products)
         return CreateCollection(collection=collection)
 
 

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
-import AddProducts from "@/components/admin/collection/AddProducts";
 import axios from "axios";
 import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
 import { toast } from "react-toastify";
@@ -14,7 +13,6 @@ export default function CreateCollection({ params }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
-  const [selectedProducts, setSelectedProducts] = useState([]);
   const { register, handleSubmit, watch, setValue } = useForm();
   const watchedTitle = watch("title");
   const handle = watch("handle");
@@ -31,17 +29,12 @@ export default function CreateCollection({ params }) {
   };
   const onSubmit = async (data) => {
     setLoading(true);
-    const productIds =
-      selectedProducts.length > 0
-        ? selectedProducts.map((p) => p.productId)
-        : [];
     const variables = {
       domain: params.domain,
       collectionInputs: {
         title: data.title,
         description: data.description,
         handle: data.handle,
-        productIds: productIds,
         imageId: image ? image.imageId : null,
         seo: {
           title: data.seoTitle,
