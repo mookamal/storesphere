@@ -341,7 +341,7 @@ class Query(graphene.ObjectType):
             collection = Collection.objects.get(pk=collection_id)
             store = collection.store
             if StaffMember.objects.filter(user=user, store=store).exists():
-                pass
+                return store.products.all().order_by('-created_at')
             else:
                 raise PermissionDenied(
                     "You are not authorized to access this store.")
