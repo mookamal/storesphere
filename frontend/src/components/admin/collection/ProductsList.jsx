@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -46,6 +47,10 @@ export default function ProductsList({ collectionId }) {
     if (toAdd.includes(node.productId)) return true;
     if (toRemove.includes(node.productId)) return false;
     return node.inCollection;
+  };
+
+  const handleAddOrRemoveProductsToCollection = async () => {
+    console.log("addOrRemove");
   };
 
   const getProducts = async () => {
@@ -117,6 +122,11 @@ export default function ProductsList({ collectionId }) {
             <div className="text-center">No products found.</div>
           )}
         </div>
+        <DialogFooter>
+          <Button size="sm" onClick={handleAddOrRemoveProductsToCollection}>
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
