@@ -118,6 +118,25 @@ export const ADMIN_CREATE_COLLECTION = `
   }
 `;
 
+export const ADMIN_UPDATE_COLLECTION = `
+  mutation UpdateCollection($collectionId: ID!$collectionInputs:CollectionInputs!) {
+    updateCollection(collectionId: $collectionId,collectionInputs:$collectionInputs) {
+      collection {
+        title
+        description
+        handle
+        image {
+          image
+        }
+        seo {
+          title
+          description
+        }
+      }
+    }
+  }
+`;
+
 export const ADD_PRODUCTS_TO_COLLECTION = `
   mutation AddProductsToCollection($collectionId : ID! $productIds: [ID]!) {
     addProductsToCollection(collectionId:$collectionId productIds:$productIds) {
