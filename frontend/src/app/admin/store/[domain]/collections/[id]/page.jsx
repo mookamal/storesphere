@@ -27,8 +27,10 @@ export default function updateCollection() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const renderCountEffect = useRef(0);
   const watchedTitle = watch("title");
+  const description = watch("description");
   const handle = watch("handle");
   const seoTitle = watch("seoTitle");
+  const seoDescription = watch("seoDescription");
   const handleBlur = () => {
     if (watchedTitle) {
       if (!handle) {
@@ -94,6 +96,17 @@ export default function updateCollection() {
   useEffect(() => {
     getCollectionById();
   }, []);
+  // handle has change
+  useEffect(() => {
+    const isHasChange =
+      watchedTitle !== collection?.title ||
+      description !== collection?.description ||
+      handle !== collection?.handle ||
+      seoTitle !== collection?.seo.title ||
+      seoDescription !== collection?.seo.description ||
+      image !== collection?.image;
+    setHasChanges(isHasChange);
+  }, [watchedTitle, description, handle, image, seoTitle, seoDescription]);
   const onSubmit = async (data) => {
     console.log(data);
   };
