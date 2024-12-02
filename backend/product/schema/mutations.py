@@ -320,6 +320,26 @@ class UpdateCollection(graphene.Mutation):
         return UpdateCollection(collection=collection)
 
 
+class DeleteCollections(graphene.Mutation):
+    class Arguments:
+        collection_ids = graphene.List(graphene.ID)
+
+    success = graphene.Boolean()
+
+    @classmethod
+    def mutate(cls, root, info, collection_ids):
+        user = info.context.user
+        try:
+            collections = Collection.objects.filter(id__in=collection_ids)
+            if not StaffMember.objects.filter(user=user, store=collections.first().store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to delete collections for this store.")
+        except Collection.DoesNotExist:
+            raise Exception("Collection not found.")
+        collections.delete()
+        return DeleteCollections(success=True)
+
+
 class AddProductsToCollection(graphene.Mutation):
     class Arguments:
         collection_id = graphene.ID(required=True)
