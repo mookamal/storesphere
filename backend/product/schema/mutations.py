@@ -276,6 +276,49 @@ class CreateCollection(graphene.Mutation):
         return CreateCollection(collection=collection)
 
 
+class UpdateCollection(graphene.Mutation):
+    class Arguments:
+        collection_id = graphene.ID(required=True)
+        collection_inputs = CollectionInputs(required=True)
+
+    collection = graphene.Field(CollectionNode)
+
+    @classmethod
+    def mutate(cls, root, info, collection_id, collection_inputs):
+        user = info.context.user
+        try:
+            collection = Collection.objects.get(id=collection_id)
+            if not StaffMember.objects.filter(user=user, store=collection.store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to update collections for this store.")
+        except Collection.DoesNotExist:
+            raise Exception("Collection not found.")
+        collection.title = collection_inputs.title if collection_inputs.title is not None else collection.title
+        collection.description = collection_inputs.description if collection_inputs.description is not None else collection.description
+
+        collection.handle = collection_inputs.handle
+        seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
+            "title": collection.title, "description": ""}
+        if collection.seo:
+            collection.seo.title = seo_data.get("title", collection.title)
+            collection.seo.description = seo_data.get("description", "")
+        else:
+            seo = SEO.objects.create(**seo_data)
+            collection.seo = seo
+        if collection_inputs.image_id:
+            if collection.image.id != collection_inputs.image_id:
+                try:
+                    image = Image.objects.get(pk=collection_inputs.image_id)
+                    collection.image = image
+                except Image.DoesNotExist:
+                    raise Image.DoesNotExist("Image not found.")
+        else:
+            collection.image = None
+
+        collection.save()
+        return UpdateCollection(collection=collection)
+
+
 class AddProductsToCollection(graphene.Mutation):
     class Arguments:
         collection_id = graphene.ID(required=True)
@@ -337,3 +380,4 @@ class Mutation(graphene.ObjectType):
     create_collection = CreateCollection.Field()
     add_products_to_collection = AddProductsToCollection.Field()
     delete_products_from_collection = DeleteProductsFromCollection.Field()
+    update_collection = UpdateCollection.Field()
