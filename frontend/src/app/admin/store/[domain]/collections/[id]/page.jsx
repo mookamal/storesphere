@@ -3,7 +3,10 @@ import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import { Button } from "@/components/ui/button";
-import { ADMIN_UPDATE_COLLECTION } from "@/graphql/mutations";
+import {
+  ADMIN_UPDATE_COLLECTION,
+  DELETE_COLLECTIONS,
+} from "@/graphql/mutations";
 import {
   ADMIN_COLLECTION_BY_ID,
   ADMIN_PRODUCTS_BY_COLLECTION_ID,
@@ -15,8 +18,10 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoReload } from "react-icons/io5";
 import { toast } from "react-toastify";
-
+import swal from "sweetalert";
+import { useRouter } from "next/navigation";
 export default function updateCollection() {
+  const router = useRouter();
   const collectionId = useParams().id;
   const domain = useParams().domain;
   const [collection, setCollection] = useState(null);
@@ -39,6 +44,30 @@ export default function updateCollection() {
       }
       if (!seoTitle) {
         setValue("seoTitle", watchedTitle);
+      }
+    }
+  };
+  const handleDeleteCollection = async () => {
+    const confirmed = await swal({
+      title: "Delete Collection?",
+      text: "Are you sure you want to delete this collection?",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    });
+    if (confirmed) {
+      try {
+        setLoading(true);
+        const response = await axios.post("/api/set-data", {
+          query: DELETE_COLLECTIONS,
+          variables: { collectionIds: [collectionId] },
+        });
+        if (response.data.data.deleteCollections.success) {
+          toast.success("Collection deleted successfully.");
+          router.push(`/store/${domain}/collections`);
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
   };
@@ -174,7 +203,16 @@ export default function updateCollection() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="p-5">
-        <h1 className="h1">Update Collection</h1>
+        <div className="flex justify-between">
+          <h1 className="h1">Update Collection</h1>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDeleteCollection}
+          >
+            Delete
+          </Button>
+        </div>
         <div className="flex flex-col items-center my-5 gap-3">
           <GeneralInputs
             register={register}
