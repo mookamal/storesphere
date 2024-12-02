@@ -110,7 +110,6 @@ export default function updateCollection() {
   }, [watchedTitle, description, handle, image, seoTitle, seoDescription]);
   const onSubmit = async (data) => {
     setLoading(true);
-    console.log(data.seoDescription);
     try {
       const response = await axios.post("/api/set-data", {
         query: ADMIN_UPDATE_COLLECTION,
