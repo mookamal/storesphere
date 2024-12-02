@@ -141,7 +141,7 @@ export default function updateCollection() {
           <AddProducts
             collectionId={collectionId}
             selectedProducts={selectedProducts}
-            setSelectedProducts={setSelectedProducts}
+            refetchProducts={fetchProducts}
           />
           <SeoInputs register={register} domain={domain} handle={handle} />
         </div>

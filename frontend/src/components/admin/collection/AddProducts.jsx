@@ -9,17 +9,20 @@ import ProductsList from "./ProductsList";
 export default function AddProducts({
   collectionId,
   selectedProducts,
-  setSelectedProducts,
+  refetchProducts,
 }) {
   const handleRemoveProduct = (product) => {
-    setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
+    // handleRemoveProduct
   };
   return (
     <Card className="card w-full md:w-[60%]">
       <CardHeader>
         <div className="flex justify-between items-center">
           <h2>Products</h2>
-          <ProductsList collectionId={collectionId} />
+          <ProductsList
+            collectionId={collectionId}
+            refetchProducts={refetchProducts}
+          />
         </div>
       </CardHeader>
       <CardContent>

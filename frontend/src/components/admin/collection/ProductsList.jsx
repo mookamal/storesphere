@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 import { toast } from "react-toastify";
 
-export default function ProductsList({ collectionId }) {
+export default function ProductsList({ collectionId, refetchProducts }) {
   const [open, setOpen] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +73,8 @@ export default function ProductsList({ collectionId }) {
       } catch (error) {
         console.error(error);
         return false;
+      } finally {
+        setToAdd([]);
       }
     }
   };
@@ -92,6 +94,8 @@ export default function ProductsList({ collectionId }) {
       } catch (error) {
         console.error(error);
         return false;
+      } finally {
+        setToRemove([]);
       }
     }
   };
@@ -102,6 +106,8 @@ export default function ProductsList({ collectionId }) {
     const delSuccess = await deleteProductsFromCollection();
     if (success || delSuccess) {
       toast.success("Collection updated successfully!");
+      await refetchProducts(collectionId);
+      await getProducts();
       setOpen(false);
     }
     setIsLoading(false);
