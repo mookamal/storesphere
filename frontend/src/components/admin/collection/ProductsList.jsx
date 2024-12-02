@@ -11,12 +11,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  ADD_PRODUCTS_TO_COLLECTION,
+  DELETE_PRODUCTS_FROM_COLLECTION,
+} from "@/graphql/mutations";
 import { ADMIN_PRODUCT_RESOURCE_COLLECTION } from "@/graphql/queries";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { AiOutlineLoading } from "react-icons/ai";
+import { toast } from "react-toastify";
 
 export default function ProductsList({ collectionId }) {
+  const [open, setOpen] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [toRemove, setToRemove] = useState([]);
@@ -49,8 +57,54 @@ export default function ProductsList({ collectionId }) {
     return node.inCollection;
   };
 
+  const addProductsToCollection = async () => {
+    if (toAdd.length > 0) {
+      try {
+        const response = await axios.post("/api/set-data", {
+          query: ADD_PRODUCTS_TO_COLLECTION,
+          variables: {
+            collectionId: collectionId,
+            productIds: toAdd,
+          },
+        });
+        if (response.data.data.addProductsToCollection.success) {
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+  };
+  const deleteProductsFromCollection = async () => {
+    if (toRemove.length > 0) {
+      try {
+        const response = await axios.post("/api/set-data", {
+          query: DELETE_PRODUCTS_FROM_COLLECTION,
+          variables: {
+            collectionId: collectionId,
+            productIds: toRemove,
+          },
+        });
+        if (response.data.data.deleteProductsFromCollection.success) {
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+  };
+
   const handleAddOrRemoveProductsToCollection = async () => {
-    console.log("addOrRemove");
+    setIsLoading(true);
+    const success = await addProductsToCollection();
+    const delSuccess = await deleteProductsFromCollection();
+    if (success || delSuccess) {
+      toast.success("Collection updated successfully!");
+      setOpen(false);
+    }
+    setIsLoading(false);
   };
 
   const getProducts = async () => {
@@ -79,7 +133,7 @@ export default function ProductsList({ collectionId }) {
     getProducts();
   }, [searchQuery]);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" size="sm">
           Browse
@@ -124,6 +178,7 @@ export default function ProductsList({ collectionId }) {
         </div>
         <DialogFooter>
           <Button size="sm" onClick={handleAddOrRemoveProductsToCollection}>
+            {isLoading && <AiOutlineLoading className="animate-spin" />}
             Save
           </Button>
         </DialogFooter>
