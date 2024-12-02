@@ -20,7 +20,7 @@ import { IoReload } from "react-icons/io5";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 import { useRouter } from "next/navigation";
-export default function updateCollection() {
+export default function UpdateCollection() {
   const router = useRouter();
   const collectionId = useParams().id;
   const domain = useParams().domain;
