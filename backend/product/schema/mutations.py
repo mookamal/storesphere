@@ -305,13 +305,14 @@ class UpdateCollection(graphene.Mutation):
         else:
             seo = SEO.objects.create(**seo_data)
             collection.seo = seo
+        collection.seo.save()
         if collection_inputs.image_id:
-            if collection.image.id != collection_inputs.image_id:
-                try:
-                    image = Image.objects.get(pk=collection_inputs.image_id)
+            try:
+                image = Image.objects.get(pk=collection_inputs.image_id)
+                if not collection.image or collection.image.id != image.id:
                     collection.image = image
-                except Image.DoesNotExist:
-                    raise Image.DoesNotExist("Image not found.")
+            except Image.DoesNotExist:
+                raise Exception("Image with the given ID not found.")
         else:
             collection.image = None
 

@@ -3,6 +3,7 @@ import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import { Button } from "@/components/ui/button";
+import { ADMIN_UPDATE_COLLECTION } from "@/graphql/mutations";
 import {
   ADMIN_COLLECTION_BY_ID,
   ADMIN_PRODUCTS_BY_COLLECTION_ID,
@@ -108,7 +109,38 @@ export default function updateCollection() {
     setHasChanges(isHasChange);
   }, [watchedTitle, description, handle, image, seoTitle, seoDescription]);
   const onSubmit = async (data) => {
-    console.log(data);
+    setLoading(true);
+    console.log(data.seoDescription);
+    try {
+      const response = await axios.post("/api/set-data", {
+        query: ADMIN_UPDATE_COLLECTION,
+        variables: {
+          collectionId: collectionId,
+          collectionInputs: {
+            title: data.title,
+            handle: data.handle,
+            description: data.description,
+            seo: {
+              title: data.seoTitle,
+              description: data.seoDescription,
+            },
+            imageId: image ? image?.imageId : null,
+          },
+        },
+      });
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      if (response.data.data.updateCollection) {
+        toast.success("Collection updated successfully!");
+        getCollectionById();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update collection");
+    } finally {
+      setLoading(false);
+    }
   };
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
