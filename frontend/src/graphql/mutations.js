@@ -118,6 +118,21 @@ export const ADMIN_CREATE_COLLECTION = `
   }
 `;
 
+export const ADD_PRODUCTS_TO_COLLECTION = `
+  mutation AddProductsToCollection($collectionId : ID! $productIds: [ID]!) {
+    addProductsToCollection(collectionId:$collectionId productIds:$productIds) {
+      success
+    }
+  }
+`;
+
+export const DELETE_PRODUCTS_FROM_COLLECTION = `
+mutation DeleteProductsFromCollection($collectionId : ID! $productIds: [ID]!) {
+  deleteProductsFromCollection(collectionId:$collectionId productIds:$productIds) {
+    success
+  }
+}`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",
