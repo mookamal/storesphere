@@ -152,6 +152,14 @@ mutation DeleteProductsFromCollection($collectionId : ID! $productIds: [ID]!) {
   }
 }`;
 
+export const DELETE_COLLECTIONS = `
+  mutation AdminDeleteCollections($collectionIds: [ID]!) {
+    deleteCollections(collectionIds:$collectionIds) {
+      success
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",
