@@ -47,6 +47,7 @@ export default function AddProducts({
           <ProductsList
             collectionId={collectionId}
             refetchProducts={refetchProducts}
+            selectedProducts={selectedProducts}
           />
         </div>
       </CardHeader>

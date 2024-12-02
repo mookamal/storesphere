@@ -21,7 +21,11 @@ import { useEffect, useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 import { toast } from "react-toastify";
 
-export default function ProductsList({ collectionId, refetchProducts }) {
+export default function ProductsList({
+  collectionId,
+  refetchProducts,
+  selectedProducts,
+}) {
   const [open, setOpen] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,7 +141,7 @@ export default function ProductsList({ collectionId, refetchProducts }) {
   };
   useEffect(() => {
     getProducts();
-  }, [searchQuery]);
+  }, [searchQuery, selectedProducts]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
