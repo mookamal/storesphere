@@ -402,3 +402,4 @@ class Mutation(graphene.ObjectType):
     add_products_to_collection = AddProductsToCollection.Field()
     delete_products_from_collection = DeleteProductsFromCollection.Field()
     update_collection = UpdateCollection.Field()
+    delete_collections = DeleteCollections.Field()
