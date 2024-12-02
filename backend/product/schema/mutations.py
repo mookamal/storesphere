@@ -301,6 +301,31 @@ class AddProductsToCollection(graphene.Mutation):
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
 
+class DeleteProductsFromCollection(graphene.Mutation):
+    class Arguments:
+        collection_id = graphene.ID(required=True)
+        product_ids = graphene.List(graphene.ID)
+
+    success = graphene.Boolean()
+
+    @classmethod
+    def mutate(cls, root, info, collection_id, product_ids):
+        user = info.context.user
+        try:
+            collection = Collection.objects.get(id=collection_id)
+            if not StaffMember.objects.filter(user=user, store=collection.store).exists():
+                raise PermissionDenied(
+                    "You are not authorized to update collections for this store.")
+        except Collection.DoesNotExist:
+            raise Exception("Collection not found.")
+        try:
+            products = Product.objects.filter(id__in=product_ids)
+            collection.products.remove(*products)
+            return DeleteProductsFromCollection(success=True)
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
@@ -311,3 +336,4 @@ class Mutation(graphene.ObjectType):
     remove_images_product = RemoveImagesProduct.Field()
     create_collection = CreateCollection.Field()
     add_products_to_collection = AddProductsToCollection.Field()
+    delete_products_from_collection = DeleteProductsFromCollection.Field()
