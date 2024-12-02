@@ -5,14 +5,39 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MdCancel } from "react-icons/md";
 import { TbDatabaseExclamation } from "react-icons/tb";
 import ProductsList from "./ProductsList";
-
+import { DELETE_PRODUCTS_FROM_COLLECTION } from "@/graphql/mutations";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useState } from "react";
+import { AiOutlineLoading } from "react-icons/ai";
 export default function AddProducts({
   collectionId,
   selectedProducts,
   refetchProducts,
 }) {
-  const handleRemoveProduct = (product) => {
-    // handleRemoveProduct
+  const [isLoading, setIsLoading] = useState(false);
+  const handleRemoveProduct = async (productId) => {
+    await deleteProductFromCollection(productId);
+  };
+  const deleteProductFromCollection = async (productId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post("/api/set-data", {
+        query: DELETE_PRODUCTS_FROM_COLLECTION,
+        variables: {
+          collectionId: collectionId,
+          productIds: [productId],
+        },
+      });
+      if (response.data.data.deleteProductsFromCollection.success) {
+        await refetchProducts(collectionId);
+        toast.success("Product removed successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <Card className="card w-full md:w-[60%]">
@@ -26,7 +51,11 @@ export default function AddProducts({
         </div>
       </CardHeader>
       <CardContent>
-        {selectedProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <AiOutlineLoading className="animate-spin text-3xl" />
+          </div>
+        ) : selectedProducts.length > 0 ? (
           selectedProducts.map((product) => (
             <Card key={product.id} className="p-2">
               <div className="flex justify-between items-center">
@@ -42,7 +71,7 @@ export default function AddProducts({
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() => handleRemoveProduct(product)}
+                  onClick={() => handleRemoveProduct(product.productId)}
                 >
                   <MdCancel />
                 </Button>
