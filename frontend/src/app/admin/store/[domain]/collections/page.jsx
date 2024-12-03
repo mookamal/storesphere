@@ -71,12 +71,15 @@ export default function Collections({ params }) {
             <TableHeader>
               <TableRow className="bg-gray-100 dark:bg-black dark:text-white">
                 <TableHead className="border-r">Title</TableHead>
-                <TableHead className="text-right">Products</TableHead>
+                <TableHead className="text-right w-[5px]">Products</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {collections.map(({ node }) => (
-                <TableRow key={node.id}>
+                <TableRow
+                  key={node.id}
+                  className="hover:bg-gray-100 dark:hover:bg-black dark:hover:text-white"
+                >
                   <TableCell className="border-r">
                     <Link
                       href={`${currentPath}/${node.collectionId}`}
@@ -85,7 +88,7 @@ export default function Collections({ params }) {
                       {node.title}
                     </Link>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     {node.productsCount}
                   </TableCell>
                 </TableRow>
