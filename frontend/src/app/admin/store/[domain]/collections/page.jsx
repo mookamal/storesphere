@@ -14,9 +14,9 @@ import {
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
-export default function collections({ params }) {
+export default function Collections({ params }) {
   const currentPath = usePathname();
-  const [collections, setCollections] = useState([]);
+  const [collections, setCollections] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const getData = async () => {
@@ -31,9 +31,12 @@ export default function collections({ params }) {
       });
       if (response.data.allCollections.edges.length > 0) {
         setCollections(response.data.allCollections.edges);
+      } else {
+        setCollections([]);
       }
     } catch (error) {
       console.error(error);
+      setCollections([]);
     } finally {
       setIsLoading(false);
     }
@@ -58,29 +61,33 @@ export default function collections({ params }) {
       {/* table */}
       {isLoading ? (
         <p className="text-center mt-8">Loading...</p>
-      ) : collections.length > 0 ? (
-        <Table className="border border-collapse mt-2">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="border-r">Title</TableHead>
-              <TableHead>Products</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {collections.map(({ node }) => (
-              <TableRow key={node.id}>
-                <TableCell className="border-r">
-                  <Link href={`${currentPath}/${node.collectionId}`}>
-                    {node.title}
-                  </Link>
-                </TableCell>
-                <TableCell>{node.productsCount}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
+      ) : collections === null ? (
+        <div></div>
+      ) : collections.length === 0 ? (
         <p className="text-center mt-8">No collections found.</p>
+      ) : (
+        <div className="border rounded mt-4 shadow">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-100 dark:bg-black dark:text-white">
+                <TableHead className="border-r">Title</TableHead>
+                <TableHead>Products</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {collections.map(({ node }) => (
+                <TableRow key={node.id}>
+                  <TableCell className="border-r">
+                    <Link href={`${currentPath}/${node.collectionId}`}>
+                      {node.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{node.productsCount}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
