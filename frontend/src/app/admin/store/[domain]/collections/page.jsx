@@ -78,7 +78,10 @@ export default function Collections({ params }) {
               {collections.map(({ node }) => (
                 <TableRow key={node.id}>
                   <TableCell className="border-r">
-                    <Link href={`${currentPath}/${node.collectionId}`}>
+                    <Link
+                      href={`${currentPath}/${node.collectionId}`}
+                      className="hover:border-b"
+                    >
                       {node.title}
                     </Link>
                   </TableCell>
