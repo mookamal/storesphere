@@ -71,7 +71,7 @@ export default function Collections({ params }) {
             <TableHeader>
               <TableRow className="bg-gray-100 dark:bg-black dark:text-white">
                 <TableHead className="border-r">Title</TableHead>
-                <TableHead>Products</TableHead>
+                <TableHead className="text-right">Products</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -85,7 +85,9 @@ export default function Collections({ params }) {
                       {node.title}
                     </Link>
                   </TableCell>
-                  <TableCell>{node.productsCount}</TableCell>
+                  <TableCell className="text-right">
+                    {node.productsCount}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
