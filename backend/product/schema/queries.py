@@ -17,6 +17,12 @@ class ProductFilter(django_filters.FilterSet):
         fields = ['status', 'title']
 
 
+class CollectionFilter(django_filters.FilterSet):
+    class Meta:
+        model = Collection
+        fields = ['title']
+
+
 class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(
         ProductNode, default_domain=graphene.String(required=True))
@@ -35,6 +41,8 @@ class Query(graphene.ObjectType):
         ProductNode, collection_id=graphene.ID(required=True))
     products_by_collection = DjangoFilterConnectionField(
         ProductNode, collection_id=graphene.ID(required=True))
+    collection_find = DjangoFilterConnectionField(
+        CollectionNode, default_domain=graphene.String(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
         try:
@@ -189,5 +197,21 @@ class Query(graphene.ObjectType):
                     "You are not authorized to access this store.")
         except Collection.DoesNotExist:
             raise PermissionDenied("Collection not found.")
+        except Exception as e:
+            raise PermissionDenied(f"Authentication failed: {str(e)}")
+
+    def resolve_collection_find(self, info, default_domain, **kwargs):
+        try:
+            user = info.context.user
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user, store=store).exists():
+                filter_collections = CollectionFilter(
+                    data=kwargs, queryset=store.collections.all()).qs
+                return filter_collections
+            else:
+                raise PermissionDenied(
+                    "You are not authorized to access this store.")
+        except Store.DoesNotExist:
+            raise PermissionDenied("Store not found.")
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")

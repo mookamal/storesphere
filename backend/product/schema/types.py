@@ -97,7 +97,7 @@ class CollectionNode(DjangoObjectType):
 
     class Meta:
         model = Collection
-        filter_fields = ['created_at']
+        filter_fields = {"title": ["exact", "istartswith", "icontains"]}
         interfaces = (graphene.relay.Node,)
         exclude = ('store',)
 
