@@ -17,6 +17,7 @@ import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
 import { Button } from "@/components/ui/button";
+import ProductOrganization from "@/components/admin/product/ProductOrganization";
 
 export default function AddProduct() {
   const router = useRouter();
@@ -199,17 +200,18 @@ export default function AddProduct() {
             selectedRemoveImages={selectedRemoveImages}
             setSelectedRemoveImages={setSelectedRemoveImages}
           />
-          <div className="flex flex-col gap-3">
-            {/* price input */}
-            <PriceInput
-              register={register}
-              currencyCode={storeData?.currencyCode}
-              price={price}
-              compare={compare}
-            />
-            {/* seo inputs */}
-            <SeoInputs register={register} domain={domain} handle={handle} />
-          </div>
+
+          {/* price input */}
+          <PriceInput
+            register={register}
+            currencyCode={storeData?.currencyCode}
+            price={price}
+            compare={compare}
+          />
+          {/* product organization */}
+          <ProductOrganization />
+          {/* seo inputs */}
+          <SeoInputs register={register} domain={domain} handle={handle} />
           {/* OptionInputs */}
           <OptionInputs
             register={register}
