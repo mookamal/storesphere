@@ -3,12 +3,25 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ADMIN_COLLECTIONS_FIND } from "@/graphql/queries";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { AiOutlineLoading } from "react-icons/ai";
 import { CiCircleRemove } from "react-icons/ci";
+
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ChevronsUpDown } from "lucide-react";
 
 export default function ProductOrganization({
   domain,
@@ -18,7 +31,7 @@ export default function ProductOrganization({
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [collections, setCollections] = useState([]);
-  const [shoeCollections, setShoeCollections] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleSelectedCollection = (checked, collection) => {
     setSelectedCollections((prev) => {
@@ -62,45 +75,48 @@ export default function ProductOrganization({
       </CardHeader>
       <CardContent>
         <div className="md:w-2/4 mx-auto">
-          <div className="mb">
-            <Label>Collections</Label>
-          </div>
-          <Input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onFocus={() => setShoeCollections(true)}
-            // onBlur={() => setShoeCollections(false)}
-          />
-          {shoeCollections && (
-            <div className="mt-2 border rounded shadow-md p-2 flex flex-col justify-center items-center">
-              {isLoading ? (
-                <AiOutlineLoading className="animate-spin" />
-              ) : collections.length > 0 ? (
-                collections.map(({ node }) => {
-                  const { title, collectionId } = node;
-                  return (
-                    <div
-                      key={collectionId}
-                      className="rounded hover:bg-gray-200 dark:hover:bg-black w-full p-1 flex gap-2 items-center"
-                    >
-                      <Checkbox
-                        checked={selectedCollections.some(
-                          (c) => c.collectionId === collectionId
-                        )}
-                        onCheckedChange={(checked) =>
-                          handleSelectedCollection(checked, node)
-                        }
-                      />
-                      {title}
-                    </div>
-                  );
-                })
-              ) : (
-                "Not found"
-              )}
-            </div>
-          )}
+          {" "}
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-[200px] justify-between"
+              >
+                <ChevronsUpDown className="opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <Command>
+                <Input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    {isLoading ? "Loading.." : "No collection found."}
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {collections.map(({ node }) => (
+                      <CommandItem key={node.collectionId} value={node.title}>
+                        <Checkbox
+                          checked={selectedCollections.some(
+                            (c) => c.collectionId === node.collectionId
+                          )}
+                          onCheckedChange={(checked) =>
+                            handleSelectedCollection(checked, node)
+                          }
+                        />
+                        {node.title}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex mt-2 gap-1">
