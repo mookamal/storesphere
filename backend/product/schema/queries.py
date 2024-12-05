@@ -41,7 +41,7 @@ class Query(graphene.ObjectType):
         ProductNode, collection_id=graphene.ID(required=True))
     products_by_collection = DjangoFilterConnectionField(
         ProductNode, collection_id=graphene.ID(required=True))
-    collection_find = DjangoFilterConnectionField(
+    collections_find = DjangoFilterConnectionField(
         CollectionNode, default_domain=graphene.String(required=True))
 
     def resolve_all_products(self, info, default_domain, **kwargs):
@@ -200,7 +200,7 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise PermissionDenied(f"Authentication failed: {str(e)}")
 
-    def resolve_collection_find(self, info, default_domain, **kwargs):
+    def resolve_collections_find(self, info, default_domain, **kwargs):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)

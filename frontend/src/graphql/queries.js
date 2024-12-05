@@ -248,3 +248,20 @@ export const ADMIN_PRODUCT_RESOURCE_COLLECTION = gql`
     }
   }
 `;
+
+export const ADMIN_COLLECTIONS_FIND = gql`
+  query AdminCollectionsFind($domain: String!, $search: String!, $first: Int) {
+    collectionsFind(
+      defaultDomain: $domain
+      title_Icontains: $search
+      first: $first
+    ) {
+      edges {
+        node {
+          title
+          collectionId
+        }
+      }
+    }
+  }
+`;

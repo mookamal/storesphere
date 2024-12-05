@@ -209,7 +209,7 @@ export default function AddProduct() {
             compare={compare}
           />
           {/* product organization */}
-          <ProductOrganization />
+          <ProductOrganization domain={domain} />
           {/* seo inputs */}
           <SeoInputs register={register} domain={domain} handle={handle} />
           {/* OptionInputs */}
