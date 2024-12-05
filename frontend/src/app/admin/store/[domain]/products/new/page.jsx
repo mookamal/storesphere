@@ -24,6 +24,7 @@ export default function AddProduct() {
   const [loading, setLoading] = useState(false);
   const domain = useParams().domain;
   const [storeData, setStoreData] = useState(null);
+  const [selectedCollections, setSelectedCollections] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
 
@@ -209,7 +210,11 @@ export default function AddProduct() {
             compare={compare}
           />
           {/* product organization */}
-          <ProductOrganization domain={domain} />
+          <ProductOrganization
+            domain={domain}
+            selectedCollections={selectedCollections}
+            setSelectedCollections={setSelectedCollections}
+          />
           {/* seo inputs */}
           <SeoInputs register={register} domain={domain} handle={handle} />
           {/* OptionInputs */}
