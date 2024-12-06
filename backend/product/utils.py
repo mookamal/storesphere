@@ -64,3 +64,36 @@ def add_values_to_variant(variant, option_value_ids):
 
     variant.selected_options.add(*option_values)
     variant.save()
+
+
+def update_product_collections(product, collection_ids):
+    """
+    Update the collections associated with a product.
+
+    Args:
+        product: The product instance.
+        collection_ids: A list of collection IDs to associate with the product.
+
+    Returns:
+        dict: A dictionary showing added and removed collection IDs.
+    """
+    current_collection_ids = set(
+        product.collections.values_list('id', flat=True))
+
+    try:
+        new_collection_ids = set([int(i) for i in collection_ids])
+    except ValueError:
+        raise ValueError("All collection IDs must be valid integers.")
+
+    if current_collection_ids == new_collection_ids:
+        return {"message": "No changes needed.", "added": [], "removed": []}
+
+    added_collections = new_collection_ids - current_collection_ids
+    removed_collections = current_collection_ids - new_collection_ids
+
+    if added_collections:
+        product.collections.add(*added_collections)
+    if removed_collections:
+        product.collections.remove(*removed_collections)
+
+    return {"added": list(added_collections), "removed": list(removed_collections)}

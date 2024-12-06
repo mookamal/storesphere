@@ -1,7 +1,7 @@
 import graphene
 from core.models import SEO
 from product.models import Collection, Image, OptionValue, Product, ProductOption, ProductVariant
-from product.utils import add_values_to_variant, update_product_options_and_values
+from product.utils import add_values_to_variant, update_product_options_and_values, update_product_collections
 from stores.models import StaffMember, Store
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
@@ -108,6 +108,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product_instance.save()
         # update options
         update_product_options_and_values(product_instance, product.options)
+        update_product_collections(product_instance, product.collection_ids)
         return UpdateProduct(product=product_instance)
 
 
