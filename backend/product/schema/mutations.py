@@ -54,6 +54,10 @@ class CreateProduct(graphene.relay.ClientIDMutation):
                     for value_data in option_data.values:
                         OptionValue.objects.create(
                             option=option, name=value_data.name)
+            if product_data.collection_ids:
+                product.collections.add(
+                    *Collection.objects.filter(pk__in=product_data.collection_ids))
+                product.save()
 
             return CreateProduct(product=product)
         else:

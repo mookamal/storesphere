@@ -29,6 +29,14 @@ class ProductVariantInput(graphene.InputObjectType):
     option_values = graphene.List(graphene.ID)
 
 
+class CollectionInputs(graphene.InputObjectType):
+    title = graphene.String(required=True)
+    description = graphene.String()
+    handle = graphene.String()
+    image_id = graphene.ID()
+    seo = SEOInput()
+
+
 class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
     description = graphene.String()
@@ -37,11 +45,4 @@ class ProductInput(graphene.InputObjectType):
     seo = SEOInput()
     first_variant = ProductVariantInput(required=True)
     options = graphene.List(ProductOptionInput)
-
-
-class CollectionInputs(graphene.InputObjectType):
-    title = graphene.String(required=True)
-    description = graphene.String()
-    handle = graphene.String()
-    image_id = graphene.ID()
-    seo = SEOInput()
+    collection_ids = graphene.List(graphene.ID)

@@ -145,6 +145,7 @@ export default function AddProduct() {
       description: data.description,
       status: data.status,
       handle: data.handle,
+      collectionIds: selectedCollections.map((c) => c.collectionId),
       seo: {
         title: data.seoTitle,
         description: data.seoDescription,
