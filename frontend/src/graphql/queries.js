@@ -62,6 +62,10 @@ export const GET_PRODUCT_BY_ID = gql`
       description
       status
       handle
+      collections {
+        title
+        collectionId
+      }
       seo {
         title
         description

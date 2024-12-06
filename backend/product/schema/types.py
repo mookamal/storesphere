@@ -115,6 +115,7 @@ class ProductNode(DjangoObjectType):
     image = graphene.Field(ImageNode)
     first_variant = graphene.Field(ProductVariantNode)
     options = graphene.List(ProductOptionType)
+    collections = graphene.List(CollectionNode)
 
     class Meta:
         model = Product
@@ -138,3 +139,6 @@ class ProductNode(DjangoObjectType):
         if not collection_id:
             return False
         return self.collections.filter(pk=collection_id).exists()
+
+    def resolve_collections(self, info):
+        return self.collections.all()

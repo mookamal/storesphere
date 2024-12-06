@@ -25,6 +25,7 @@ import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
+import ProductOrganization from "@/components/admin/product/ProductOrganization";
 
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
@@ -35,6 +36,7 @@ export default function UpdateProduct() {
   const [data, setData] = useState(null);
   const [product, setProduct] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [selectedCollections, setSelectedCollections] = useState([]);
   const {
     register,
     handleSubmit,
@@ -133,6 +135,13 @@ export default function UpdateProduct() {
       })),
     }));
   }
+  function cleanCollections(collections) {
+    if (!collections) return [];
+    return collections.map((collection) => ({
+      collectionId: collection.collectionId,
+      title: collection.title,
+    }));
+  }
 
   useEffect(() => {
     const hasBasicChanges =
@@ -146,7 +155,9 @@ export default function UpdateProduct() {
       compare !== product?.firstVariant.compareAtPrice ||
       stock !== product?.firstVariant.stock ||
       JSON.stringify(cleanOptionsData(options)) !==
-        JSON.stringify(cleanOptionsData(product?.options));
+        JSON.stringify(cleanOptionsData(product?.options)) ||
+      JSON.stringify(cleanCollections(selectedCollections)) !==
+        JSON.stringify(cleanCollections(product?.collections));
 
     if (hasBasicChanges) {
       setHasChanges(true);
@@ -250,7 +261,6 @@ export default function UpdateProduct() {
       if (response.data.error) {
         throw new Error(response.data.error);
       }
-
       if (response.data) {
         setData(response.data || null);
         setProduct(response.data.product || null);
@@ -265,6 +275,7 @@ export default function UpdateProduct() {
           "compare",
           response.data.product.firstVariant.compareAtPrice || 0.0
         );
+        setSelectedCollections(response.data.product.collections);
         setValue("stock", response.data.product.firstVariant.stock || 0);
         const optionsData = response.data.product.options || [];
         if (optionsData.length > 0) {
@@ -355,17 +366,22 @@ export default function UpdateProduct() {
             selectedRemoveImages={selectedRemoveImages}
             setSelectedRemoveImages={setSelectedRemoveImages}
           />
-          <div className="flex flex-col gap-3">
-            {/* price input */}
-            <PriceInput
-              register={register}
-              currencyCode={storeData?.currencyCode}
-              price={price}
-              compare={compare}
-            />
-            {/* seo inputs */}
-            <SeoInputs register={register} domain={domain} handle={handle} />
-          </div>
+
+          {/* price input */}
+          <PriceInput
+            register={register}
+            currencyCode={storeData?.currencyCode}
+            price={price}
+            compare={compare}
+          />
+          <ProductOrganization
+            selectedCollections={selectedCollections}
+            setSelectedCollections={setSelectedCollections}
+            domain={domain}
+          />
+          {/* seo inputs */}
+          <SeoInputs register={register} domain={domain} handle={handle} />
+
           {/* variant inputs */}
           <OptionInputs
             register={register}
