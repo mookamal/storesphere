@@ -15,6 +15,8 @@ export default function MediaInputs({
   setSelectedImages,
   selectedRemoveImages,
   setSelectedRemoveImages,
+  isEditMode,
+  removeSelectedImagesUpdate,
 }) {
   // handleSelectRemoveImages
   const handleSelectRemoveImages = (image, isChecked) => {
@@ -26,10 +28,15 @@ export default function MediaInputs({
       );
     }
   };
-  const removeSelectedImages = () => {
-    setSelectedImages(
-      selectedImages.filter((item) => !selectedRemoveImages.includes(item))
-    );
+  const removeSelectedImages = async () => {
+    if (isEditMode) {
+      await removeSelectedImagesUpdate();
+    } else {
+      setSelectedImages(
+        selectedImages.filter((item) => !selectedRemoveImages.includes(item))
+      );
+    }
+
     setSelectedRemoveImages([]);
   };
   return (

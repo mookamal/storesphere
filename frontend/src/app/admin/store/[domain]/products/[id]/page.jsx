@@ -111,9 +111,9 @@ export default function UpdateProduct() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    removeSelectedImages();
-  }, [selectedRemoveImages]);
+  // useEffect(() => {
+  //   removeSelectedImages();
+  // }, [selectedRemoveImages]);
 
   const handleBlur = () => {
     if (!handle) {
@@ -366,6 +366,8 @@ export default function UpdateProduct() {
             externalLoading={loading}
             selectedRemoveImages={selectedRemoveImages}
             setSelectedRemoveImages={setSelectedRemoveImages}
+            isEditMode={true}
+            removeSelectedImagesUpdate={removeSelectedImages}
           />
 
           {/* price input */}
