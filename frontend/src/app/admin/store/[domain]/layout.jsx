@@ -12,7 +12,7 @@ export default function AdminLayout({ children }) {
   return (
     <SidebarProvider>
       <AdminSidebar />
-      <main className="min-h-screen w-full bg-default-white">
+      <main className="min-h-screen w-full bg-default-white dark:bg-coal-600">
         <AdminNavbar />
         {children}
       </main>
