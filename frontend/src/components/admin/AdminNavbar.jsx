@@ -8,7 +8,7 @@ import AvatarByLetter from "./Avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 export default function AdminNavbar() {
   return (
-    <header className="w-full  dark:bg-zinc-900 bg-gray-100 text-black dark:text-white py-2 md:px-8 px-2 flex items-center justify-between  border-b">
+    <header className="w-full  dark:bg-zinc-900 bg-default-white text-black dark:text-white py-2 md:px-8 px-2 flex items-center justify-between  border-b">
       <div className="flex gap-3 items-center justify-between">
         <SidebarTrigger />
         <Logo />
