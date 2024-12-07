@@ -1,5 +1,5 @@
 .card {
-    @apply bg-gray-100 dark:bg-slate-900 shadow-md border;
+    @apply bg-default-white dark:bg-slate-900 shadow-md;
   }
 
 .h1 {
