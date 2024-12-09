@@ -20,6 +20,7 @@ class CustomerNode(DjangoObjectType):
         model = Customer
         interfaces = (graphene.relay.Node,)
         exclude = ["store",]
+        filter_fields = ["updated_at", "created_at",]
 
     def resolve_customer_id(self, info):
         return self.id

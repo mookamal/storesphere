@@ -4,6 +4,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import PermissionDenied
 from product.schema.queries import Query as productQueries
 from product.schema.mutations import Mutation as productMutations
+from customer.schema.queries import Query as customerQueries
 
 
 class AuthenticationMiddleware:
@@ -24,6 +25,7 @@ class AuthenticationMiddleware:
 class Query(
     stores.schema.Query,
     productQueries,
+    customerQueries,
     graphene.ObjectType,
 ):
     pass
