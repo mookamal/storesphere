@@ -12,12 +12,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-export default function Customers() {
+import axios from "axios";
+import { CUSTOMER_LIST_ADMIN } from "@/graphql/queries";
+export default function Customers({ params }) {
   const currentPath = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState(null);
 
-  const getData = async () => {};
+  const getData = async () => {
+    setIsLoading(true);
+    try {
+      const variables = {
+        domain: params.domain,
+        first: 2,
+      };
+      const response = await axios.post("/api/get-data", {
+        query: CUSTOMER_LIST_ADMIN,
+        variables: variables,
+      });
+      if (response.data.customerListAdmin.edges.length > 0) {
+        setCustomers(response.data.customerListAdmin.edges);
+      } else {
+        setCustomers([]);
+      }
+    } catch (error) {
+      console.error(error);
+      setCustomers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     getData();
   }, []);
