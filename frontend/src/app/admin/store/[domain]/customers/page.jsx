@@ -69,7 +69,8 @@ export default function Customers({ params }) {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-100 dark:bg-black dark:text-white">
-                <TableHead className="border-r">Full name</TableHead>
+                <TableHead>Customer name</TableHead>
+                <TableHead className=" w-[150px]">Location</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,7 +79,7 @@ export default function Customers({ params }) {
                   key={node.id}
                   className="hover:bg-gray-100 dark:hover:bg-black dark:hover:text-white"
                 >
-                  <TableCell className="border-r">
+                  <TableCell>
                     <Link
                       href={`${currentPath}/${node.customerId}`}
                       className="hover:border-b"
@@ -86,6 +87,7 @@ export default function Customers({ params }) {
                       {node.fullName}
                     </Link>
                   </TableCell>
+                  <TableCell>{node.defaultAddress?.country?.name}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
