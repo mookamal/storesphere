@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 import { IoHome, IoSettings } from "react-icons/io5";
 import { FaAward } from "react-icons/fa6";
+import { FaUserCheck } from "react-icons/fa";
+
 import Link from "next/link";
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -33,6 +35,11 @@ export default function AdminSidebar() {
           url: `/store/${storeDomain}/collections`,
         },
       ],
+    },
+    {
+      title: "Customers",
+      url: `/store/${storeDomain}/customers`,
+      icon: FaUserCheck,
     },
     {
       title: "Settings",
