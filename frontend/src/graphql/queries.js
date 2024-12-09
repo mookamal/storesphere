@@ -269,3 +269,22 @@ export const ADMIN_COLLECTIONS_FIND = gql`
     }
   }
 `;
+
+export const CUSTOMER_LIST_ADMIN = gql`
+  query CustomerListAdmin($domain: String!, $first: Int) {
+    customerListAdmin(defaultDomain: $domain, first: $first) {
+      edges {
+        node {
+          id
+          customerId
+          fullName
+          defaultAddress {
+            country {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`;

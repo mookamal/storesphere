@@ -5,7 +5,7 @@ from django_countries.graphql.types import Country
 
 
 class MailingAddressType(DjangoObjectType):
-    company = graphene.Field(Country)
+    country = graphene.Field(Country)
 
     class Meta:
         model = MailingAddress
