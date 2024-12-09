@@ -271,8 +271,8 @@ export const ADMIN_COLLECTIONS_FIND = gql`
 `;
 
 export const CUSTOMER_LIST_ADMIN = gql`
-  query CustomerListAdmin($domain: String!, $first: Int) {
-    customerListAdmin(defaultDomain: $domain, first: $first) {
+  query CustomerListAdmin($domain: String!, $first: Int, $after: String!) {
+    customerListAdmin(defaultDomain: $domain, first: $first, after: $after) {
       edges {
         node {
           id
@@ -284,6 +284,10 @@ export const CUSTOMER_LIST_ADMIN = gql`
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
       }
     }
   }

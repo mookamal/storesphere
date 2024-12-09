@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -18,6 +19,8 @@ export default function Customers({ params }) {
   const currentPath = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState(null);
+  const [endCursor, setEndCursor] = useState("");
+  const [hasNextPage, setHasNextPage] = useState(false);
 
   const getData = async () => {
     setIsLoading(true);
@@ -25,6 +28,7 @@ export default function Customers({ params }) {
       const variables = {
         domain: params.domain,
         first: 10,
+        after: endCursor,
       };
       const response = await axios.post("/api/get-data", {
         query: CUSTOMER_LIST_ADMIN,
@@ -32,6 +36,8 @@ export default function Customers({ params }) {
       });
       if (response.data.customerListAdmin.edges.length > 0) {
         setCustomers(response.data.customerListAdmin.edges);
+        setHasNextPage(response.data.customerListAdmin.pageInfo.hasNextPage);
+        setEndCursor(response.data.customerListAdmin.pageInfo.endCursor);
       } else {
         setCustomers([]);
       }
@@ -91,6 +97,20 @@ export default function Customers({ params }) {
                 </TableRow>
               ))}
             </TableBody>
+            <TableFooter>
+              <TableRow className="border-t">
+                <TableCell colSpan="2">
+                  <Button
+                    disabled={!hasNextPage}
+                    onClick={getData}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Load more
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </div>
       )}
