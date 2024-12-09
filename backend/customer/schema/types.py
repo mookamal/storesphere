@@ -15,6 +15,7 @@ class MailingAddressType(DjangoObjectType):
 
 class CustomerNode(DjangoObjectType):
     customer_id = graphene.Int()
+    full_name = graphene.String()
 
     class Meta:
         model = Customer
@@ -24,3 +25,6 @@ class CustomerNode(DjangoObjectType):
 
     def resolve_customer_id(self, info):
         return self.id
+
+    def resolve_full_name(self, info):
+        return f"{self.first_name} {self.last_name}"
