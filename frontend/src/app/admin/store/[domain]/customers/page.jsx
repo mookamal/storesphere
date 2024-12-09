@@ -24,7 +24,7 @@ export default function Customers({ params }) {
     try {
       const variables = {
         domain: params.domain,
-        first: 2,
+        first: 10,
       };
       const response = await axios.post("/api/get-data", {
         query: CUSTOMER_LIST_ADMIN,
