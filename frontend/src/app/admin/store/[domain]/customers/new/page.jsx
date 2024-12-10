@@ -9,7 +9,7 @@ import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 export default function CreateCustomer() {
-  const { register, handleSubmit, watch, setValue } = useForm();
+  const { register, handleSubmit, watch } = useForm();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const onSubmit = async (data) => {
@@ -20,7 +20,7 @@ export default function CreateCustomer() {
       <div className="p-5">
         <h1 className="h1">New customer</h1>
         <div className="flex flex-col items-center my-5 gap-3">
-          <CustomerOverview />
+          <CustomerOverview register={register} />
         </div>
       </div>
       <Button
