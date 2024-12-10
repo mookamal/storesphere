@@ -84,14 +84,14 @@ export default function CustomerAddressInputs({ register, control }) {
             <div className="mb-2">
               <Label htmlFor="city">City</Label>
             </div>
-            <Input id="city" />
+            <Input id="city" {...register("address.city")} />
           </div>
           {/* address1 */}
           <div>
             <div className="mb-2">
               <Label htmlFor="address1">Address</Label>
             </div>
-            <Input id="address1" />
+            <Input id="address1" {...register("address.address1")} />
           </div>
           {/* address2 */}
 
@@ -99,14 +99,14 @@ export default function CustomerAddressInputs({ register, control }) {
             <div className="mb-2">
               <Label htmlFor="address2">Apartment, suite, etc</Label>
             </div>
-            <Input id="address2" />
+            <Input id="address2" {...register("address.address2")} />
           </div>
           {/* postalCode */}
           <div>
             <div className="mb-2">
               <Label htmlFor="zip">Postal code</Label>
             </div>
-            <Input id="zip" />
+            <Input id="zip" {...register("address.zip")} />
           </div>
         </div>
       </DialogContent>
