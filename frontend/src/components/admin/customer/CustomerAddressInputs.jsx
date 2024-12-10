@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Controller } from "react-hook-form";
 import { MdEditNote } from "react-icons/md";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import Select from "react-select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 countries.registerLocale(enLocale);
 
-export default function CustomerAddressInputs({ register }) {
+export default function CustomerAddressInputs({ register, control }) {
   const countryObj = countries.getNames("en", { select: "official" });
   const countryList = Object.entries(countryObj);
   const optionCountries = [];
@@ -54,17 +55,28 @@ export default function CustomerAddressInputs({ register }) {
             <div className="mb-2">
               <Label htmlFor="country">Country</Label>
             </div>
-            <Select
-              options={optionCountries}
-              //   onChange={(e) => setCountry({ name: e.label, code: e.value })}
-              //   value={{ value: country.code, label: country.name }}
-              id="country"
-              classNames={{
-                option: ({ isFocused, isSelected }) =>
-                  `${isFocused ? "dark:bg-blue-100" : ""} ${
-                    isSelected ? "dark:bg-blue-500 dark:text-white" : ""
-                  } dark:text-gray-800`,
-              }}
+            <Controller
+              control={control}
+              name="address.country"
+              render={({ field }) => (
+                <Select
+                  inputRef={field.ref}
+                  options={optionCountries}
+                  id="country"
+                  value={optionCountries.find(
+                    (option) => option.value === field.value?.code
+                  )}
+                  onChange={(e) =>
+                    field.onChange({ name: e.label, code: e.value })
+                  }
+                  classNames={{
+                    option: ({ isFocused, isSelected }) =>
+                      `${isFocused ? "dark:bg-blue-100" : ""} ${
+                        isSelected ? "dark:bg-blue-500 dark:text-white" : ""
+                      } dark:text-gray-800`,
+                  }}
+                />
+              )}
             />
           </div>
           {/* city */}
