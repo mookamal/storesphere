@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import {
   Table,
@@ -10,7 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
@@ -18,12 +19,16 @@ export default function Collections({ params }) {
   const currentPath = usePathname();
   const [collections, setCollections] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [endCursor, setEndCursor] = useState("");
+  const [hasNextPage, setHasNextPage] = useState(false);
 
   const getData = async () => {
     setIsLoading(true);
     try {
       const variables = {
         domain: params.domain,
+        first: 10,
+        after: endCursor,
       };
       const response = await axios.post("/api/get-data", {
         query: ADMIN_ALL_COLLECTIONS,
@@ -31,6 +36,8 @@ export default function Collections({ params }) {
       });
       if (response.data.allCollections.edges.length > 0) {
         setCollections(response.data.allCollections.edges);
+        setHasNextPage(response.data.allCollections.pageInfo.hasNextPage);
+        setEndCursor(response.data.allCollections.pageInfo.endCursor);
       } else {
         setCollections([]);
       }
@@ -94,6 +101,20 @@ export default function Collections({ params }) {
                 </TableRow>
               ))}
             </TableBody>
+            <TableFooter>
+              <TableRow className="border-t">
+                <TableCell colSpan="2">
+                  <Button
+                    disabled={!hasNextPage}
+                    onClick={getData}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Load more
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </div>
       )}

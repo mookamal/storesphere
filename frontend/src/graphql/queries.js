@@ -155,8 +155,8 @@ export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
 `;
 
 export const ADMIN_ALL_COLLECTIONS = gql`
-  query AdminCollectionsList($domain: String!) {
-    allCollections(defaultDomain: $domain) {
+  query AdminCollectionsList($domain: String!, $first: Int, $after: String!) {
+    allCollections(defaultDomain: $domain, first: $first, after: $after) {
       edges {
         node {
           id
