@@ -3,11 +3,10 @@
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { toast } from "react-toastify";
-import axios from "axios";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 export default function CreateCustomer() {
   const { register, handleSubmit, watch } = useForm();
   const router = useRouter();
@@ -21,6 +20,7 @@ export default function CreateCustomer() {
         <h1 className="h1">New customer</h1>
         <div className="flex flex-col items-center my-5 gap-3">
           <CustomerOverview register={register} />
+          <CustomerAddressInputs register={register} />
         </div>
       </div>
       <Button
