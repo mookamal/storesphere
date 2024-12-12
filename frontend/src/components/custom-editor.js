@@ -1,3 +1,7 @@
+export default function CustomEditor({ content, setContent }) {
+  return <></>;
+}
+
 class MyUploadAdapter {
   constructor(loader) {
     this.loader = loader;
@@ -34,10 +38,4 @@ class MyUploadAdapter {
   }
 
   abort() {}
-}
-
-import React from "react";
-
-export default function CustomEditor({ content, setContent }) {
-  return <div></div>;
 }
