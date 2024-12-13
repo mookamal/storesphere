@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import {
+  usePathname,
+  useSearchParams,
+  useRouter,
+  useParams,
+} from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PRODUCTS_ADMIN_PAGE } from "@/graphql/queries";
-import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
-import animation from "@/assets/animation/loading.json";
 import Image from "next/image";
 import { RxReload } from "react-icons/rx";
 import { Badge } from "@/components/ui/badge";
@@ -37,11 +40,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function Products({ params }) {
+export default function Products() {
   const [error, setError] = useState(false);
   const [products, setProducts] = useState(null);
   const pathname = usePathname();
-  const domain = params.domain;
+  const domain = useParams().domain;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [endCursor, setEndCursor] = useState("");
@@ -108,7 +111,7 @@ export default function Products({ params }) {
   }
 
   if (products === null) {
-    return <Lottie animationData={animation} loop={true} />;
+    return <div className="text-center">Loading...</div>;
   }
 
   return (
