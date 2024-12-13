@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,15 +18,10 @@ import enLocale from "i18n-iso-countries/langs/en.json";
 import Select from "react-select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 countries.registerLocale(enLocale);
-import PhoneInput, {
-  formatPhoneNumber,
-  isValidPhoneNumber,
-} from "react-phone-number-input";
-export default function CustomerAddressInputs({
-  register,
-  control,
-  watchAddress,
-}) {
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { useState } from "react";
+export default function CustomerAddressInputs({ register, control, setValue }) {
+  const [error, setError] = useState(null);
   const countryObj = countries.getNames("en", { select: "official" });
   const countryList = Object.entries(countryObj);
   const optionCountries = [];
@@ -35,6 +31,17 @@ export default function CustomerAddressInputs({
       label: countryList[i][1],
     });
   }
+
+  const handlePhoneNumber = (number) => {
+    if (number) {
+      setError(null);
+      if (isValidPhoneNumber(number)) {
+        setValue("address.phone", number);
+      } else {
+        setError("Invalid phone number");
+      }
+    }
+  };
 
   return (
     <Dialog>
@@ -125,13 +132,16 @@ export default function CustomerAddressInputs({
               size="sm"
               name="phoneNumber"
               placeholder="Enter phone number"
-              {...register("address.phoneNumber")}
               required
               defaultCountry="US"
-              onChange={() => null}
+              onChange={handlePhoneNumber}
             />
           </div>
         </div>
+        <DialogFooter>
+          {/* show error */}
+          {error && <p className="text-red-500">{error}</p>}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 export default function CreateCustomer() {
-  const { register, handleSubmit, control, watch } = useForm();
+  const { register, handleSubmit, control, watch, setValue } = useForm();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const watchAddress = watch("address");
@@ -35,7 +35,7 @@ export default function CreateCustomer() {
                 <CustomerAddressInputs
                   register={register}
                   control={control}
-                  watchAddress={watchAddress}
+                  setValue={setValue}
                 />
               </div>
             </CardContent>
