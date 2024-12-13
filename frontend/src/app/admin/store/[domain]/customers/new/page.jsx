@@ -12,7 +12,7 @@ export default function CreateCustomer() {
   const { register, handleSubmit, control, watch } = useForm();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const address = watch("address");
+  const watchAddress = watch("address");
   const onSubmit = async (data) => {
     console.log(data);
   };
@@ -27,10 +27,16 @@ export default function CreateCustomer() {
             <CardContent>
               <div className="flex justify-between">
                 <div className="flex gap-1">
-                  {address?.country && <h2>{address.country.name},</h2>}
-                  {address?.city && <h2>{address.city}</h2>}
+                  {watchAddress?.country && (
+                    <h2>{watchAddress.country.name},</h2>
+                  )}
+                  {watchAddress?.city && <h2>{watchAddress.city}</h2>}
                 </div>
-                <CustomerAddressInputs register={register} control={control} />
+                <CustomerAddressInputs
+                  register={register}
+                  control={control}
+                  watchAddress={watchAddress}
+                />
               </div>
             </CardContent>
           </Card>

@@ -19,11 +19,13 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 countries.registerLocale(enLocale);
 import PhoneInput, {
   formatPhoneNumber,
-  formatPhoneNumberIntl,
-  isPossiblePhoneNumber,
   isValidPhoneNumber,
 } from "react-phone-number-input";
-export default function CustomerAddressInputs({ register, control }) {
+export default function CustomerAddressInputs({
+  register,
+  control,
+  watchAddress,
+}) {
   const countryObj = countries.getNames("en", { select: "official" });
   const countryList = Object.entries(countryObj);
   const optionCountries = [];
@@ -126,7 +128,7 @@ export default function CustomerAddressInputs({ register, control }) {
               {...register("address.phoneNumber")}
               required
               defaultCountry="US"
-              onChange={(value) => console.log(value)}
+              onChange={() => null}
             />
           </div>
         </div>
