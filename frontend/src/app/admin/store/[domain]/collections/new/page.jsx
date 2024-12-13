@@ -8,8 +8,9 @@ import SeoInputs from "@/components/admin/collection/SeoInputs";
 import axios from "axios";
 import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
-export default function CreateCollection({ params }) {
+import { useParams, useRouter } from "next/navigation";
+export default function CreateCollection() {
+  const domain = useParams().domain;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
@@ -30,7 +31,7 @@ export default function CreateCollection({ params }) {
   const onSubmit = async (data) => {
     setLoading(true);
     const variables = {
-      domain: params.domain,
+      domain: domain,
       collectionInputs: {
         title: data.title,
         description: data.description,
@@ -50,7 +51,7 @@ export default function CreateCollection({ params }) {
       if (response.data.data.createCollection.collection.collectionId) {
         toast.success("Collection created successfully!");
         router.push(
-          `/store/${params.domain}/collections/${response.data.data.createCollection.collection.collectionId}`
+          `/store/${domain}/collections/${response.data.data.createCollection.collection.collectionId}`
         );
       }
     } catch (e) {
@@ -76,11 +77,7 @@ export default function CreateCollection({ params }) {
             You need to save the collection before adding products to it.
           </h2>
 
-          <SeoInputs
-            register={register}
-            domain={params.domain}
-            handle={handle}
-          />
+          <SeoInputs register={register} domain={domain} handle={handle} />
         </div>
       </div>
       <Button

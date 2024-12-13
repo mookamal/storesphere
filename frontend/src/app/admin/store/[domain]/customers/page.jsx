@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/table";
 import axios from "axios";
 import { CUSTOMER_LIST_ADMIN } from "@/graphql/queries";
-export default function Customers({ params }) {
+export default function Customers() {
+  const domain = useParams().domain;
   const currentPath = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState(null);
@@ -26,7 +27,7 @@ export default function Customers({ params }) {
     setIsLoading(true);
     try {
       const variables = {
-        domain: params.domain,
+        domain: domain,
         first: 10,
         after: endCursor,
       };

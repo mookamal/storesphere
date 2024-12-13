@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -15,18 +15,19 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
-export default function Collections({ params }) {
+export default function Collections() {
   const currentPath = usePathname();
   const [collections, setCollections] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [endCursor, setEndCursor] = useState("");
   const [hasNextPage, setHasNextPage] = useState(false);
+  const domain = useParams().domain;
 
   const getData = async () => {
     setIsLoading(true);
     try {
       const variables = {
-        domain: params.domain,
+        domain: domain,
         first: 10,
         after: endCursor,
       };

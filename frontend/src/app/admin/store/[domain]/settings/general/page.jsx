@@ -16,12 +16,13 @@ let cc = require("currency-codes");
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useParams } from "next/navigation";
 
-export default function General({ params }) {
+export default function General() {
   const [error, setError] = useState(false);
   const [data, setData] = useState(null);
   const [openStoreCurrencyModel, setOpenStoreCurrencyModel] = useState(null);
-  const domain = params.domain;
+  const domain = useParams().domain;
 
   const getData = async () => {
     try {

@@ -3,7 +3,7 @@ import siteInfo from "../data/site.json";
 import Hero from "@/components/main/home/Hero";
 import MainFooter from "@/components/main/Footer";
 import MainNavbar from "@/components/main/Nav";
-export function generateMetadata({ params }) {
+export function generateMetadata() {
   return StructureMetadata({
     title: siteInfo.name,
     description: siteInfo.description,
