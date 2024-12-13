@@ -1,5 +1,5 @@
 "use client";
-
+import "react-phone-number-input/style.css";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,12 @@ import enLocale from "i18n-iso-countries/langs/en.json";
 import Select from "react-select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 countries.registerLocale(enLocale);
-
+import PhoneInput, {
+  formatPhoneNumber,
+  formatPhoneNumberIntl,
+  isPossiblePhoneNumber,
+  isValidPhoneNumber,
+} from "react-phone-number-input";
 export default function CustomerAddressInputs({ register, control }) {
   const countryObj = countries.getNames("en", { select: "official" });
   const countryList = Object.entries(countryObj);
@@ -107,6 +112,22 @@ export default function CustomerAddressInputs({ register, control }) {
               <Label htmlFor="zip">Postal code</Label>
             </div>
             <Input id="zip" {...register("address.zip")} />
+          </div>
+          {/* phone number */}
+          <div className="mt-3">
+            <div className="mb-2">
+              <Label htmlFor="phoneNumber">Phone number</Label>
+            </div>
+            <PhoneInput
+              id="phoneNumber"
+              size="sm"
+              name="phoneNumber"
+              placeholder="Enter phone number"
+              {...register("address.phoneNumber")}
+              required
+              defaultCountry="US"
+              onChange={(value) => console.log(value)}
+            />
           </div>
         </div>
       </DialogContent>
