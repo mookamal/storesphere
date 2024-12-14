@@ -1,6 +1,6 @@
 import graphene
 from core.schema.inputs import CountryInput
-from core.schema.scalars import PhoneNumberScalar
+from core.schema.scalars import PhoneNumberScalar, EmailScalar
 
 
 class AddressInputs(graphene.InputObjectType):
@@ -12,3 +12,12 @@ class AddressInputs(graphene.InputObjectType):
     phone = PhoneNumberScalar()
     province_code = graphene.String()
     zip = graphene.String()
+
+
+class CustomerInputs(graphene.InputObjectType):
+    id = graphene.ID()
+    customer_id = graphene.ID()
+    first_name = graphene.String()
+    last_name = graphene.String()
+    email = EmailScalar()
+    default_address = AddressInputs()
