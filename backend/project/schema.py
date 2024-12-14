@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from product.schema.queries import Query as productQueries
 from product.schema.mutations import Mutation as productMutations
 from customer.schema.queries import Query as customerQueries
+from customer.schema.mutations import Mutation as customerMutations
 
 
 class AuthenticationMiddleware:
@@ -34,6 +35,7 @@ class Query(
 class Mutation(
         stores.schema.StoreMutation,
         productMutations,
+        customerMutations,
         graphene.ObjectType):
     pass
 
