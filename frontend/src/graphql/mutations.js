@@ -160,6 +160,16 @@ export const DELETE_COLLECTIONS = `
   }
 `;
 
+export const CREATE_CUSTOMER = `
+  mutation CreateCustomer($customerInputs: CustomerInputs!, $defaultDomain: String!) { 
+    createCustomer(input: {customerInputs: $customerInputs, defaultDomain: $defaultDomain}) {
+        customer {
+            id
+        }
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",
