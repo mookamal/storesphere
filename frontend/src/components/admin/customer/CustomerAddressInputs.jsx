@@ -36,7 +36,7 @@ export default function CustomerAddressInputs({ register, control, setValue }) {
     if (number) {
       setError(null);
       if (isValidPhoneNumber(number)) {
-        setValue("address.phone", number);
+        setValue("defaultAddress.phone", number);
       } else {
         setError("Invalid phone number");
       }
@@ -62,7 +62,7 @@ export default function CustomerAddressInputs({ register, control, setValue }) {
             <div className="mb-2">
               <Label htmlFor="company">Legal business name</Label>
             </div>
-            <Input id="company" {...register("address.company")} />
+            <Input id="company" {...register("defaultAddress.company")} />
           </div>
           {/* Country */}
           <div>
@@ -71,7 +71,7 @@ export default function CustomerAddressInputs({ register, control, setValue }) {
             </div>
             <Controller
               control={control}
-              name="address.country"
+              name="defaultAddress.country"
               render={({ field }) => (
                 <Select
                   inputRef={field.ref}
@@ -98,14 +98,14 @@ export default function CustomerAddressInputs({ register, control, setValue }) {
             <div className="mb-2">
               <Label htmlFor="city">City</Label>
             </div>
-            <Input id="city" {...register("address.city")} />
+            <Input id="city" {...register("defaultAddress.city")} />
           </div>
           {/* address1 */}
           <div>
             <div className="mb-2">
               <Label htmlFor="address1">Address</Label>
             </div>
-            <Input id="address1" {...register("address.address1")} />
+            <Input id="address1" {...register("defaultAddress.address1")} />
           </div>
           {/* address2 */}
 
@@ -113,14 +113,14 @@ export default function CustomerAddressInputs({ register, control, setValue }) {
             <div className="mb-2">
               <Label htmlFor="address2">Apartment, suite, etc</Label>
             </div>
-            <Input id="address2" {...register("address.address2")} />
+            <Input id="address2" {...register("defaultAddress.address2")} />
           </div>
           {/* postalCode */}
           <div>
             <div className="mb-2">
               <Label htmlFor="zip">Postal code</Label>
             </div>
-            <Input id="zip" {...register("address.zip")} />
+            <Input id="zip" {...register("defaultAddress.zip")} />
           </div>
           {/* phone number */}
           <div className="mt-3">
