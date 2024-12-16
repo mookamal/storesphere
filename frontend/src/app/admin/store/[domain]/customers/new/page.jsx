@@ -16,7 +16,7 @@ export default function CreateCustomer() {
   const domain = useParams().domain;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const watchAddress = watch("address");
+  const watchAddress = watch("defaultAddress");
   const onSubmit = async (data) => {
     setLoading(true);
     try {
