@@ -8,6 +8,7 @@ class AddressInputs(graphene.InputObjectType):
     address1 = graphene.String()
     address2 = graphene.String()
     city = graphene.String()
+    company = graphene.String()
     country = graphene.Field(CountryInput)
     phone = PhoneNumberScalar()
     province_code = graphene.String()

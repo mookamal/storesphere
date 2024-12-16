@@ -15,9 +15,6 @@ class MailingAddress(models.Model):
     province_code = models.CharField(max_length=10, null=True, blank=True)
     zip = models.CharField(max_length=10, null=True, blank=True)
 
-    def __str__(self):
-        return self.address1
-
 
 class Customer(models.Model):
     store = models.ForeignKey(

@@ -5,16 +5,40 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import axios from "axios";
+import { CREATE_CUSTOMER } from "@/graphql/mutations";
+import { toast } from "react-toastify";
 export default function CreateCustomer() {
   const { register, handleSubmit, control, watch, setValue } = useForm();
+  const domain = useParams().domain;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const watchAddress = watch("address");
   const onSubmit = async (data) => {
-    console.log(data);
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/set-data", {
+        query: CREATE_CUSTOMER,
+        variables: {
+          defaultDomain: domain,
+          customerInputs: data,
+        },
+      });
+      if (response.data.data.createCustomer.customer.customerId) {
+        toast.success("Customer created successfully!");
+        router.push(
+          `/store/${domain}/customers/${response.data.data.createCustomer.customer.customerId}`
+        );
+      }
+    } catch (error) {
+      console.error("Error creating customer", error);
+      toast.error("Failed to create customer!");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

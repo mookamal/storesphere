@@ -164,7 +164,7 @@ export const CREATE_CUSTOMER = `
   mutation CreateCustomer($customerInputs: CustomerInputs!, $defaultDomain: String!) { 
     createCustomer(input: {customerInputs: $customerInputs, defaultDomain: $defaultDomain}) {
         customer {
-            id
+            customerId
         }
     }
   }
