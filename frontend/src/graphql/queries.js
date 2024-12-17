@@ -293,7 +293,7 @@ export const CUSTOMER_LIST_ADMIN = gql`
   }
 `;
 
-export const CUSTOMER_DETAILS = gql`
+export const GET_CUSTOMER_BY_ID = gql`
   query CustomerDetails($id: ID!) {
     customerDetails(id: $id) {
       firstName
