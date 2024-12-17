@@ -3,6 +3,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from .types import CustomerNode
 from graphql import GraphQLError
 from stores.models import Store, StaffMember
+from core.utils import get_store_or_error
 
 
 class Query(graphene.ObjectType):
@@ -11,33 +12,12 @@ class Query(graphene.ObjectType):
 
     def resolve_customer_list_admin(self, info, default_domain, **kwargs):
         user = info.context.user
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store not found.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+        store = get_store_or_error(default_domain, user)
+        return store.customers.all()
 
-        if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise GraphQLError(
-                "You are not authorized to access this store.",
-                extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
-                }
-            )
+    # customer details
+    customer_details = graphene.Field(
+        CustomerNode, id=graphene.ID(required=True))
 
-        try:
-            return store.customers.all()
-        except Exception as e:
-            raise GraphQLError(
-                f"Unexpected error occurred: {str(e)}",
-                extensions={
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "status": 500
-                }
-            )
+    def resolve_customer_details(self, info, id):
+        pass
