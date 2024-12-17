@@ -37,6 +37,12 @@ export async function POST(request) {
     }
     return NextResponse.json({ data: response.data.data }, { status: 200 });
   } catch (error) {
+    if (error.graphQLErrors) {
+      return NextResponse.json(
+        { error: error.graphQLErrors[0].message },
+        { status: error.graphQLErrors[0].extensions?.status || 500 }
+      );
+    }
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
