@@ -3,7 +3,8 @@ from graphene_django.filter import DjangoFilterConnectionField
 from .types import CustomerNode
 from graphql import GraphQLError
 from stores.models import Store, StaffMember
-from core.utils import get_store_or_error
+from core.utils import get_store_or_error, check_user_store_permission
+from ..models import Customer
 
 
 class Query(graphene.ObjectType):
@@ -20,4 +21,16 @@ class Query(graphene.ObjectType):
         CustomerNode, id=graphene.ID(required=True))
 
     def resolve_customer_details(self, info, id):
-        pass
+        user = info.context.user
+        try:
+            customer = Customer.objects.get(id=id)
+            check_user_store_permission(user, customer.store)
+            return customer
+        except Customer.DoesNotExist:
+            raise GraphQLError(
+                "Customer not found or you do not have access to this customer.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
