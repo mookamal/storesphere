@@ -292,3 +292,25 @@ export const CUSTOMER_LIST_ADMIN = gql`
     }
   }
 `;
+
+export const CUSTOMER_DETAILS = gql`
+  query CustomerDetails($id: ID!) {
+    customerDetails(id: $id) {
+      firstName
+      lastName
+      email
+      defaultAddress {
+        address1
+        address2
+        city
+        phone
+        company
+        zip
+        country {
+          name
+          code
+        }
+      }
+    }
+  }
+`;
