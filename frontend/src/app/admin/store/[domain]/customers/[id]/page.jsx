@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
+import _ from "lodash";
 export default function UpdateCustomer() {
   const { register, handleSubmit, control, watch, setValue } = useForm();
   const customerId = useParams().id;
@@ -18,6 +19,9 @@ export default function UpdateCustomer() {
   const [error, setError] = useState(null);
   const [customer, setCustomer] = useState(null);
   const watchAddress = watch("defaultAddress");
+  const watchFirstName = watch("firstName");
+  const watchLastName = watch("lastName");
+  const watchEmail = watch("email");
 
   const getCustomerById = async () => {
     setLoading(true);
@@ -48,6 +52,37 @@ export default function UpdateCustomer() {
       setLoading(false);
     }
   };
+
+  // handle any change
+  useEffect(() => {
+    if (customer) {
+      if (
+        watchFirstName !== customer?.firstName ||
+        watchLastName !== customer?.lastName ||
+        watchEmail !== customer?.email
+      ) {
+        setHasChanges(true);
+      } else {
+        setHasChanges(false);
+      }
+      if (!_.isEqual(watchAddress, customer?.defaultAddress)) {
+        setHasChanges(true);
+      } else {
+        setHasChanges(false);
+      }
+    }
+  }, [
+    watchFirstName,
+    watchLastName,
+    watchEmail,
+    watchAddress?.address1,
+    watchAddress?.address2,
+    watchAddress?.country,
+    watchAddress?.phone,
+    watchAddress?.zip,
+    watchAddress?.city,
+    watchAddress?.company,
+  ]);
 
   useEffect(() => {
     getCustomerById();
