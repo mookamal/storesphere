@@ -4,6 +4,7 @@ from .types import CustomerNode
 from ..models import Customer, MailingAddress
 from stores.models import StaffMember, Store
 from graphql import GraphQLError
+from core.utils import get_store_or_error, check_user_store_permission
 
 
 class CreateCustomer(graphene.relay.ClientIDMutation):
@@ -18,20 +19,7 @@ class CreateCustomer(graphene.relay.ClientIDMutation):
         default_domain = input.get('default_domain')
         customer_inputs = input.get('customer_inputs')
         user = info.context.user
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-            if not StaffMember.objects.filter(user=user, store=store).exists():
-                raise GraphQLError("You are not authorized to access this store.",
-                                   extensions={
-                                       "code": "PERMISSION_DENIED",
-                                       "status": 403
-                                   })
-        except Store.DoesNotExist:
-            raise GraphQLError("Store not found.",
-                               extensions={
-                                   "code": "NOT_FOUND",
-                                   "status": 404
-                               })
+        store = get_store_or_error(default_domain, user)
         if customer_inputs.default_address:
             address = customer_inputs.default_address
             customer_inputs.pop("default_address")
