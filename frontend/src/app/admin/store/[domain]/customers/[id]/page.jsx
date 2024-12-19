@@ -14,6 +14,7 @@ import _ from "lodash";
 import { UPDATE_CUSTOMER } from "@/graphql/mutations";
 import { stripTypename } from "@apollo/client/utilities";
 import { toast } from "react-toastify";
+import swal from "sweetalert";
 export default function UpdateCustomer() {
   const { register, handleSubmit, control, watch, setValue } = useForm();
   const customerId = useParams().id;
@@ -112,6 +113,15 @@ export default function UpdateCustomer() {
       setLoading(false);
     }
   };
+  const handleDeleteCustomer = async () => {
+    const confirmed = await swal({
+      title: "Delete Customer?",
+      text: "Are you sure you want to delete this customer?",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    });
+  };
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
   }
@@ -151,7 +161,7 @@ export default function UpdateCustomer() {
           <Button
             type="button"
             variant="destructive"
-            onClick={() => console.log("Delete")}
+            onClick={handleDeleteCustomer}
           >
             Delete
           </Button>
