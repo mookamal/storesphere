@@ -180,6 +180,14 @@ export const UPDATE_CUSTOMER = `
   }
 `;
 
+export const DELETE_CUSTOMER = `
+  mutation DeleteCustomer($id: ID!) { 
+    deleteCustomer(input: {id: $id}) {
+        success
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",

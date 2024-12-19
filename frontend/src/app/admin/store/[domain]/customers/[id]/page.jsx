@@ -11,13 +11,16 @@ import { IoReload } from "react-icons/io5";
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import _ from "lodash";
-import { UPDATE_CUSTOMER } from "@/graphql/mutations";
+import { DELETE_CUSTOMER, UPDATE_CUSTOMER } from "@/graphql/mutations";
 import { stripTypename } from "@apollo/client/utilities";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
+import { useRouter } from "next/navigation";
 export default function UpdateCustomer() {
   const { register, handleSubmit, control, watch, setValue } = useForm();
   const customerId = useParams().id;
+  const domain = useParams().domain;
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [error, setError] = useState(null);
@@ -121,6 +124,21 @@ export default function UpdateCustomer() {
       buttons: true,
       dangerMode: true,
     });
+    if (confirmed) {
+      try {
+        setLoading(true);
+        const response = await axios.post("/api/set-data", {
+          query: DELETE_CUSTOMER,
+          variables: { id: customerId },
+        });
+        if (response.data.data.deleteCustomer.success) {
+          toast.success("Customer deleted successfully.");
+          router.push(`/store/${domain}/customers`);
+        }
+      } catch (error) {
+        toast.error("Failed to delete customer!");
+      }
+    }
   };
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
