@@ -59,20 +59,17 @@ export default function UpdateCustomer() {
   // handle any change
   useEffect(() => {
     if (customer) {
-      if (
+      const hasPrimaryInfoChanged =
         watchFirstName !== customer?.firstName ||
         watchLastName !== customer?.lastName ||
-        watchEmail !== customer?.email
-      ) {
-        setHasChanges(true);
-      } else {
-        setHasChanges(false);
-      }
-      if (!_.isEqual(watchAddress, customer?.defaultAddress)) {
-        setHasChanges(true);
-      } else {
-        setHasChanges(false);
-      }
+        watchEmail !== customer?.email;
+
+      const hasAddressChanged = !_.isEqual(
+        watchAddress,
+        customer?.defaultAddress
+      );
+
+      setHasChanges(hasPrimaryInfoChanged || hasAddressChanged);
     }
   }, [
     watchFirstName,
