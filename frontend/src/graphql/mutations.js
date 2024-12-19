@@ -170,6 +170,16 @@ export const CREATE_CUSTOMER = `
   }
 `;
 
+export const UPDATE_CUSTOMER = `
+  mutation UpdateCustomer($customerInputs: CustomerInputs!, $id: ID!) { 
+    updateCustomer(input: {customerInputs: $customerInputs, id: $id}) {
+        customer {
+            customerId
+        }
+    }
+  }
+`;
+
 export const VariantActions = Object.freeze({
   DELETE: "DELETE",
   UPDATE_PRICE: "UPDATE_PRICE",

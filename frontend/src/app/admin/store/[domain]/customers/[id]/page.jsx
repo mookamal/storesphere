@@ -11,6 +11,9 @@ import { IoReload } from "react-icons/io5";
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import _ from "lodash";
+import { UPDATE_CUSTOMER } from "@/graphql/mutations";
+import { stripTypename } from "@apollo/client/utilities";
+import { toast } from "react-toastify";
 export default function UpdateCustomer() {
   const { register, handleSubmit, control, watch, setValue } = useForm();
   const customerId = useParams().id;
@@ -89,7 +92,28 @@ export default function UpdateCustomer() {
   }, []);
 
   const onSubmit = async (data) => {
-    console.log(data);
+    const cleanData = stripTypename(data);
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/set-data", {
+        query: UPDATE_CUSTOMER,
+        variables: {
+          id: customerId,
+          customerInputs: cleanData,
+        },
+      });
+      if (response.data.data.updateCustomer.customer) {
+        toast.success("Customer updated successfully!");
+        await getCustomerById();
+      }
+    } catch (error) {
+      console.error("error", error);
+
+      const errorDetails = handleGraphQLError(error);
+      setError(errorDetails);
+    } finally {
+      setLoading(false);
+    }
   };
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
