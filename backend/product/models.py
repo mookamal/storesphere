@@ -5,7 +5,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import ValidationError
 from core.models import SEO
 from django.core.exceptions import ValidationError
-from core.models import ModelWithExternalReference
+from core.models import ModelWithExternalReference, SortableModel
 
 
 class Image(models.Model):
@@ -40,7 +40,7 @@ class OptionValue(models.Model):
         return f"{self.option.name} - {self.name}"
 
 
-class ProductVariant(ModelWithExternalReference):
+class ProductVariant(SortableModel, ModelWithExternalReference):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="variants")
     sku = models.CharField(max_length=255, unique=True, null=True, blank=True)
@@ -68,6 +68,9 @@ class ProductVariant(ModelWithExternalReference):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+    def get_ordering_queryset(self):
+        return self.product.variants.all()
 
     def __str__(self):
         return f"{self.product.title} | {self.price}"
