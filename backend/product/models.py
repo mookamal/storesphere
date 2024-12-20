@@ -43,6 +43,11 @@ class OptionValue(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="variants")
+    sku = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    images = models.ManyToManyField(
+        Image, related_name="products", blank=True)
+    videos = models.ManyToManyField(
+        Video, related_name="products", blank=True)
     price = models.DecimalField(default=0.00, max_digits=10, decimal_places=2)
     compare_at_price = models.DecimalField(
         default=0.00, max_digits=10, decimal_places=2)
@@ -81,12 +86,8 @@ class Product(models.Model):
     seo = models.OneToOneField(
         SEO, on_delete=models.CASCADE, related_name="product", null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default="DRAFT")
-    images = models.ManyToManyField(
-        Image, related_name="products", blank=True)
     collections = models.ManyToManyField(
         "Collection", related_name="products", blank=True)
-    videos = models.ManyToManyField(
-        Video, related_name="products", blank=True)
     first_variant = models.OneToOneField(
         'ProductVariant',
         on_delete=models.SET_NULL,
