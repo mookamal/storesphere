@@ -132,7 +132,10 @@ class ProductNode(DjangoObjectType):
         return self.id
 
     def resolve_image(self, info):
-        return self.images.first() if self.images.first() else None
+        try:
+            return self.first_variant.images.first()
+        except AttributeError:
+            return None
 
     def resolve_in_collection(self, info):
         collection_id = info.variable_values.get("collectionId")

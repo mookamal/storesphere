@@ -115,7 +115,7 @@ class Query(graphene.ObjectType):
             product = Product.objects.get(pk=product_id)
             store = product.store
             if StaffMember.objects.filter(user=user, store=store).exists():
-                images = product.images.all().order_by('-created_at')
+                images = product.first_variant.images.all().order_by('-created_at')
                 return images
             else:
                 raise PermissionDenied(

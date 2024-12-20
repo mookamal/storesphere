@@ -213,7 +213,7 @@ class AddImagesProduct(graphene.Mutation):
         try:
             product = Product.objects.get(pk=product_id, store=store)
             images = Image.objects.filter(pk__in=image_ids)
-            product.images.add(*images)
+            product.first_variant.images.add(*images)
             return AddImagesProduct(product=product)
         except Product.DoesNotExist:
             raise Exception(
@@ -237,7 +237,7 @@ class RemoveImagesProduct(graphene.Mutation):
                     "You are not authorized to update products for this store.")
             product = Product.objects.get(pk=product_id, store=store)
             images = Image.objects.filter(pk__in=image_ids)
-            product.images.remove(*images)
+            product.first_variant.images.remove(*images)
             return RemoveImagesProduct(product=product)
         except Product.DoesNotExist:
             raise Exception(
