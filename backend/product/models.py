@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from core.models import SEO
 from django.core.exceptions import ValidationError
 from core.models import ModelWithExternalReference, SortableModel
+from django_prices.models import MoneyField
+from django.conf import settings
 
 
 class Image(models.Model):
@@ -48,7 +50,15 @@ class ProductVariant(SortableModel, ModelWithExternalReference):
         Image, related_name="products", blank=True)
     videos = models.ManyToManyField(
         Video, related_name="products", blank=True)
-    price = models.DecimalField(default=0.00, max_digits=10, decimal_places=2)
+    price_amount = models.DecimalField(
+        max_digits=settings.DEFAULT_MAX_DIGITS,
+        decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+        blank=True,
+        null=True,
+    )
+
+    price = MoneyField(amount_field="price_amount",
+                       currency_field="get_currency")
     compare_at_price = models.DecimalField(
         default=0.00, max_digits=10, decimal_places=2)
     selected_options = models.ManyToManyField(
@@ -72,8 +82,12 @@ class ProductVariant(SortableModel, ModelWithExternalReference):
     def get_ordering_queryset(self):
         return self.product.variants.all()
 
+    @property
+    def get_currency(self):
+        return self.product.store.currency_code
+
     def __str__(self):
-        return f"{self.product.title} | {self.price}"
+        return f"{self.product.title} | {self.product.store.name} | {self.price.currency}"
 
 
 class Product(ModelWithExternalReference):
