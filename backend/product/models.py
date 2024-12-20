@@ -60,7 +60,11 @@ class ProductVariant(SortableModel, ModelWithExternalReference):
     price = MoneyField(amount_field="price_amount",
                        currency_field="get_currency")
     compare_at_price = models.DecimalField(
-        default=0.00, max_digits=10, decimal_places=2)
+        max_digits=settings.DEFAULT_MAX_DIGITS,
+        decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+        blank=True,
+        null=True,
+    )
     selected_options = models.ManyToManyField(
         OptionValue, related_name="variants", blank=True)
     stock = models.PositiveIntegerField(default=0, help_text="Available stock")
