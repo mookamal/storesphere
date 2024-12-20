@@ -5,7 +5,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import ValidationError
 from core.models import SEO
 from django.core.exceptions import ValidationError
-from django.db.models.functions import Now
+from core.models import ModelWithExternalReference
 
 
 class Image(models.Model):
@@ -40,7 +40,7 @@ class OptionValue(models.Model):
         return f"{self.option.name} - {self.name}"
 
 
-class ProductVariant(models.Model):
+class ProductVariant(ModelWithExternalReference):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="variants")
     sku = models.CharField(max_length=255, unique=True, null=True, blank=True)
@@ -73,7 +73,7 @@ class ProductVariant(models.Model):
         return f"{self.product.title} | {self.price}"
 
 
-class Product(models.Model):
+class Product(ModelWithExternalReference):
     STATUS = (
         ('ACTIVE', 'ACTIVE'),
         ('DRAFT', 'DRAFT'),
