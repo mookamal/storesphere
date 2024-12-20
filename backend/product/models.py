@@ -94,8 +94,8 @@ class Product(models.Model):
         blank=True,
         related_name="first_variant",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
     def generate_unique_handle(self, base_handle):
         """ Helper function to generate unique handle. """
