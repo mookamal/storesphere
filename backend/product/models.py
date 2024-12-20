@@ -87,7 +87,7 @@ class ProductVariant(SortableModel, ModelWithExternalReference):
         return self.product.store.currency_code
 
     def __str__(self):
-        return f"{self.product.title} | {self.product.store.name} | {self.price.currency}"
+        return f"{self.product.title} | {self.product.store.name} | {self.price.amount}"
 
 
 class Product(ModelWithExternalReference):
