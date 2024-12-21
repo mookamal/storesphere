@@ -75,7 +75,7 @@ class ProductVariant(SortableModel, ModelWithExternalReference):
         """
         This method is used for validation before saving the model.
         """
-        if self.compare_at_price != 0.00 and self.compare_at_price < self.price:
+        if self.compare_at_price != 0.00 and self.compare_at_price < self.price_amount:
             raise ValidationError(
                 "Compare at price must be greater than or equal to price.")
 

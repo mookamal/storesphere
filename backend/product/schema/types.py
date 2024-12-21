@@ -8,6 +8,7 @@ from graphene import Scalar
 from graphql.language import ast
 from graphene_django.converter import convert_django_field
 from django_ckeditor_5.fields import CKEditor5Field
+from core.schema.types.money import Money
 
 
 class HTML(Scalar):
@@ -60,10 +61,13 @@ class SEOType(DjangoObjectType):
 class ProductVariantNode(DjangoObjectType):
     variant_id = graphene.Int()
     selected_options = graphene.List(OptionValueType)
+    pricing = graphene.Field(
+        Money, description="Price of the product variant.")
 
     class Meta:
         model = ProductVariant
         interfaces = (graphene.relay.Node,)
+        exclude = ("price",)
         filter_fields = ["created_at",]
 
     def resolve_variant_id(self, info):
@@ -71,6 +75,9 @@ class ProductVariantNode(DjangoObjectType):
 
     def resolve_selected_options(self, info):
         return self.selected_options.all()
+
+    def resolve_pricing(self, info):
+        return Money(currency=self.price.currency, amount=self.price.amount)
 
 
 class ImageNode(DjangoObjectType):

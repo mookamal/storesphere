@@ -151,7 +151,7 @@ export default function UpdateProduct() {
       handle !== product?.handle ||
       seoTitle !== product?.seo.title ||
       seoDescription !== product?.seo.description ||
-      price !== product?.firstVariant.price ||
+      price !== product?.firstVariant.pricing.amount ||
       compare !== product?.firstVariant.compareAtPrice ||
       stock !== product?.firstVariant.stock ||
       JSON.stringify(cleanOptionsData(options)) !==
@@ -270,7 +270,10 @@ export default function UpdateProduct() {
         setValue("handle", response.data.product.handle || null);
         setValue("seoTitle", response.data.product.seo.title || "");
         setValue("seoDescription", response.data.product.seo.description || "");
-        setValue("price", response.data.product.firstVariant.price || 0.0);
+        setValue(
+          "price",
+          response.data.product.firstVariant.pricing.amount || 0.0
+        );
         setValue(
           "compare",
           response.data.product.firstVariant.compareAtPrice || 0.0
@@ -324,6 +327,7 @@ export default function UpdateProduct() {
         query: UPDATE_PRODUCT,
         variables: variables,
       });
+
       if (response.data.data.updateProduct.product.id) {
         toast.success("Product updated successfully!");
         getProductById();

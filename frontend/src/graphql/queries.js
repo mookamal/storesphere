@@ -71,7 +71,10 @@ export const GET_PRODUCT_BY_ID = gql`
         description
       }
       firstVariant {
-        price
+        pricing {
+          amount
+          currency
+        }
         compareAtPrice
         stock
       }
@@ -138,7 +141,10 @@ export const ADMIN_PRODUCT_DETAILS_VARIANTS = gql`
         node {
           id
           variantId
-          price
+          pricing {
+            amount
+            currency
+          }
           stock
           selectedOptions {
             id

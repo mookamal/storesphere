@@ -101,7 +101,7 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         seo.description = product.seo.description
         seo.save()
         first_variant = product_instance.first_variant
-        first_variant.price = product.first_variant.price
+        first_variant.price_amount = product.first_variant.price
         first_variant.compare_at_price = product.first_variant.compare_at_price
         first_variant.stock = product.first_variant.stock
         first_variant.save()
@@ -139,7 +139,7 @@ class CreateProductVariant(graphene.Mutation):
 
         variant = ProductVariant.objects.create(
             product=product,
-            price=variant_inputs.price,
+            price_amount=variant_inputs.price,
             stock=variant_inputs.stock,
         )
         add_values_to_variant(variant, variant_inputs.option_values)
@@ -162,7 +162,7 @@ class UpdateProductVariant(graphene.Mutation):
                     "You are not authorized to update product variants for this store.")
         except ProductVariant.DoesNotExist:
             raise Exception("Product variant not found.")
-        variant.price = variant_inputs.price
+        variant.price_amount = variant_inputs.price
         variant.stock = variant_inputs.stock
         variant.save()
         return UpdateProductVariant(product_variant=variant)
