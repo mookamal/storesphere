@@ -1,11 +1,11 @@
 from django.test import TestCase
-from ..models import MailingAddress, Customer
+from ..models import Address, Customer
 from stores.models import Store
 
 
 class MailingAddressTestCase(TestCase):
     def setUp(self):
-        self.address = MailingAddress.objects.create(
+        self.address = Address.objects.create(
             address1="123 Main St",
             address2="Apt 4B",
             city="and",
@@ -33,7 +33,7 @@ class MailingAddressTestCase(TestCase):
 
 class CustomerTestCase(TestCase):
     def setUp(self):
-        self.address = MailingAddress.objects.create(
+        self.address = Address.objects.create(
             address1="123 Main St",
             address2="Apt 4B",
             city="and",

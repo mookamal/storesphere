@@ -35,7 +35,7 @@ from . import (
 #     customer = models.ForeignKey(
 #         'customer.Customer', blank=True, null=True, related_name="orders", on_delete=models.SET_NULL)
 #     billing_address = models.ForeignKey(
-#         "customer.MailingAddress",
+#         "customer.Address",
 #         related_name="+",
 #         editable=False,
 #         null=True,

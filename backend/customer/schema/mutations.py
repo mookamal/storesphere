@@ -2,7 +2,7 @@ from django.db import transaction
 import graphene
 from .inputs import CustomerInputs
 from .types import CustomerNode
-from ..models import Customer, MailingAddress
+from ..models import Customer, Address
 from stores.models import StaffMember, Store
 from graphql import GraphQLError
 from core.utils import get_store_or_error, check_user_store_permission
@@ -24,7 +24,7 @@ class CreateCustomer(graphene.relay.ClientIDMutation):
         if customer_inputs.default_address:
             address = customer_inputs.default_address
             customer_inputs.pop("default_address")
-            default_address = MailingAddress.objects.create(**address)
+            default_address = Address.objects.create(**address)
         else:
             default_address = None
         customer = Customer(store=store,

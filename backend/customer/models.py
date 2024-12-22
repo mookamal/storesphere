@@ -5,7 +5,7 @@ from stores.models import Store
 # Create your models here.
 
 
-class MailingAddress(models.Model):
+class Address(models.Model):
     address1 = models.CharField(max_length=255, null=True, blank=True)
     address2 = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
@@ -23,7 +23,7 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     default_address = models.ForeignKey(
-        MailingAddress, on_delete=models.SET_NULL, null=True, related_name='customers')
+        Address, on_delete=models.SET_NULL, null=True, related_name='customers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

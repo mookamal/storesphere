@@ -1,4 +1,4 @@
-from ..models import MailingAddress, Customer
+from ..models import Address, Customer
 import graphene
 from graphene_django import DjangoObjectType
 from django_countries.graphql.types import Country
@@ -8,7 +8,7 @@ class MailingAddressType(DjangoObjectType):
     country = graphene.Field(Country)
 
     class Meta:
-        model = MailingAddress
+        model = Address
         fields = ['address1', 'address2', 'city', 'country',
                   'company', 'phone', 'province_code', 'zip',]
 
