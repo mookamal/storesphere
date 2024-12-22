@@ -2,6 +2,7 @@ from django.db import models
 from core.models import ModelWithExternalReference
 from uuid import uuid4
 from django.utils.timezone import now
+from django.conf import settings
 from . import (
     PaymentStatus,
     FulfillmentStatus,
@@ -34,9 +35,12 @@ from . import (
 #     customer = models.ForeignKey(
 #         'customer.Customer', blank=True, null=True, related_name="orders", on_delete=models.SET_NULL)
 #     billing_address = models.ForeignKey(
-#         "customer.Address",
+#         "customer.MailingAddress",
 #         related_name="+",
 #         editable=False,
 #         null=True,
 #         on_delete=models.SET_NULL,
+#     )
+#     currency = models.CharField(
+#         max_length=settings.DEFAULT_CURRENCY_CODE_LENGTH,
 #     )
