@@ -2,7 +2,6 @@ import graphene
 from graphene_django.filter import DjangoFilterConnectionField
 from .types import CustomerNode
 from graphql import GraphQLError
-from stores.models import Store, StaffMember
 from core.utils import get_store_or_error, check_user_store_permission
 from ..models import Customer
 
