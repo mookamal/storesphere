@@ -160,7 +160,7 @@ export default function VariantsTable({
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{currencyCode}</Badge>
-                  {node.price}
+                  {node.pricing.amount}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">

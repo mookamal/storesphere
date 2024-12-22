@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   const [loading, setLoading] = useState(false);
   const [hasChange, setHasChange] = useState(false);
-  const [variantPrice, setVariantPrice] = useState(variant.price);
+  const [variantPrice, setVariantPrice] = useState(variant.pricing.amount);
   const [variantStock, setVariantStock] = useState(variant.stock);
   const handleSave = async () => {
     setLoading(true);
