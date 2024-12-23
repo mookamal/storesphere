@@ -11,7 +11,7 @@ export default function CustomEditor({ content, setContent }) {
         const savedData = await editor.save();
         setContent(savedData);
       },
-      data: content,
+      data: JSON.parse(content),
     });
 
     return () => {
