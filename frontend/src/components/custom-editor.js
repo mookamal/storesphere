@@ -35,7 +35,9 @@ export default function CustomEditor({ content, setContent }) {
     };
   }, []);
 
-  return <div className="prose lg:prose-xl" ref={editorRef}></div>;
+  return (
+    <div className="prose mx-auto dark:prose-invert" ref={editorRef}></div>
+  );
 }
 
 class MyUploadAdapter {
