@@ -1,26 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import "quill/dist/quill.snow.css";
-import Quill from "quill";
-
 export default function CustomEditor({ content, setContent }) {
-  const quillRef = useRef(null);
-
-  useEffect(() => {
-    const quill = new Quill(quillRef.current, {
-      theme: "snow",
-      placeholder: "Start typing...",
-    });
-
-    if (content) {
-      quill.root.innerHTML = content;
-    }
-
-    quill.on("text-change", () => {
-      setContent(quill.root.innerHTML);
-    });
-  }, []);
-
-  return <div ref={quillRef}></div>;
+  return <div></div>;
 }
 
 class MyUploadAdapter {
