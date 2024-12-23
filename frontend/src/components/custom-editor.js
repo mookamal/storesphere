@@ -17,7 +17,7 @@ export default function CustomEditor({ content, setContent }) {
       tools: {
         header: {
           class: Header,
-          inlineToolbar: ["link"],
+          inlineToolbar: ["link", "bold"],
         },
         list: {
           class: List,
