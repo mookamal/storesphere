@@ -302,7 +302,7 @@ export default function UpdateProduct() {
     setLoading(true);
     const productData = {
       title: data.title,
-      description: data.description,
+      description: JSON.stringify(data.description),
       status: data.status,
       handle: data.handle,
       collectionIds: selectedCollections.map((c) => c.collectionId),
