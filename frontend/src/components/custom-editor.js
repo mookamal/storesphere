@@ -1,6 +1,8 @@
 import EditorJS from "@editorjs/editorjs";
 import { useEffect, useRef } from "react";
-
+import Header from "@editorjs/header";
+import List from "@editorjs/list";
+import Paragraph from "@editorjs/paragraph";
 export default function CustomEditor({ content, setContent }) {
   const editorRef = useRef(null);
 
@@ -12,6 +14,20 @@ export default function CustomEditor({ content, setContent }) {
         setContent(savedData);
       },
       data: JSON.parse(content),
+      tools: {
+        header: {
+          class: Header,
+          inlineToolbar: ["link"],
+        },
+        list: {
+          class: List,
+          inlineToolbar: true,
+        },
+        paragraph: {
+          class: Paragraph,
+          inlineToolbar: true,
+        },
+      },
     });
 
     return () => {
