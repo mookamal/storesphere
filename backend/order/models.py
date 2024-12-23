@@ -187,3 +187,22 @@ class Order(ModelWithExternalReference):
 
     def __str__(self):
         return f"#{self.id}"
+
+
+# class OrderLine(models.Model):
+#     id = models.UUIDField(primary_key=True, editable=False,
+#                           unique=True, default=uuid4)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     order = models.ForeignKey(
+#         Order,
+#         related_name="lines",
+#         editable=False,
+#         on_delete=models.CASCADE,
+#     )
+#     variant = models.ForeignKey(
+#         "product.ProductVariant",
+#         related_name="order_lines",
+#         on_delete=models.SET_NULL,
+#         blank=True,
+#         null=True,
+#     )
