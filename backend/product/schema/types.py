@@ -3,34 +3,8 @@ import graphene
 from graphene_django import DjangoObjectType
 from core.models import SEO
 from product.models import Collection, Image, OptionValue, Product, ProductOption, ProductVariant
-
-from graphene import Scalar
-from graphql.language import ast
-from graphene_django.converter import convert_django_field
-from django_ckeditor_5.fields import CKEditor5Field
 from core.schema.types.money import Money
-
-
-class HTML(Scalar):
-    """Scalar for HTML content."""
-    @staticmethod
-    def serialize(value):
-        return str(value)
-
-    @staticmethod
-    def parse_literal(node):
-        if isinstance(node, ast.StringValue):
-            return str(node.value)
-        return None
-
-    @staticmethod
-    def parse_value(value):
-        return str(value)
-
-
-@convert_django_field.register(CKEditor5Field)
-def convert_ckeditor_field_to_html(field, registry=None):
-    return HTML()
+from core.fields import JSONString
 
 
 class OptionValueType(DjangoObjectType):
@@ -123,6 +97,7 @@ class ProductNode(DjangoObjectType):
     first_variant = graphene.Field(ProductVariantNode)
     options = graphene.List(ProductOptionType)
     collections = graphene.List(CollectionNode)
+    description = JSONString(description="Description of the product.")
 
     class Meta:
         model = Product

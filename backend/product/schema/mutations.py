@@ -6,6 +6,7 @@ from stores.models import StaffMember, Store
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from django.core.exceptions import PermissionDenied
+from graphql import GraphQLError
 
 
 class CreateProduct(graphene.relay.ClientIDMutation):
@@ -16,53 +17,63 @@ class CreateProduct(graphene.relay.ClientIDMutation):
         default_domain = graphene.String(required=True)
 
     def mutate_and_get_payload(root, info, **input):
-        product_data = input.get("product")
-        default_domain = input.get("default_domain")
-        user = info.context.user
-        store = Store.objects.get(default_domain=default_domain)
-        if StaffMember.objects.filter(user=user, store=store).exists():
+        try:
+            product_data = input.get("product")
+            default_domain = input.get("default_domain")
+            user = info.context.user
+            store = Store.objects.get(default_domain=default_domain)
+            if StaffMember.objects.filter(user=user, store=store).exists():
 
-            product = Product(
-                store=store,
-                title=product_data.title,
-                description=product_data.description or "",
-                status=product_data.status if product_data.status in dict(
-                    Product.STATUS) else "DRAFT"
-            )
+                product = Product(
+                    store=store,
+                    title=product_data.title,
+                    description=product_data.description or None,
+                    status=product_data.status if product_data.status in dict(
+                        Product.STATUS) else "DRAFT"
+                )
 
-            if product_data.seo and isinstance(product_data.seo, dict):
-                seo = SEO.objects.create(**product_data.seo)
-            else:
-                seo = None
-            product.seo = seo
-            product.save()
-            first_variant_data = product_data.first_variant
-            first_variant = ProductVariant(
-                product=product,
-                price=first_variant_data.price if first_variant_data.price != None else 0.0,
-                compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
-                stock=first_variant_data.stock if first_variant_data.stock != None else 0,
-            )
-            first_variant.save()
-            product.first_variant = first_variant
-            product.save()
-            # to create options and values
-            if product_data.options:
-                for option_data in product_data.options:
-                    option = ProductOption.objects.create(
-                        product=product, name=option_data.name)
-                    for value_data in option_data.values:
-                        OptionValue.objects.create(
-                            option=option, name=value_data.name)
-            if product_data.collection_ids:
-                product.collections.add(
-                    *Collection.objects.filter(pk__in=product_data.collection_ids))
+                if product_data.seo and isinstance(product_data.seo, dict):
+                    seo = SEO.objects.create(**product_data.seo)
+                else:
+                    seo = SEO.objects.create(title=product_data.title)
+                product.seo = seo
                 product.save()
 
-            return CreateProduct(product=product)
-        else:
-            raise PermissionDenied(
-                "You are not authorized to access this store.")
+                first_variant_data = product_data.first_variant
+                first_variant = ProductVariant(
+                    product=product,
+                    price_amount=first_variant_data.price if first_variant_data.price != None else 0.0,
+                    compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
+                    stock=first_variant_data.stock if first_variant_data.stock != None else 0,
+                )
+
+                first_variant.save()
+                product.first_variant = first_variant
+                product.save()
+                # to create options and values
+                if product_data.options:
+                    for option_data in product_data.options:
+                        option = ProductOption.objects.create(
+                            product=product, name=option_data.name)
+                        for value_data in option_data.values:
+                            OptionValue.objects.create(
+                                option=option, name=value_data.name)
+                if product_data.collection_ids:
+                    product.collections.add(
+                        *Collection.objects.filter(pk__in=product_data.collection_ids))
+                    product.save()
+
+                return CreateProduct(product=product)
+            else:
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
+        except Exception as e:
+            raise GraphQLError(str(e))
 
 
 class UpdateProduct(graphene.relay.ClientIDMutation):

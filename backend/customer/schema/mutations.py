@@ -4,7 +4,7 @@ from .inputs import CustomerInputs
 from .types import CustomerNode
 from ..models import Customer, Address
 from graphql import GraphQLError
-from core.utils import get_store_or_error, check_user_store_permission
+from core.utils.utils import get_store_or_error, check_user_store_permission
 
 
 class CreateCustomer(graphene.relay.ClientIDMutation):

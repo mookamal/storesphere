@@ -1,5 +1,29 @@
+import EditorJS from "@editorjs/editorjs";
+import { useEffect, useRef } from "react";
+
 export default function CustomEditor({ content, setContent }) {
-  return <div></div>;
+  const editorRef = useRef(null);
+
+  useEffect(() => {
+    const editor = new EditorJS({
+      holder: editorRef.current,
+      onChange: async () => {
+        const savedData = await editor.save();
+        setContent(savedData);
+      },
+      data: content,
+    });
+
+    return () => {
+      editor.destroy();
+    };
+  }, []);
+
+  return (
+    <div className="editor-js">
+      <div ref={editorRef}></div>
+    </div>
+  );
 }
 
 class MyUploadAdapter {

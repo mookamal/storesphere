@@ -1,4 +1,5 @@
 import graphene
+from core.fields import JSONString
 
 
 class OptionValueInput(graphene.InputObjectType):
@@ -39,7 +40,7 @@ class CollectionInputs(graphene.InputObjectType):
 
 class ProductInput(graphene.InputObjectType):
     title = graphene.String(required=True)
-    description = graphene.String()
+    description = JSONString(description="Product description.")
     status = graphene.String()
     handle = graphene.String()
     seo = SEOInput()

@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from core.models import ModelWithExternalReference, SortableModel
 from django_prices.models import MoneyField
 from django.conf import settings
+from core.db.fields import SanitizedJSONField
+from core.utils.editorjs import clean_editor_js
 
 
 class Image(models.Model):
@@ -104,7 +106,8 @@ class Product(ModelWithExternalReference):
     store = models.ForeignKey(
         Store, on_delete=models.CASCADE, related_name="products")
     title = models.CharField(max_length=255)
-    description = CKEditor5Field('Description', config_name='extends')
+    description = SanitizedJSONField(
+        blank=True, null=True, sanitizer=clean_editor_js)
     handle = models.CharField(max_length=255, null=True, blank=True)
     seo = models.OneToOneField(
         SEO, on_delete=models.CASCADE, related_name="product", null=True, blank=True)
