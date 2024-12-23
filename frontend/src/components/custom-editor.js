@@ -35,11 +35,7 @@ export default function CustomEditor({ content, setContent }) {
     };
   }, []);
 
-  return (
-    <div className="editor-js">
-      <div ref={editorRef}></div>
-    </div>
-  );
+  return <div ref={editorRef}></div>;
 }
 
 class MyUploadAdapter {
