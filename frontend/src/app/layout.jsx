@@ -1,5 +1,4 @@
 import "../styles/globals.css";
-import "react-toastify/ReactToastify.min.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastContainer } from "react-toastify";
 

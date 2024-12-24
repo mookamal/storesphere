@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@import '~react-toastify/ReactToastify.min.css';
 body {
   @apply text-primary-text dark:text-white;
 }
