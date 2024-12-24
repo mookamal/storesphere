@@ -110,10 +110,11 @@ def clean_other_items(
     index,
 ):
     text = block["data"].get("text")
+
     if not text:
         return
     if to_string:
-        plain_text_list.append(strip_tags(text))
+        plain_text_list.append(strip_tags(clean_text_data_block(text)))
     else:
         new_text = clean_text_data_block(text)
         blocks[index]["data"]["text"] = new_text
@@ -127,6 +128,18 @@ def clean_text_data_block(text: str) -> str:
 
     if not text:
         return text
+
+    blacklisted_keywords = [
+        r"javascript:",
+        r"alert\(",
+        r"onclick=",
+        r"onerror=",
+    ]
+
+    for keyword in blacklisted_keywords:
+        text = re.sub(keyword, "", text, flags=re.IGNORECASE)
+    text = re.sub(r"<script.*?>.*?</script>", "", text, flags=re.DOTALL)
+    text = re.sub(r"(<.*?)(alert\([^)]*\))", r"\1", text)
 
     end_of_match = 0
     new_text = ""
