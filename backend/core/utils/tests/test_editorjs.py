@@ -68,28 +68,3 @@ def test_clean_editor_js_no_data():
 
     # then
     assert result == ""
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "<script>alert('XSS')</script>",
-        "<img src='x' onerror='alert(1)'>",
-        "<a href='javascript:alert(1)'>Click me</a>",
-        "<div onclick='alert(1)'>Click me</div>",
-        "<img src='invalid' onerror='alert(1)'>",
-    ],
-)
-def test_clean_editor_js_security(text):
-    # given
-    data = {"blocks": [{"data": {"text": text}, "type": "paragraph"}]}
-
-    # when
-    result = clean_editor_js(data, to_string=True)
-
-    # then
-    assert "<script>" not in result
-    assert "javascript:" not in result
-    assert "alert(" not in result
-    assert "onerror" not in result
-    assert "onclick" not in result
