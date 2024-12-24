@@ -149,6 +149,10 @@ class Product(ModelWithExternalReference):
         except ValidationError as e:
             raise ValidationError(f"Error saving product: {e}")
 
+    def __repr__(self) -> str:
+        class_ = type(self)
+        return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, name={self.title!r})>"
+
     def __str__(self):
         return f"Store {self.store.default_domain} | {self.title}"
 
