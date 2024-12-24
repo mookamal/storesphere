@@ -1,7 +1,6 @@
 from django.db import models
 from stores.models import Store
 from django.template.defaultfilters import slugify
-from django_ckeditor_5.fields import CKEditor5Field
 from django.core.exceptions import ValidationError
 from core.models import SEO
 from django.core.exceptions import ValidationError
