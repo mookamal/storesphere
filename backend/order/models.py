@@ -4,6 +4,7 @@ from uuid import uuid4
 from django.utils.timezone import now
 from django.conf import settings
 from decimal import Decimal
+from django.core.validators import MinValueValidator
 from django_prices.models import MoneyField, TaxedMoneyField
 from . import (
     PaymentStatus,
@@ -206,3 +207,23 @@ class Order(ModelWithExternalReference):
 #         blank=True,
 #         null=True,
 #     )
+#     product_title = models.CharField(max_length=255)
+#     variant_title = models.CharField(max_length=255, default="", blank=True)
+#     product_sku = models.CharField(max_length=255, null=True, blank=True)
+#     is_shipping_required = models.BooleanField()
+#     quantity = models.IntegerField(validators=[MinValueValidator(1)])
+#     quantity_fulfilled = models.IntegerField(
+#         validators=[MinValueValidator(0)], default=0
+#     )
+#     unit_discount_amount = models.DecimalField(
+#         max_digits=settings.DEFAULT_MAX_DIGITS,
+#         decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+#         default=Decimal("0.0"),
+#     )
+#     unit_discount = MoneyField(
+#         amount_field="unit_discount_amount", currency_field="get_currency"
+#     )
+
+#     @property
+#     def get_currency(self):
+#         return self.store.currency_code
