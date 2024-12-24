@@ -27,7 +27,7 @@ class CreateProduct(graphene.relay.ClientIDMutation):
                 product = Product(
                     store=store,
                     title=product_data.title,
-                    description=product_data.description or None,
+                    description=product_data.description or {},
                     status=product_data.status if product_data.status in dict(
                         Product.STATUS) else "DRAFT"
                 )
