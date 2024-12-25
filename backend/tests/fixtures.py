@@ -3,7 +3,7 @@ from customer.models import Address
 
 
 @pytest.fixture
-def address():
+def address(db):
     return Address.objects.create(
         address1="123 Main St",
         address2="Apt 4B",
