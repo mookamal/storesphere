@@ -37,6 +37,9 @@ class Address(models.Model):
         """Return a new instance of the same address."""
         return Address.objects.create(**self.as_data())
 
+    def __hash__(self):
+        return hash(self.id)
+
     def __str__(self):
         return self.address1
 
