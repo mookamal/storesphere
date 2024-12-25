@@ -223,7 +223,28 @@ class Order(ModelWithExternalReference):
 #     unit_discount = MoneyField(
 #         amount_field="unit_discount_amount", currency_field="get_currency"
 #     )
-
-#     @property
-#     def get_currency(self):
-#         return self.store.currency_code
+#     unit_price_net_amount = models.DecimalField(
+#         max_digits=settings.DEFAULT_MAX_DIGITS,
+#         decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+#     )
+#     # stores the value of the applied discount. Like 20 of %
+#     unit_discount_value = models.DecimalField(
+#         max_digits=settings.DEFAULT_MAX_DIGITS,
+#         decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+#         default=Decimal("0.0"),
+#     )
+#     unit_price_net = MoneyField(
+#         amount_field="unit_price_net_amount", currency_field="get_currency"
+#     )
+#     unit_price_gross_amount = models.DecimalField(
+#         max_digits=settings.DEFAULT_MAX_DIGITS,
+#         decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+#     )
+#     unit_price_gross = MoneyField(
+#         amount_field="unit_price_gross_amount", currency_field="get_currency"
+#     )
+#     unit_price = TaxedMoneyField(
+#         net_amount_field="unit_price_net_amount",
+#         gross_amount_field="unit_price_gross_amount",
+#         currency="get_currency",
+#     )
