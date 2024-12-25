@@ -1,7 +1,8 @@
 from django.db import models
-from django_countries.fields import CountryField
-from phonenumber_field.modelfields import PhoneNumberField
+from django_countries.fields import Country, CountryField
+from phonenumber_field.modelfields import PhoneNumber, PhoneNumberField
 from stores.models import Store
+from django.forms.models import model_to_dict
 # Create your models here.
 
 
@@ -14,6 +15,27 @@ class Address(models.Model):
     phone = PhoneNumberField(blank=True, null=True)
     province_code = models.CharField(max_length=10, null=True, blank=True)
     zip = models.CharField(max_length=10, null=True, blank=True)
+
+    def __eq__(self, other):
+        if not isinstance(other, Address):
+            return False
+        return self.as_data() == other.as_data()
+
+    def as_data(self):
+        """Return the address as a dict suitable for passing as kwargs.
+
+        Result does not contain the primary key or an associated user.
+        """
+        data = model_to_dict(self, exclude=["id"])
+        if isinstance(data["country"], Country):
+            data["country"] = data["country"].code
+        if isinstance(data["phone"], PhoneNumber):
+            data["phone"] = data["phone"].as_e164
+        return data
+
+    def get_copy(self):
+        """Return a new instance of the same address."""
+        return Address.objects.create(**self.as_data())
 
     def __str__(self):
         return self.address1
