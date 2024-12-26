@@ -54,7 +54,7 @@ class Store(models.Model):
     owner = models.OneToOneField(
         StaffMember, on_delete=models.CASCADE, related_name='owned_store', null=True, blank=True)
     name = models.CharField(max_length=255, default='My Store')
-    email = models.EmailField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True, unique=True)
     default_domain = models.CharField(
         max_length=255, default=generate_unique_subdomain, unique=True, editable=False)
     primary_domain = models.OneToOneField(
