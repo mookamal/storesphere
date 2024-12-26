@@ -3,10 +3,9 @@ from ...models import Store, StaffMember, StoreAddress
 
 
 @pytest.fixture
-def store():
+def store(db):
     return Store.objects.create(
         name="Test Store",
-        description="Test Store Description",
     )
 
 

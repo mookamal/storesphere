@@ -7,7 +7,7 @@ from .utils import generate_unique_subdomain
 
 
 class StoreAddress(models.Model):
-    store = models.OneToOneField(
+    store = models.ForeignKey(
         'Store', on_delete=models.CASCADE, related_name="billing_address")
     address1 = models.CharField(max_length=255, null=True, blank=True)
     address2 = models.CharField(max_length=255, null=True, blank=True)
