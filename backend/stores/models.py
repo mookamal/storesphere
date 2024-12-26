@@ -52,25 +52,16 @@ class StaffMember(models.Model):
 
 class Store(models.Model):
     owner = models.OneToOneField(
-        StaffMember, blank=True, null=True, on_delete=models.CASCADE, related_name='owned_store')
+        StaffMember, on_delete=models.CASCADE, related_name='owned_store')
     name = models.CharField(max_length=255, default='My Store')
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(null=True, blank=True)
     default_domain = models.CharField(
-        max_length=255, blank=True, null=True, unique=True)
-    primary_domain = models.OneToOneField(
-        Domain, on_delete=models.CASCADE, blank=True, null=True)
-    currency_code = models.CharField(max_length=5, blank=True, null=True)
-    enabled_presentment_currencies = models.JSONField(default=list, blank=True)
+        max_length=255,  unique=True, default=generate_unique_subdomain)
+    primary_domain = models.OneToOneField(Domain, on_delete=models.CASCADE)
+    currency_code = models.CharField(max_length=5, default='USD')
+    enabled_presentment_currencies = models.JSONField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.default_domain:
-            self.default_domain = generate_unique_subdomain()
-            if not self.primary_domain:
-                self.primary_domain = Domain.objects.create(
-                    host=self.default_domain)
-        if self.currency_code is None:
-            self.currency_code = 'USD'
-            self.enabled_presentment_currencies = ['USD']
         super().save(*args, **kwargs)
 
     def __str__(self):
