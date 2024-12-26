@@ -1,3 +1,4 @@
 pytest_plugins = [
-    "tests.fixtures"
+    "tests.fixtures",
+    "accounts.tests.fixtures"
 ]
