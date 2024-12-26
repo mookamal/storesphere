@@ -30,7 +30,6 @@ const SIGNUP_URL = "/auth/signup";
 const formSchema = z
   .object({
     email: z.string().email({ message: "Please enter a valid email address" }),
-    username: z.string().min(2, "Please enter a valid username"),
     password1: z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" }),
@@ -48,7 +47,6 @@ export default function Signup() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      username: "",
       password1: "",
       password2: "",
     },
@@ -70,9 +68,6 @@ export default function Signup() {
         if (errorList.email) {
           form.setError("email", { message: errorList.email[0] });
         }
-        if (errorList.username) {
-          form.setError("username", { message: errorList.username[0] });
-        }
         if (errorList.password1) {
           form.setError("password1", { message: errorList.password1[0] });
         }
@@ -92,7 +87,7 @@ export default function Signup() {
               <Logo />
             </CardTitle>
 
-            <CardTitle>Login</CardTitle>
+            <CardTitle>Register</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
             <Form {...form}>
@@ -108,20 +103,6 @@ export default function Signup() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input placeholder="Email" {...field} />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Username" {...field} />
                       </FormControl>
 
                       <FormMessage />
