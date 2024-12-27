@@ -58,12 +58,11 @@ INSTALLED_APPS = [
     "phonenumber_field",
     'graphene_django',
     'django_filters',
-    # my apps
+    # Locale apps
     'core',
     'api',
     'blog',
     'accounts',
-    # stores apps
     'stores',
     'product',
     'customer',
