@@ -1,11 +1,11 @@
 import pytest
 from django.test.client import Client
-from django.urls import reverse
+from django_hosts.resolvers import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
-API_PATH = reverse("graphql")
+API_PATH = reverse('graphql', host='api')
 
 
 class BaseApiClient(Client):

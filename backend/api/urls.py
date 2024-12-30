@@ -11,5 +11,6 @@ urlpatterns = [
     path('s/', include('stores.urls')),
     path('p/', include('product.urls')),
     path("graphql", csrf_exempt(GraphQLView.as_view(
-        graphiql=True, middleware=[AuthenticationMiddleware()]))),
+        graphiql=True, middleware=[AuthenticationMiddleware()])),
+        name="graphql",),
 ]
