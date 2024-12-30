@@ -28,11 +28,11 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-ALLOWED_HOSTS = ['.nour.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['.nour.com', '127.0.0.1', 'localhost', 'testserver']
 
 DEFAULT_HOST = 'www'
 ROOT_HOSTCONF = 'project.hosts'
-
+PARENT_HOST = 'nour.com'
 # Application definition
 
 INSTALLED_APPS = [
