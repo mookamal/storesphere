@@ -54,3 +54,8 @@ class ApiClient(BaseApiClient):
         kwargs["content_type"] = "application/json"
         result = super(Client, self).post(self.api_path, data, **kwargs)
         return result
+
+
+@pytest.fixture
+def staff_api_client(user):
+    return ApiClient(user=user)
