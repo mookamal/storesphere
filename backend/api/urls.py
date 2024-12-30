@@ -10,7 +10,6 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),
     path('s/', include('stores.urls')),
     path('p/', include('product.urls')),
-    path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True,middleware=[AuthenticationMiddleware()]))),
+    path("graphql", csrf_exempt(GraphQLView.as_view(
+        graphiql=True, middleware=[AuthenticationMiddleware()]))),
 ]
-
-
