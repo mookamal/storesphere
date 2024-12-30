@@ -40,7 +40,7 @@ class BaseApiClient(Client):
 
 
 class ApiClient(BaseApiClient):
-    def post_graphql(self, query, variables=None, **kwargs,):
+    def post_graphql(self, query, variables=None, **kwargs):
         """Dedicated helper for posting GraphQL queries.
 
         Sets the `application/json` content type and json.dumps the variables
