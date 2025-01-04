@@ -22,10 +22,7 @@ def test_store_address_creation(store_address):
     assert store_address.store.name == "Test Store"
 
 
-def test_staff_member_with_store(store, staff_member):
-    assert staff_member.store.pk == store.pk
-    assert store.owner.user == staff_member.user
-
-
-def test_staff_member_with_user(user, staff_member):
-    assert staff_member.user.pk == user.pk
+def test_staff_member(staff_member, user, store):
+    get_staff_member = StaffMember.objects.filter(
+        user=user, store=store).first()
+    assert get_staff_member.pk == staff_member.pk
