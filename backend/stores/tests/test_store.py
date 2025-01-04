@@ -1,4 +1,4 @@
-from ..models import Domain
+from ..models import Domain, StaffMember
 import pytest
 
 
@@ -25,3 +25,7 @@ def test_store_address_creation(store_address):
 def test_staff_member_with_store(store, staff_member):
     assert staff_member.store.pk == store.pk
     assert store.owner.user == staff_member.user
+
+
+def test_staff_member_with_user(user, staff_member):
+    assert staff_member.user.pk == user.pk
