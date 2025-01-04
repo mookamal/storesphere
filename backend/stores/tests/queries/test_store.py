@@ -26,7 +26,5 @@ def test_store(staff_api_client, store):
     }
 
     response = staff_api_client.post_graphql(query, variables)
-    print("Response:", response.content)
-    print("Response JSON:", response.json())
     data = response['data']
     assert data['store']['name'] == store.name
