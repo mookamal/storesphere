@@ -20,3 +20,8 @@ def test_staff_member_creation(staff_member):
 def test_store_address_creation(store_address):
     assert store_address.city == "Test City"
     assert store_address.store.name == "Test Store"
+
+
+def test_staff_member_with_store(store, staff_member):
+    assert staff_member.store.pk == store.pk
+    assert store.owner.user == staff_member.user
