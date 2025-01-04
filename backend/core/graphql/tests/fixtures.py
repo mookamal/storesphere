@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
-API_PATH = reverse('graphql', host='api')
+API_PATH = "/graphql"
 
 
 class BaseApiClient(Client):
@@ -51,6 +51,8 @@ class ApiClient(BaseApiClient):
             data["variables"] = variables
         if data:
             data = json.dumps(data, cls=DjangoJSONEncoder)
+        if "SERVER_NAME" not in kwargs:
+            kwargs["SERVER_NAME"] = "api.nour.com"
         kwargs["content_type"] = "application/json"
         result = super(Client, self).post(self.api_path, data, **kwargs)
         return result

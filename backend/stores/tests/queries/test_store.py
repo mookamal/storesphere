@@ -22,8 +22,11 @@ def test_store(staff_api_client, store):
     }
     """
     variables = {
-        "domain": store.primary_domain.host
+        "domain": store.default_domain
     }
+
     response = staff_api_client.post_graphql(query, variables)
+    print("Response:", response.content)
+    print("Response JSON:", response.json())
     data = response['data']
     assert data['store']['name'] == store.name
