@@ -23,7 +23,14 @@ class BaseApiClient(Client):
             raise ValueError("No user specified for authentication.")
         refresh = RefreshToken.for_user(self.user)
         access_token = str(refresh.access_token)
-        self.headers.update({"Authorization": f"Bearer {access_token}"})
+        return access_token
+
+    def _base_environ(self, **request):
+        environ = super()._base_environ(**request)
+        access_token = self.authenticate()
+        if access_token:
+            environ["HTTP_AUTHORIZATION"] = f"Bearer {access_token}"
+        return environ
 
     def post(self, data=None, **kwargs):
         """Send a POST request.
