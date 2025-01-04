@@ -1,4 +1,4 @@
-def test_store(staff_api_client, store):
+def test_store(staff_api_client, store, staff_member, store_address):
     query = """
     query SettingsGeneral($domain: String!) {
         store(defaultDomain: $domain) {

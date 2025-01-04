@@ -20,4 +20,4 @@ class StoreType(DjangoObjectType):
         model = Store
 
     def resolve_billing_address(self, info):
-        return self.billing_address if self.billing_address else None
+        return self.billing_address.first() if self.billing_address else None
