@@ -85,21 +85,31 @@ class UpdateStoreAddress(graphene.Mutation):
         user = info.context.user
         try:
             store = Store.objects.get(default_domain=default_domain)
+
             if StaffMember.objects.filter(user=user, store=store).exists():
-                store.billing_address.address1 = input.address1
-                store.billing_address.address2 = input.address2
-                store.billing_address.city = input.city
-                store.billing_address.country = input.country
-                store.billing_address.company = input.company
-                store.billing_address.zip = input.zip
-                store.billing_address.save()
-                store.save()
-                return UpdateStoreAddress(billing_address=store.billing_address)
+                billing_address = store.billing_address.first()
+                if not billing_address:
+                    raise GraphQLError(
+                        "No billing address found for this store.")
+
+                billing_address.address1 = input.address1
+                billing_address.address2 = input.address2
+                billing_address.city = input.city
+                billing_address.country = input.country
+                billing_address.company = input.company
+                billing_address.zip = input.zip
+                billing_address.save()
+
+                return UpdateStoreAddress(billing_address=billing_address)
+            else:
+                raise GraphQLError(
+                    "You are not authorized to update this store's address.")
+        except Store.DoesNotExist:
+            raise GraphQLError("Store not found.")
         except Exception as e:
-            raise GraphQLError(f"Error updating store address: {str(e)}",
-                               extensions={
-                                   "code": "INTERNAL_SERVER_ERROR",
-                                   "status": 500
+            raise GraphQLError(f"Error updating store address: {str(e)}", extensions={
+                "code": "INTERNAL_SERVER_ERROR",
+                "status": 500,
             })
 
 
