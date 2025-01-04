@@ -9,6 +9,7 @@ class Query(graphene.ObjectType):
         StoreType, default_domain=graphene.String(required=True))
 
     def resolve_store(self, info, default_domain):
+
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
@@ -23,4 +24,16 @@ class Query(graphene.ObjectType):
                     }
                 )
         except Store.DoesNotExist:
-            return None
+            raise GraphQLError("Store not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               }
+                               )
+        except Exception as e:
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                                   "code": "AUTHENTICATION_ERROR",
+                                   "status": 401
+            }
+            )
