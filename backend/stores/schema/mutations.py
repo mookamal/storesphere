@@ -39,10 +39,11 @@ class UpdateStoreProfile(graphene.Mutation):
                 updated = True
 
             if input.billing_address and store.billing_address:
-                if store.billing_address.phone != input.billing_address.phone:
-                    store.billing_address.phone = input.billing_address.phone
+                store_address = store.billing_address.first()
+                if store_address.phone != input.billing_address.phone:
+                    store_address.phone = input.billing_address.phone
                     try:
-                        store.billing_address.save()
+                        store_address.save()
                         updated = True
                     except Exception as e:
                         raise GraphQLError(
