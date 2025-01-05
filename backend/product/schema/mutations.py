@@ -113,6 +113,24 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
                 }
             )
 
+        if len(product.title) > 255:
+            raise GraphQLError(
+                "Title length cannot exceed 255 characters.",
+                extensions={
+                    "code": "INVALID_INPUT",
+                    "status": 400
+                }
+            )
+
+        if product.seo and product.seo.title and len(product.seo.title) > 255:
+            raise GraphQLError(
+                "SEO title length cannot exceed 255 characters.",
+                extensions={
+                    "code": "INVALID_INPUT",
+                    "status": 400
+                }
+            )
+
         product_instance.title = product.title
         product_instance.description = product.description
         product_instance.status = product.status
@@ -122,6 +140,22 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         seo.description = product.seo.description
         seo.save()
         first_variant = product_instance.first_variant
+        if product.first_variant.price < 0:
+            raise GraphQLError(
+                "Price cannot be negative.",
+                extensions={
+                    "code": "INVALID_PRICE",
+                    "status": 400
+                }
+            )
+        if product.first_variant.compare_at_price and product.first_variant.compare_at_price < product.first_variant.price:
+            raise GraphQLError(
+                "Compare at price cannot be less than price.",
+                extensions={
+                    "code": "INVALID_PRICE",
+                    "status": 400
+                }
+            )
         first_variant.price_amount = product.first_variant.price
         first_variant.compare_at_price = product.first_variant.compare_at_price
         first_variant.stock = product.first_variant.stock
