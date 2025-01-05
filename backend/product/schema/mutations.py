@@ -9,69 +9,63 @@ from django.core.exceptions import PermissionDenied
 from graphql import GraphQLError
 
 
-class CreateProduct(graphene.relay.ClientIDMutation):
+class CreateProduct(graphene.Mutation):
     product = graphene.Field(ProductNode)
 
-    class Input:
+    class Arguments:
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    def mutate_and_get_payload(root, info, **input):
+    def mutate(root, info, product, default_domain):
         try:
-            product_data = input.get("product")
-            default_domain = input.get("default_domain")
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
             if StaffMember.objects.filter(user=user, store=store).exists():
 
-                product = Product(
+                product_obj = Product(
                     store=store,
-                    title=product_data.title,
-                    description=product_data.description or {},
-                    status=product_data.status if product_data.status in dict(
+                    title=product.title,
+                    description=product.description or {},
+                    status=product.status if product.status in dict(
                         Product.STATUS) else "DRAFT"
                 )
 
-                if product_data.seo and isinstance(product_data.seo, dict):
-                    seo = SEO.objects.create(**product_data.seo)
+                if product.seo and isinstance(product.seo, dict):
+                    seo = SEO.objects.create(**product.seo)
                 else:
-                    seo = SEO.objects.create(title=product_data.title)
-                product.seo = seo
-                product.save()
+                    seo = SEO.objects.create(title=product.title)
+                product_obj.seo = seo
+                product_obj.save()
 
-                first_variant_data = product_data.first_variant
+                first_variant_data = product.first_variant
                 first_variant = ProductVariant(
-                    product=product,
+                    product=product_obj,
                     price_amount=first_variant_data.price if first_variant_data.price != None else 0.0,
                     compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
                     stock=first_variant_data.stock if first_variant_data.stock != None else 0,
                 )
 
                 first_variant.save()
-                product.first_variant = first_variant
-                product.save()
-                # to create options and values
-                if product_data.options:
-                    for option_data in product_data.options:
-                        option = ProductOption.objects.create(
-                            product=product, name=option_data.name)
-                        for value_data in option_data.values:
-                            OptionValue.objects.create(
-                                option=option, name=value_data.name)
-                if product_data.collection_ids:
-                    product.collections.add(
-                        *Collection.objects.filter(pk__in=product_data.collection_ids))
-                    product.save()
+                product_obj.first_variant = first_variant
+                product_obj.save()
 
-                return CreateProduct(product=product)
-            else:
-                raise GraphQLError(
-                    "You are not authorized to access this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
+                if product.collection_ids:
+                    update_product_collections(product_obj, product.collection_ids)
+
+                if product.options:
+                    update_product_options_and_values(product_obj, product.options)
+
+                if first_variant_data.option_values:
+                    add_values_to_variant(first_variant, first_variant_data.option_values)
+
+                return CreateProduct(product=product_obj)
+            raise GraphQLError(
+                "You do not have permission to create products.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
         except Exception as e:
             raise GraphQLError(str(e))
 
@@ -84,24 +78,40 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    @ classmethod
+    @classmethod
     def mutate_and_get_payload(cls, root, info, id, product, default_domain):
         user = info.context.user
 
         try:
             store = Store.objects.get(default_domain=default_domain)
         except Store.DoesNotExist:
-            raise Exception("Store with the provided domain does not exist.")
+            raise GraphQLError(
+                "Store with the provided domain does not exist.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
 
         if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise PermissionDenied(
-                "You are not authorized to update products for this store.")
+            raise GraphQLError(
+                "You are not authorized to update products for this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
 
         try:
             product_instance = Product.objects.get(pk=id, store=store)
         except Product.DoesNotExist:
-            raise Exception(
-                "Product not found or you do not have access to this product.")
+            raise GraphQLError(
+                "Product not found or you do not have access to this product.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
 
         product_instance.title = product.title
         product_instance.description = product.description
@@ -135,18 +145,28 @@ class CreateProductVariant(graphene.Mutation):
 
     product_variant = graphene.Field(ProductVariantNode)
 
-    @ classmethod
+    @classmethod
     def mutate(cls, root, info, product_id, variant_inputs):
         user = info.context.user
         # Verify that the user has permission to add product variant
         try:
             product = Product.objects.get(pk=product_id)
             if not StaffMember.objects.filter(user=user, store=product.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to add product variants for this store.")
+                raise GraphQLError(
+                    "You are not authorized to add product variants for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Product.DoesNotExist:
-            raise Exception(
-                "Product not found or you do not have access to this product.")
+            raise GraphQLError(
+                "Product not found or you do not have access to this product.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
 
         variant = ProductVariant.objects.create(
             product=product,
@@ -162,17 +182,28 @@ class UpdateProductVariant(graphene.Mutation):
         variant_inputs = ProductVariantInput(required=True)
     product_variant = graphene.Field(ProductVariantNode)
 
-    @ classmethod
+    @classmethod
     def mutate(cls, root, info, variant_inputs):
         user = info.context.user
         # get variant object and Verify that the user has permission to update product variant
         try:
             variant = ProductVariant.objects.get(id=variant_inputs.variant_id)
             if not StaffMember.objects.filter(user=user, store=variant.product.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to update product variants for this store.")
+                raise GraphQLError(
+                    "You are not authorized to update product variants for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except ProductVariant.DoesNotExist:
-            raise Exception("Product variant not found.")
+            raise GraphQLError(
+                "Product variant not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         variant.price_amount = variant_inputs.price
         variant.stock = variant_inputs.stock
         variant.save()
@@ -187,17 +218,28 @@ class PerformActionOnVariants(graphene.Mutation):
     message = graphene.String()
     errors = graphene.List(graphene.String)
 
-    @ classmethod
+    @classmethod
     def mutate(cls, root, info, action, variant_ids):
         user = info.context.user
         # get variant objects and Verify that the user has permission to perform action on product variants
         try:
             variants = ProductVariant.objects.filter(id__in=variant_ids)
             if not StaffMember.objects.filter(user=user, store=variants.first().product.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to perform action on product variants for this store.")
+                raise GraphQLError(
+                    "You are not authorized to perform action on product variants for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except ProductVariant.DoesNotExist:
-            raise Exception("Product variant not found.")
+            raise GraphQLError(
+                "Product variant not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         if action == VariantActions.DELETE:
             variants.delete()
             return PerformActionOnVariants(success=True, message="Product variants deleted successfully.")
@@ -216,19 +258,35 @@ class AddImagesProduct(graphene.Mutation):
         try:
             store = Store.objects.get(default_domain=default_domain)
         except Store.DoesNotExist:
-            raise Exception("Store with the provided domain does not exist.")
+            raise GraphQLError(
+                "Store with the provided domain does not exist.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
 
         if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise PermissionDenied(
-                "You are not authorized to update products for this store.")
+            raise GraphQLError(
+                "You are not authorized to update products for this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
         try:
             product = Product.objects.get(pk=product_id, store=store)
             images = Image.objects.filter(pk__in=image_ids)
             product.first_variant.images.add(*images)
             return AddImagesProduct(product=product)
         except Product.DoesNotExist:
-            raise Exception(
-                "Product not found or you do not have access to this product.")
+            raise GraphQLError(
+                "Product not found or you do not have access to this product.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
 
 
 class RemoveImagesProduct(graphene.Mutation):
@@ -244,17 +302,27 @@ class RemoveImagesProduct(graphene.Mutation):
         try:
             store = Store.objects.get(default_domain=default_domain)
             if not StaffMember.objects.filter(user=user, store=store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to update products for this store.")
+                raise GraphQLError(
+                    "You are not authorized to update products for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
             product = Product.objects.get(pk=product_id, store=store)
             images = Image.objects.filter(pk__in=image_ids)
             product.first_variant.images.remove(*images)
             return RemoveImagesProduct(product=product)
         except Product.DoesNotExist:
-            raise Exception(
-                "Product not found or you do not have access to this product.")
+            raise GraphQLError(
+                "Product not found or you do not have access to this product.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(str(e))
 
 
 class CreateCollection(graphene.Mutation):
@@ -264,16 +332,27 @@ class CreateCollection(graphene.Mutation):
 
     collection = graphene.Field(CollectionNode)
 
-    @ classmethod
+    @classmethod
     def mutate(cls, root, info, default_domain, collection_inputs):
         user = info.context.user
         try:
             store = Store.objects.get(default_domain=default_domain)
         except Store.DoesNotExist:
-            raise Exception("Store with the provided domain does not exist.")
+            raise GraphQLError(
+                "Store with the provided domain does not exist.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise PermissionDenied(
-                "You are not authorized to create collections for this store.")
+            raise GraphQLError(
+                "You are not authorized to create collections for this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
         collection = Collection.objects.create(
             store=store,
             title=collection_inputs.title,
@@ -305,10 +384,21 @@ class UpdateCollection(graphene.Mutation):
         try:
             collection = Collection.objects.get(id=collection_id)
             if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to update collections for this store.")
+                raise GraphQLError(
+                    "You are not authorized to update collections for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise Exception("Collection not found.")
+            raise GraphQLError(
+                "Collection not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         collection.title = collection_inputs.title if collection_inputs.title is not None else collection.title
         collection.description = collection_inputs.description if collection_inputs.description is not None else collection.description
 
@@ -328,7 +418,13 @@ class UpdateCollection(graphene.Mutation):
                 if not collection.image or collection.image.id != image.id:
                     collection.image = image
             except Image.DoesNotExist:
-                raise Exception("Image with the given ID not found.")
+                raise GraphQLError(
+                    "Image with the given ID not found.",
+                    extensions={
+                        "code": "NOT_FOUND",
+                        "status": 404
+                    }
+                )
         else:
             collection.image = None
 
@@ -348,10 +444,21 @@ class DeleteCollections(graphene.Mutation):
         try:
             collections = Collection.objects.filter(id__in=collection_ids)
             if not StaffMember.objects.filter(user=user, store=collections.first().store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to delete collections for this store.")
+                raise GraphQLError(
+                    "You are not authorized to delete collections for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise Exception("Collection not found.")
+            raise GraphQLError(
+                "Collection not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         collections.delete()
         return DeleteCollections(success=True)
 
@@ -369,16 +476,27 @@ class AddProductsToCollection(graphene.Mutation):
         try:
             collection = Collection.objects.get(id=collection_id)
             if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to update collections for this store.")
+                raise GraphQLError(
+                    "You are not authorized to update collections for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise Exception("Collection not found.")
+            raise GraphQLError(
+                "Collection not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         try:
             products = Product.objects.filter(id__in=product_ids)
             collection.products.add(*products)
             return AddProductsToCollection(success=True)
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(str(e))
 
 
 class DeleteProductsFromCollection(graphene.Mutation):
@@ -394,16 +512,27 @@ class DeleteProductsFromCollection(graphene.Mutation):
         try:
             collection = Collection.objects.get(id=collection_id)
             if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise PermissionDenied(
-                    "You are not authorized to update collections for this store.")
+                raise GraphQLError(
+                    "You are not authorized to update collections for this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise Exception("Collection not found.")
+            raise GraphQLError(
+                "Collection not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
         try:
             products = Product.objects.filter(id__in=product_ids)
             collection.products.remove(*products)
             return DeleteProductsFromCollection(success=True)
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(str(e))
 
 
 class Mutation(graphene.ObjectType):
