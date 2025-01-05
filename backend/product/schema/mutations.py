@@ -6,6 +6,7 @@ from stores.models import StaffMember, Store
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
+from decimal import Decimal
 
 
 class CreateProduct(graphene.Mutation):
@@ -37,19 +38,26 @@ class CreateProduct(graphene.Mutation):
                 product_obj.save()
 
                 first_variant_data = product.first_variant
+                # Add flexibility for price input
+                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(first_variant_data, 'price', 0.0)
+                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(first_variant_data, 'compareAtPrice', None)
+                stock = getattr(first_variant_data, 'stock', 0)
+
                 first_variant = ProductVariant(
                     product=product_obj,
-                    price_amount=first_variant_data.price_amount if first_variant_data.price_amount != None else 0.0,
-                    compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
-                    stock=first_variant_data.stock if first_variant_data.stock != None else 0,
+                    price_amount=Decimal(str(price_amount)),
+                    compare_at_price=Decimal(str(compare_at_price)) if compare_at_price is not None else None,
+                    stock=stock,
                 )
 
                 first_variant.save()
                 product_obj.first_variant = first_variant
                 product_obj.save()
 
-                if product.collection_ids:
-                    update_product_collections(product_obj, product.collection_ids)
+                # Handle collection IDs with more flexibility
+                collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
+                if collection_ids is not None:
+                    update_product_collections(product_obj, collection_ids)
 
                 if product.options:
                     update_product_options_and_values(product_obj, product.options)
