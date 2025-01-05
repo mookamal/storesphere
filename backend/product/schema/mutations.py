@@ -69,16 +69,15 @@ class CreateProduct(graphene.Mutation):
             raise GraphQLError(str(e))
 
 
-class UpdateProduct(graphene.relay.ClientIDMutation):
+class UpdateProduct(graphene.Mutation):
     product = graphene.Field(ProductNode)
 
-    class Input:
+    class Arguments:
         id = graphene.ID(required=True)
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    @classmethod
-    def mutate_and_get_payload(cls, root, info, id, product, default_domain):
+    def mutate(self, info, id, product, default_domain):
         user = info.context.user
 
         try:

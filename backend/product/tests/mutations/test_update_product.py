@@ -2,11 +2,7 @@ import json
 
 UPDATE_PRODUCT_MUTATION = '''
     mutation UpdateProduct($id: ID!, $product: ProductInput!, $defaultDomain: String!) {
-        updateProduct(input: {
-            id: $id,
-            product: $product,
-            defaultDomain: $defaultDomain
-        }) {
+        updateProduct(id: $id, product: $product, defaultDomain: $defaultDomain) {
             product {
                 id
                 title
@@ -19,7 +15,7 @@ UPDATE_PRODUCT_MUTATION = '''
                 firstVariant {
                     pricing {
                         amount
-                        }
+                    }
                     compareAtPrice
                     stock
                 }
