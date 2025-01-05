@@ -1,6 +1,4 @@
 import json
-import pytest
-from graphql import GraphQLError
 
 UPDATE_PRODUCT_MUTATION = '''
     mutation UpdateProduct($id: ID!, $product: ProductInput!, $defaultDomain: String!) {
