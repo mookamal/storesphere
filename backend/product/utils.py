@@ -4,6 +4,9 @@ from .models import Product, ProductOption, OptionValue, ProductVariant, Collect
 
 @transaction.atomic
 def update_product_options_and_values(product, updated_options):
+    if not updated_options:
+        return
+        
     existing_options = ProductOption.objects.filter(product=product)
     existing_option_ids = {option.id for option in existing_options}
 
@@ -67,16 +70,9 @@ def add_values_to_variant(variant, option_value_ids):
 
 
 def update_product_collections(product, collection_ids):
-    """
-    Update the collections associated with a product.
-
-    Args:
-        product: The product instance.
-        collection_ids: A list of collection IDs to associate with the product.
-
-    Returns:
-        dict: A dictionary showing added and removed collection IDs.
-    """
+    if not collection_ids:
+        return
+        
     current_collection_ids = set(
         product.collections.values_list('id', flat=True))
 

@@ -40,7 +40,7 @@ class CreateProduct(graphene.Mutation):
                 first_variant_data = product.first_variant
                 first_variant = ProductVariant(
                     product=product_obj,
-                    price_amount=first_variant_data.price if first_variant_data.price != None else 0.0,
+                    price_amount=first_variant_data.price_amount if first_variant_data.price_amount != None else 0.0,
                     compare_at_price=first_variant_data.compare_at_price if first_variant_data.compare_at_price != None else 0.0,
                     stock=first_variant_data.stock if first_variant_data.stock != None else 0,
                 )
@@ -170,7 +170,7 @@ class CreateProductVariant(graphene.Mutation):
 
         variant = ProductVariant.objects.create(
             product=product,
-            price_amount=variant_inputs.price,
+            price_amount=variant_inputs.price_amount,
             stock=variant_inputs.stock,
         )
         add_values_to_variant(variant, variant_inputs.option_values)
@@ -204,7 +204,7 @@ class UpdateProductVariant(graphene.Mutation):
                     "status": 404
                 }
             )
-        variant.price_amount = variant_inputs.price
+        variant.price_amount = variant_inputs.price_amount
         variant.stock = variant_inputs.stock
         variant.save()
         return UpdateProductVariant(product_variant=variant)
