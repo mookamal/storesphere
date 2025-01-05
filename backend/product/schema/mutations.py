@@ -133,10 +133,14 @@ class UpdateProduct(graphene.Mutation):
         product_instance.description = product.description
         product_instance.status = product.status
         product_instance.handle = product.handle
-        seo = product_instance.seo
-        seo.title = product.seo.title
-        seo.description = product.seo.description
-        seo.save()
+        
+        # Handle SEO fields safely
+        if product.seo:
+            seo = product_instance.seo
+            seo.title = product.seo.title or seo.title
+            seo.description = product.seo.description or seo.description
+            seo.save()
+        
         first_variant = product_instance.first_variant
         if product.first_variant.price < 0:
             raise GraphQLError(
@@ -159,9 +163,16 @@ class UpdateProduct(graphene.Mutation):
         first_variant.stock = product.first_variant.stock
         first_variant.save()
         product_instance.save()
-        # update options
-        update_product_options_and_values(product_instance, product.options)
-        update_product_collections(product_instance, product.collection_ids)
+        
+        # update options if provided
+        if hasattr(product, 'options'):
+            update_product_options_and_values(product_instance, product.options)
+        
+        # Handle collection IDs safely
+        collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
+        if collection_ids is not None:
+            update_product_collections(product_instance, collection_ids)
+        
         return UpdateProduct(product=product_instance)
 
 

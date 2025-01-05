@@ -70,15 +70,18 @@ def add_values_to_variant(variant, option_value_ids):
 
 
 def update_product_collections(product, collection_ids):
+    # Handle None or empty list explicitly
     if not collection_ids:
-        return
+        # If no collection_ids are provided, clear all existing collections
+        product.collections.clear()
+        return {"message": "All collections removed.", "added": [], "removed": list(product.collections.values_list('id', flat=True))}
         
     current_collection_ids = set(
         product.collections.values_list('id', flat=True))
 
     try:
         new_collection_ids = set([int(i) for i in collection_ids])
-    except ValueError:
+    except (ValueError, TypeError):
         raise ValueError("All collection IDs must be valid integers.")
 
     if current_collection_ids == new_collection_ids:

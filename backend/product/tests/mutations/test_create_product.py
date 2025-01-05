@@ -20,6 +20,10 @@ CREATE_PRODUCT_MUTATION = '''
                     compareAtPrice
                     stock
                 }
+                collections {
+                    id
+                    title
+                }
             }
         }
     }
@@ -187,3 +191,35 @@ def test_create_product_invalid_status(staff_api_client, description_json, store
     assert 'data' in content
     product_data = content['data']['createProduct']['product']
     assert product_data['status'] == "DRAFT"  # يجب أن يتم تعيين الحالة إلى DRAFT عندما تكون الحالة غير صالحة
+
+def test_create_product_with_collection(staff_api_client, description_json, store, staff_member, collection):
+    # Given
+    variables = {
+        "product": {
+            "title": "Test Product",
+            "description": json.dumps(description_json),
+            "status": "ACTIVE",
+            "seo": {
+                "title": "Test SEO Title",
+                "description": "Test SEO Description"
+            },
+            "firstVariant": {
+                "price": 100.0,
+                "compareAtPrice": 120.0,
+                "stock": 10
+            },
+            "collectionIds": [str(collection.id)]
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    # When
+    response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
+    content = json.loads(response.content.decode())
+
+    # Then
+    assert "errors" not in content
+    product_data = content["data"]["createProduct"]["product"]
+    product = Product.objects.get(id=product_data["id"])
+    assert product.collections.count() == 1
+    assert collection in product.collections.all()

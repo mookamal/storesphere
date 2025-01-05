@@ -19,12 +19,16 @@ UPDATE_PRODUCT_MUTATION = '''
                     compareAtPrice
                     stock
                 }
+                collections {
+                    id
+                    title
+                }
             }
         }
     }
 '''
 
-def test_update_product_success(staff_api_client, description_json, store, staff_member, product):
+def test_update_product_success(staff_api_client, description_json, store, staff_member, product, collection):
     # Given
     variables = {
         "id": str(product.id),
@@ -41,7 +45,7 @@ def test_update_product_success(staff_api_client, description_json, store, staff
                 "compareAtPrice": 170.0,
                 "stock": 15
             },
-            "collectionIds": []
+            "collectionIds": [str(collection.id)]
         },
         "defaultDomain": store.default_domain
     }
@@ -61,6 +65,8 @@ def test_update_product_success(staff_api_client, description_json, store, staff
     assert product_data["firstVariant"]["pricing"]['amount'] == 150.0
     assert float(product_data["firstVariant"]["compareAtPrice"]) == 170.0
     assert product_data["firstVariant"]["stock"] == 15
+    assert len(product_data["collections"]) == 1
+    assert product_data["collections"][0]["title"] == collection.title
 
 
 def test_update_product_with_empty_values(staff_api_client, description_json, store, staff_member, product):
@@ -168,3 +174,33 @@ def test_update_product_with_long_values(staff_api_client, store, staff_member, 
     content = json.loads(response.content.decode())
     assert "errors" in content
     assert "title" in content["errors"][0]["message"].lower()
+
+
+def test_update_product_multiple_collections(staff_api_client, store, staff_member, product, collection, winter_collection):
+    # Given
+    variables = {
+        "id": str(product.id),
+        "product": {
+            "title": product.title,
+            "status": product.status,
+            "collectionIds": [str(collection.id), str(winter_collection.id)],
+            "firstVariant": {
+                "price": float(product.first_variant.price_amount),
+                "compareAtPrice": float(product.first_variant.compare_at_price) if product.first_variant.compare_at_price else None,
+                "stock": product.first_variant.stock
+            }
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    # When
+    response = staff_api_client.post_graphql(UPDATE_PRODUCT_MUTATION, variables)
+    content = json.loads(response.content.decode())
+
+    # Then
+    assert "errors" not in content
+    product_data = content["data"]["updateProduct"]["product"]
+    collection_titles = {item["title"] for item in product_data["collections"]}
+    assert len(collection_titles) == 2
+    assert collection.title in collection_titles
+    assert winter_collection.title in collection_titles
