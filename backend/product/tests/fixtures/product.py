@@ -12,3 +12,12 @@ def product(db, store, seo):
     product.first_variant = first_variant
     product.save()
     return product
+
+
+@pytest.fixture
+def variant_with_options(product, red_option_value):
+    variant = ProductVariant.objects.create(
+        product=product, sku="123", price_amount=Decimal(10), stock=10)
+    variant.selected_options.add(red_option_value)
+
+    return variant
