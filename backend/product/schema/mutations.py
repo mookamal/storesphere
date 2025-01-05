@@ -5,7 +5,6 @@ from product.utils import add_values_to_variant, update_product_options_and_valu
 from stores.models import StaffMember, Store
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
-from django.core.exceptions import PermissionDenied
 from graphql import GraphQLError
 
 
