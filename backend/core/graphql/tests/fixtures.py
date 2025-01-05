@@ -1,10 +1,9 @@
 import pytest
 from django.test.client import Client
-from django_hosts.resolvers import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 import json
 from django.core.serializers.json import DjangoJSONEncoder
-
+from rest_framework.test import APIClient as RestApiClient
 API_PATH = "/graphql"
 
 
@@ -68,3 +67,10 @@ class ApiClient(BaseApiClient):
 @pytest.fixture
 def staff_api_client(user):
     return ApiClient(user=user)
+
+
+@pytest.fixture
+def rest_api_client(user):
+    client = RestApiClient()
+    client.force_authenticate(user=user)
+    return client
