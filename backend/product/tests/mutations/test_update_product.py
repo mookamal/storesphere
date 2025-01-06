@@ -241,7 +241,7 @@ def test_update_product_multiple_collections(staff_api_client, store, staff_memb
     assert "Q29sbGVjdGlvbk5vZGU6MQ==" in collection_ids  # Summer Collection
     assert "Q29sbGVjdGlvbk5vZGU6Mg==" in collection_ids  # Winter Collection
 
-def test_update_product_with_option_values(staff_api_client, store, staff_member, product, color_option, red_option_value):
+def test_update_product_with_option(staff_api_client, store, staff_member, product, color_option, red_option_value):
     # Given
     variables = {
         "id": str(product.id),
@@ -249,19 +249,31 @@ def test_update_product_with_option_values(staff_api_client, store, staff_member
             "title": product.title,
             "description": product.description,
             "status": product.status,
-            "options": [{
-                "id": str(color_option.id),
-                "name": color_option.name,
-                "values": [{
-                    "id": str(red_option_value.id),
-                    "name": red_option_value.name
-                }]
-            }],
+            "options": [
+                {
+                    "id": str(color_option.id),
+                    "name": color_option.name,
+                    "values": [{
+                        "id": str(red_option_value.id),
+                        "name": red_option_value.name
+                    }]
+                },
+                {
+                    "name": "Size",
+                    "values": [
+                        {
+                            "name": "Small"
+                        },
+                        {
+                            "name": "Medium"
+                        }
+                    ]
+                }
+            ],
             "firstVariant": {
                 "price": float(product.first_variant.price_amount),
                 "compareAtPrice": float(product.first_variant.compare_at_price) if product.first_variant.compare_at_price else None,
                 "stock": product.first_variant.stock,
-                "optionValues": [str(red_option_value.id)]
             }
         },
         "defaultDomain": store.default_domain
@@ -272,9 +284,8 @@ def test_update_product_with_option_values(staff_api_client, store, staff_member
     content = get_graphql_content(response)
     
     # Then
-    # Refresh the first variant from the database
-    product.first_variant.refresh_from_db()
-    
-    # Check that the option value was added to the first variant
-    assert product.first_variant.selected_options.count() == 1
-    assert product.first_variant.selected_options.first() == red_option_value
+    product_data = content["data"]["updateProduct"]["product"]
+    assert len(product_data["options"]) == 2
+    assert product_data["options"][0]["name"] == color_option.name
+    assert product_data["options"][1]["name"] == "Size"
+    assert len(product_data["options"][1]["values"]) == 2
