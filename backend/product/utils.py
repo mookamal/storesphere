@@ -1,48 +1,106 @@
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from .models import Product, ProductOption, OptionValue, ProductVariant, Collection
 
+MAX_OPTION_NAME_LENGTH = 50
+MAX_OPTION_VALUES_COUNT = 10
 
 @transaction.atomic
 def update_product_options_and_values(product, updated_options):
     if not updated_options:
         return
-        
+    
+    # Validate total number of options
+    if len(updated_options) > MAX_OPTION_VALUES_COUNT:
+        raise ValidationError(f"Maximum {MAX_OPTION_VALUES_COUNT} options are allowed")
+    
+    # Collect option names to check for duplicates
+    option_names = []
+    
     existing_options = ProductOption.objects.filter(product=product)
     existing_option_ids = {option.id for option in existing_options}
 
     options_to_keep = set()
 
     for option_data in updated_options:
-        if 'id' in option_data:
-            option = ProductOption.objects.get(
-                id=option_data['id'], product=product)
-            option.name = option_data['name']
-            option.save()
-            options_to_keep.add(option.id)
-        else:
-            option = ProductOption.objects.create(
-                product=product, name=option_data['name'])
+        # Validate option name
+        option_name = option_data['name'].strip()
+        if not option_name:
+            raise ValidationError("Option name cannot be empty")
+        
+        if len(option_name) > MAX_OPTION_NAME_LENGTH:
+            raise ValidationError(f"Option name must be less than {MAX_OPTION_NAME_LENGTH} characters")
+        
+        # Check for duplicate option names
+        if option_name in option_names:
+            raise ValidationError(f"Duplicate option name: {option_name}")
+        option_names.append(option_name)
 
-        existing_values = OptionValue.objects.filter(option=option)
-        existing_value_ids = {value.id for value in existing_values}
-        values_to_keep = set()
-
-        for value_data in option_data['values']:
-            if 'id' in value_data:
-                value = OptionValue.objects.get(
-                    id=value_data['id'], option=option)
-                value.name = value_data['name']
-                value.save()
-                values_to_keep.add(value.id)
+        try:
+            if 'id' in option_data:
+                # Update existing option
+                option = ProductOption.objects.get(
+                    id=option_data['id'], product=product)
+                option.name = option_name
+                option.save()
+                options_to_keep.add(option.id)
             else:
-                value = OptionValue.objects.create(
-                    option=option, name=value_data['name'])
-                values_to_keep.add(value.id)
+                # Create new option
+                option = ProductOption.objects.create(
+                    product=product, name=option_name)
+                options_to_keep.add(option.id)
 
-        for value in existing_values:
-            if value.id not in values_to_keep:
-                value.delete()
+            # Validate and process option values
+            existing_values = OptionValue.objects.filter(option=option)
+            existing_value_ids = {value.id for value in existing_values}
+            values_to_keep = set()
+            
+            # Validate total number of values
+            if len(option_data['values']) > MAX_OPTION_VALUES_COUNT:
+                raise ValidationError(f"Maximum {MAX_OPTION_VALUES_COUNT} values are allowed per option")
+            
+            # Collect value names to check for duplicates
+            value_names = []
 
+            for value_data in option_data['values']:
+                # Validate value name
+                value_name = value_data['name'].strip()
+                if not value_name:
+                    raise ValidationError("Option value name cannot be empty")
+                
+                if len(value_name) > MAX_OPTION_NAME_LENGTH:
+                    raise ValidationError(f"Option value name must be less than {MAX_OPTION_NAME_LENGTH} characters")
+                
+                # Check for duplicate value names within the same option
+                if value_name in value_names:
+                    raise ValidationError(f"Duplicate value name: {value_name}")
+                value_names.append(value_name)
+
+                try:
+                    if 'id' in value_data:
+                        # Update existing value
+                        value = OptionValue.objects.get(
+                            id=value_data['id'], option=option)
+                        value.name = value_name
+                        value.save()
+                        values_to_keep.add(value.id)
+                    else:
+                        # Create new value
+                        value = OptionValue.objects.create(
+                            option=option, name=value_name)
+                        values_to_keep.add(value.id)
+                except OptionValue.DoesNotExist:
+                    raise ValidationError(f"Invalid option value ID: {value_data.get('id')}")
+
+            # Remove values not in the update
+            for value in existing_values:
+                if value.id not in values_to_keep:
+                    value.delete()
+
+        except ProductOption.DoesNotExist:
+            raise ValidationError(f"Invalid option ID: {option_data.get('id')}")
+
+    # Remove options not in the update
     for option in existing_options:
         if option.id not in options_to_keep:
             option.delete()
