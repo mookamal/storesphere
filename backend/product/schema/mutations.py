@@ -199,33 +199,56 @@ class CreateProductVariant(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, product_id, variant_inputs):
         user = info.context.user
-        # Verify that the user has permission to add product variant
         try:
             product = Product.objects.get(pk=product_id)
-            if not StaffMember.objects.filter(user=user, store=product.store).exists():
+            store = product.store
+
+            if not StaffMember.objects.filter(user=user, store=store).exists():
                 raise GraphQLError(
-                    "You are not authorized to add product variants for this store.",
+                    "You do not have permission to create product variants.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+
+            # Validate inputs
+            if variant_inputs.price is not None and variant_inputs.price < 0:
+                raise GraphQLError(
+                    "Price cannot be negative.",
+                    extensions={
+                        "code": "INVALID_PRICE",
+                        "status": 400
+                    }
+                )
+
+            if variant_inputs.stock is not None and variant_inputs.stock < 0:
+                raise GraphQLError(
+                    "Stock cannot be negative.",
+                    extensions={
+                        "code": "INVALID_STOCK",
+                        "status": 400
+                    }
+                )
+
+            variant = ProductVariant(
+                product=product,
+                price_amount=variant_inputs.price,
+                stock=variant_inputs.stock,
+                compare_at_price=variant_inputs.compare_at_price
+            )
+            variant.save()
+
+            return CreateProductVariant(product_variant=variant)
+
         except Product.DoesNotExist:
             raise GraphQLError(
-                "Product not found or you do not have access to this product.",
+                "Product not found.",
                 extensions={
                     "code": "NOT_FOUND",
                     "status": 404
                 }
             )
-
-        variant = ProductVariant.objects.create(
-            product=product,
-            price_amount=variant_inputs.price_amount,
-            stock=variant_inputs.stock,
-        )
-        add_values_to_variant(variant, variant_inputs.option_values)
-        return CreateProductVariant(product_variant=variant)
 
 
 class UpdateProductVariant(graphene.Mutation):
