@@ -1,7 +1,5 @@
 import json
-from core.models import SEO
-from product.models import Product, ProductVariant
-import pytest
+from product.models import Product
 from core.graphql.tests.utils import get_graphql_content
 
 CREATE_PRODUCT_MUTATION = '''
