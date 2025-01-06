@@ -11,6 +11,14 @@ CREATE_PRODUCT_MUTATION = '''
                 description
                 status
                 productId
+                options {
+                    id
+                    name
+                    values {
+                        id
+                        name
+                    }
+                }
                 seo {
                     title
                     description
