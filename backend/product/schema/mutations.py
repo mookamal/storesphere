@@ -254,23 +254,33 @@ class CreateProductVariant(graphene.Mutation):
 class UpdateProductVariant(graphene.Mutation):
     class Arguments:
         variant_inputs = ProductVariantInput(required=True)
+    
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
     def mutate(cls, root, info, variant_inputs):
+        # Get current user from request context
         user = info.context.user
-        # get variant object and Verify that the user has permission to update product variant
+        
         try:
+            # Find product variant by ID
             variant = ProductVariant.objects.get(id=variant_inputs.variant_id)
-            if not StaffMember.objects.filter(user=user, store=variant.product.store).exists():
+            
+            # Extract store from product
+            store = variant.product.store
+
+            # Check user permissions for the store
+            if not StaffMember.objects.filter(user=user, store=store).exists():
                 raise GraphQLError(
-                    "You are not authorized to update product variants for this store.",
+                    "You do not have permission to update product variants for this store.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+
         except ProductVariant.DoesNotExist:
+            # Handle case when product variant is not found
             raise GraphQLError(
                 "Product variant not found.",
                 extensions={
@@ -278,9 +288,41 @@ class UpdateProductVariant(graphene.Mutation):
                     "status": 404
                 }
             )
-        variant.price_amount = variant_inputs.price_amount
-        variant.stock = variant_inputs.stock
+
+        # Validate and update price
+        if variant_inputs.price is not None:
+            # Ensure price is not negative
+            if variant_inputs.price < 0:
+                raise GraphQLError(
+                    "Price cannot be negative.",
+                    extensions={
+                        "code": "INVALID_PRICE",
+                        "status": 400
+                    }
+                )
+            variant.price_amount = variant_inputs.price
+
+        # Validate and update stock
+        if variant_inputs.stock is not None:
+            # Ensure stock is not negative
+            if variant_inputs.stock < 0:
+                raise GraphQLError(
+                    "Stock cannot be negative.",
+                    extensions={
+                        "code": "INVALID_STOCK",
+                        "status": 400
+                    }
+                )
+            variant.stock = variant_inputs.stock
+
+        # Update compare at price if provided
+        if variant_inputs.compare_at_price is not None:
+            variant.compare_at_price = variant_inputs.compare_at_price
+
+        # Save changes to product variant
         variant.save()
+
+        # Return updated product variant
         return UpdateProductVariant(product_variant=variant)
 
 
