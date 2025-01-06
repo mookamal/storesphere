@@ -181,6 +181,11 @@ class UpdateProduct(graphene.Mutation):
         if collection_ids is not None:
             update_product_collections(product_instance, collection_ids)
         
+        # Handle option values for first variant
+        if product.first_variant and hasattr(product.first_variant, 'option_values') and product.first_variant.option_values:
+            first_variant = product_instance.first_variant
+            add_values_to_variant(first_variant, product.first_variant.option_values)
+        
         return UpdateProduct(product=product_instance)
 
 
