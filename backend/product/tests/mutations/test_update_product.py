@@ -243,15 +243,20 @@ def test_update_product_multiple_collections(staff_api_client, store, staff_memb
 
 def test_update_product_with_option_values(staff_api_client, store, staff_member, product, color_option, red_option_value):
     # Given
-    # Ensure the product has an option
-    product.options.add(color_option)
-    
     variables = {
         "id": str(product.id),
         "product": {
             "title": product.title,
             "description": product.description,
             "status": product.status,
+            "options": [{
+                "id": str(color_option.id),
+                "name": color_option.name,
+                "values": [{
+                    "id": str(red_option_value.id),
+                    "name": red_option_value.name
+                }]
+            }],
             "firstVariant": {
                 "price": float(product.first_variant.price_amount),
                 "compareAtPrice": float(product.first_variant.compare_at_price) if product.first_variant.compare_at_price else None,
