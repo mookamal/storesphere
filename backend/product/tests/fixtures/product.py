@@ -88,3 +88,14 @@ def multi_variant_product(db, store, product_image):
     product.first_variant = variant1
     product.save()
     return product
+
+@pytest.fixture
+def product_variant(product):
+    """
+    Fixture to create a standard product variant for testing
+    """
+    return ProductVariant.objects.create(
+        product=product,
+        price_amount=19.99,
+        stock=100
+    )
