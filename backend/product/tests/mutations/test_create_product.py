@@ -238,3 +238,75 @@ def test_create_product_with_collection(staff_api_client, description_json, stor
     assert product.title == "Test Product"
     assert product.collections.count() == 1
     assert product.collections.first() == collection
+
+def test_create_product_with_option(staff_api_client, description_json, store, staff_member):
+    # Given
+    variables = {
+        "product": {
+            "title": "Test Product with Options",
+            "description": json.dumps(description_json),
+            "status": "ACTIVE",
+            "seo": {
+                "title": "Test SEO Title",
+                "description": "Test SEO Description"
+            },
+            "options": [
+                {
+                    "name": "Color",
+                    "values": [
+                        {
+                            "name": "Red"
+                        },
+                        {
+                            "name": "Blue"
+                        }
+                    ]
+                },
+                {
+                    "name": "Size",
+                    "values": [
+                        {
+                            "name": "Small"
+                        },
+                        {
+                            "name": "Medium"
+                        }
+                    ]
+                }
+            ],
+            "firstVariant": {
+                "price": 100.0,
+                "compareAtPrice": 120.0,
+                "stock": 10
+            },
+            "collectionIds": []
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    # When
+    response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
+    content = get_graphql_content(response)
+    product_data = content["data"]["createProduct"]["product"]
+    
+    # Then
+    assert product_data["title"] == "Test Product with Options"
+    assert product_data["status"] == "ACTIVE"
+    
+    # Verify options
+    assert len(product_data["options"]) == 2
+    assert product_data["options"][0]["name"] == "Color"
+    assert len(product_data["options"][0]["values"]) == 2
+    assert product_data["options"][1]["name"] == "Size"
+    assert len(product_data["options"][1]["values"]) == 2
+    
+    # Verify product was created in database
+    product = Product.objects.get(title=variables['product']['title'])
+    assert product is not None
+    assert product.store == store
+    
+    # Verify first variant was created
+    variant = product.first_variant
+    assert variant.price_amount == variables['product']['firstVariant']['price']
+    assert variant.compare_at_price == variables['product']['firstVariant']['compareAtPrice']
+    assert variant.stock == variables['product']['firstVariant']['stock']
