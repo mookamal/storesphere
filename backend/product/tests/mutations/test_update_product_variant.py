@@ -28,19 +28,12 @@ mutation UpdateProductVariant(
 def test_update_product_variant_success(
     staff_api_client, 
     staff_member,
-    product
+    product_variant
 ):
     """Test successful update of a product variant."""
-    # Create a product variant first
-    variant = ProductVariant.objects.create(
-        product=product,
-        price_amount=19.99,
-        stock=100
-    )
-
     # Prepare variant update input data
     variant_input = {
-        "variantId": variant.pk,
+        "variantId": product_variant.pk,
         "price": 29.99,
         "stock": 150
     }
@@ -64,7 +57,7 @@ def test_update_product_variant_success(
     assert round(float(variant_data.get("pricing", {}).get("amount", 0)), 2) == round(variant_input["price"], 2)
 
     # Verify the variant was updated in the database
-    updated_variant = ProductVariant.objects.get(pk=variant.pk)
+    updated_variant = ProductVariant.objects.get(pk=product_variant.pk)
     assert abs(updated_variant.price_amount - Decimal(str(variant_input["price"]))) < Decimal('0.01')
     assert updated_variant.stock == variant_input["stock"]
 
@@ -72,18 +65,11 @@ def test_update_product_variant_success(
 @pytest.mark.django_db
 def test_update_product_variant_without_permissions(
     staff_api_client,
-    product
+    product_variant
 ):
     """Test updating a product variant without proper permissions."""
-    # Create a product variant first
-    variant = ProductVariant.objects.create(
-        product=product,
-        price_amount=19.99,
-        stock=100
-    )
-
     variant_input = {
-        "variantId": variant.pk,
+        "variantId": product_variant.pk,
         "price": 29.99,
         "stock": 150
     }
@@ -115,27 +101,20 @@ def test_update_product_variant_without_permissions(
 def test_update_product_variant_with_invalid_inputs(
     staff_api_client,
     staff_member,
-    product
+    product_variant
 ):
     """Test updating a product variant with invalid inputs."""
-    # Create a product variant first
-    variant = ProductVariant.objects.create(
-        product=product,
-        price_amount=19.99,
-        stock=100
-    )
-
     invalid_inputs = [
         # Negative price
         {
-            "variantId": variant.pk,
+            "variantId": product_variant.pk,
             "price": -10.00,
             "stock": 100,
             "expected_error": "Price cannot be negative"
         },
         # Negative stock
         {
-            "variantId": variant.pk,
+            "variantId": product_variant.pk,
             "price": 19.99,
             "stock": -50,
             "expected_error": "Stock cannot be negative"
