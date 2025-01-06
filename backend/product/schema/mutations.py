@@ -62,9 +62,6 @@ class CreateProduct(graphene.Mutation):
                 if product.options:
                     update_product_options_and_values(product_obj, product.options)
 
-                if first_variant_data.option_values:
-                    add_values_to_variant(first_variant, first_variant_data.option_values)
-
                 return CreateProduct(product=product_obj)
             raise GraphQLError(
                 "You do not have permission to create products.",

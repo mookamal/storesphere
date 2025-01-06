@@ -10,6 +10,7 @@ CREATE_PRODUCT_MUTATION = '''
                 title
                 description
                 status
+                productId
                 seo {
                     title
                     description
@@ -222,9 +223,8 @@ def test_create_product_with_collection(staff_api_client, description_json, stor
     content = get_graphql_content(response)
     product_data = content["data"]["createProduct"]["product"]
     
-    # Decode the base64 ID
-    import base64
-    product_id = base64.b64decode(product_data["id"]).decode().split(':')[-1]
+
+    product_id = product_data['productId']
     
     product = Product.objects.get(id=product_id)
     assert product.title == "Test Product"
