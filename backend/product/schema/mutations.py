@@ -186,7 +186,7 @@ class UpdateProduct(graphene.Mutation):
 
 class VariantActions(graphene.Enum):
     DELETE = "DELETE"
-    UPDATE_PRICE = "UPDATE_PRICE "
+    UPDATE_PRICE = "UPDATE_PRICE"
 
 
 class CreateProductVariant(graphene.Mutation):
