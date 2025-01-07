@@ -181,3 +181,34 @@ def test_create_product_variant_with_optional_fields(
     created_variant = ProductVariant.objects.get(pk=variant_data["variantId"])
     assert abs(created_variant.price_amount - Decimal(str(variant_input_with_optional["price"]))) < Decimal('0.01')
     assert created_variant.stock == variant_input_with_optional["stock"]
+
+# test create product variant with option values
+def test_create_product_variant_with_option_values(
+    staff_api_client,
+    staff_member,
+    product,
+    color_option,
+    red_option_value
+):
+    variant_input_with_option_values = {
+        "variantId": None,
+        "price": 29.99,
+        "stock": 50,
+        "compareAtPrice": None,
+        "optionValues": [red_option_value.pk]
+    }
+
+    variables = {
+        "productId": product.pk,
+        "variantInputs": variant_input_with_option_values
+    }
+
+    response = staff_api_client.post_graphql(
+        CREATE_PRODUCT_VARIANT_MUTATION,
+        variables
+    )
+    content = get_graphql_content(response)
+
+    variant_data = content["data"]["createProductVariant"]["productVariant"]
+    assert variant_data["id"] is not None
+    assert len(variant_data["selectedOptions"]) == 1
