@@ -110,4 +110,4 @@ def test_perform_action_on_variants_nonexistent(
 
     # Assertions
     assert "errors" in content
-    assert any("'NoneType' object has no attribute 'product'" in str(error) for error in content["errors"])
+    assert any("Product variant not found" in str(error) for error in content["errors"])

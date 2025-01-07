@@ -340,18 +340,12 @@ class PerformActionOnVariants(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, action, variant_ids):
         user = info.context.user
-        # get variant objects and Verify that the user has permission to perform action on product variants
-        try:
-            variants = ProductVariant.objects.filter(id__in=variant_ids)
-            if not StaffMember.objects.filter(user=user, store=variants.first().product.store).exists():
-                raise GraphQLError(
-                    "You are not authorized to perform action on product variants for this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
-        except ProductVariant.DoesNotExist:
+        
+        # Check variant existence in a single query
+        variants = ProductVariant.objects.filter(id__in=variant_ids)
+        
+        # Verify all requested variants exist
+        if variants.count() != len(variant_ids):
             raise GraphQLError(
                 "Product variant not found.",
                 extensions={
@@ -359,6 +353,16 @@ class PerformActionOnVariants(graphene.Mutation):
                     "status": 404
                 }
             )
+
+        if not StaffMember.objects.filter(user=user, store=variants.first().product.store).exists():
+            raise GraphQLError(
+                "You are not authorized to perform action on product variants for this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
+        
         if action == VariantActions.DELETE:
             variants.delete()
             return PerformActionOnVariants(success=True, message="Product variants deleted successfully.")
