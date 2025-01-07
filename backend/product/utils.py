@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from .models import Product, ProductOption, OptionValue, ProductVariant, Collection
+from .models import ProductOption, OptionValue, ProductVariant
 
 MAX_OPTION_NAME_LENGTH = 50
 MAX_OPTION_VALUES_COUNT = 10
@@ -106,23 +106,70 @@ def update_product_options_and_values(product, updated_options):
             option.delete()
 
 
-def add_values_to_variant(variant, option_value_ids):
+def add_values_to_variant(variant, option_value_ids, max_options=3):
+    """
+    Add option values to a product variant with enhanced validation.
+    
+    Args:
+        variant (ProductVariant): The variant to update
+        option_value_ids (list): List of option value IDs to add
+        max_options (int, optional): Maximum number of option values allowed. Defaults to 3.
+    
+    Raises:
+        ValueError: If validation fails
+    """
+
+    # Validate variant exists
     if not variant:
-        return
+        raise ValidationError("Variant cannot be None")
+    
+    # Handle empty option values (clear existing options)
     if not option_value_ids:
+        variant.selected_options.clear()
+        variant.save()
         return
+
+    # Validate number of options
+    if len(option_value_ids) > max_options:
+        raise ValidationError(f"Cannot add more than {max_options} option values")
+
+    # Fetch option values and validate their existence
     option_values = OptionValue.objects.filter(id__in=option_value_ids)
-    # check in product to values is same product to variant
+    
+    # Check if all requested option values exist
+    if len(option_values) != len(option_value_ids):
+        missing_ids = set(option_value_ids) - set(option_values.values_list('id', flat=True))
+        raise ValidationError(f"Option values not found: {missing_ids}")
+
+    # Validate all option values belong to the same product
+    invalid_values = [
+        value for value in option_values 
+        if value.option.product != variant.product
+    ]
+    
+    if invalid_values:
+        raise ValidationError(f"Option values {[v.id for v in invalid_values]} do not belong to the product")
+
+    # Ensure unique options (no duplicate option types)
+    options_used = set()
     for value in option_values:
-        if value.option.product != variant.product:
-            raise ValueError("Option values must belong to the same product.")
+        if value.option in options_used:
+            raise ValidationError(f"Cannot add multiple values for the same option: {value.option.name}")
+        options_used.add(value.option)
+
+    # Check for existing variant with same option configuration
     get_variant_has_same_values = ProductVariant.objects.filter(
-        product=variant.product, selected_options__in=option_values).distinct()
+        product=variant.product, 
+        selected_options__in=option_values
+    ).exclude(pk=variant.pk).distinct()
+
     for existing_variant in get_variant_has_same_values:
         existing_option_values = set(existing_variant.selected_options.all())
         if existing_option_values == set(option_values):
-            raise ValueError("This variant already exists.")
+            raise ValidationError(f"A variant with these exact option values already exists (Variant ID: {existing_variant.pk})")
 
+    # Clear existing options and add new ones
+    variant.selected_options.clear()
     variant.selected_options.add(*option_values)
     variant.save()
 

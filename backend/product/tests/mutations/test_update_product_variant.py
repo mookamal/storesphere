@@ -3,6 +3,7 @@ from core.graphql.tests.utils import get_graphql_content
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 from ...models import ProductVariant
+from ...models import OptionValue
 
 UPDATE_PRODUCT_VARIANT_MUTATION = """
 mutation UpdateProductVariant(
@@ -176,7 +177,58 @@ def test_update_product_variant_not_found(
     assert any("not found" in str(error).lower() for error in content["errors"]), \
         "Expected 'not found' error not present"
 
-# test update product variant with option values
+
+@pytest.mark.django_db
 def test_update_product_variant_with_option_values(
-    staff_api_client,staff_member):
-    pass
+    staff_api_client, 
+    staff_member, 
+    product, 
+    color_option, 
+    red_option_value
+):
+    """Test updating a product variant with option values."""
+    # Create a variant with an initial option value
+    variant = ProductVariant.objects.create(
+        product=product, 
+        sku="VARIANT-001", 
+        price_amount=Decimal(10), 
+        stock=10
+    )
+    variant.selected_options.add(red_option_value)
+
+    # Create a new option value for update
+    blue_option_value = OptionValue.objects.create(
+        option=color_option, 
+        name="Blue"
+    )
+
+    # Prepare variant update input data with new option value
+    variant_input = {
+        "variantId": variant.pk,
+        "optionValues": [blue_option_value.pk]
+    }
+
+    # Prepare variables for the mutation
+    variables = {
+        "variantInputs": variant_input
+    }
+
+    # Perform the mutation
+    response = staff_api_client.post_graphql(
+        UPDATE_PRODUCT_VARIANT_MUTATION, 
+        variables, 
+    )
+
+    # Get the mutation content
+    content = get_graphql_content(response)
+    updated_variant = content["data"]["updateProductVariant"]["productVariant"]
+
+    # Assertions
+    assert len(updated_variant["selectedOptions"]) == 1, "Should have exactly one option value"
+    assert updated_variant["selectedOptions"][0]["name"] == "Blue", "Option value should be Blue"
+    
+    # Verify the variant in the database
+    variant.refresh_from_db()
+    assert variant.selected_options.count() == 1, "Variant should have exactly one option value"
+    assert variant.selected_options.first().name == "Blue", "Variant's option value should be Blue"
+    assert variant.selected_options.first().option == color_option, "Option should be the same color option"
