@@ -236,6 +236,9 @@ class CreateProductVariant(graphene.Mutation):
             )
             variant.save()
 
+            # Add values to the variant
+            add_values_to_variant(variant, variant_inputs.option_values)
+
             return CreateProductVariant(product_variant=variant)
 
         except Product.DoesNotExist:
