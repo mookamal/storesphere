@@ -178,5 +178,5 @@ def test_update_product_variant_not_found(
 
 # test update product variant with option values
 def test_update_product_variant_with_option_values(
-    staff_api_client):
+    staff_api_client,staff_member):
     pass
