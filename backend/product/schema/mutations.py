@@ -322,6 +322,9 @@ class UpdateProductVariant(graphene.Mutation):
         # Save changes to product variant
         variant.save()
 
+        # Add values to the variant
+        add_values_to_variant(variant, variant_inputs.option_values)
+
         # Return updated product variant
         return UpdateProductVariant(product_variant=variant)
 

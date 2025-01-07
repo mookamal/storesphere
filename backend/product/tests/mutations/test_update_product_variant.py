@@ -1,5 +1,4 @@
 import pytest
-import graphene
 from core.graphql.tests.utils import get_graphql_content
 from decimal import Decimal
 from django.contrib.auth import get_user_model
@@ -18,6 +17,10 @@ mutation UpdateProductVariant(
             pricing {
                 amount
                 currency
+            }
+            selectedOptions {
+                id
+                name
             }
         }
     }
@@ -172,3 +175,8 @@ def test_update_product_variant_not_found(
     
     assert any("not found" in str(error).lower() for error in content["errors"]), \
         "Expected 'not found' error not present"
+
+# test update product variant with option values
+def test_update_product_variant_with_option_values(
+    staff_api_client):
+    pass
