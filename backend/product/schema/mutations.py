@@ -504,6 +504,7 @@ class CreateCollection(graphene.Mutation):
                     "status": 404
                 }
             )
+        
         if not StaffMember.objects.filter(user=user, store=store).exists():
             raise GraphQLError(
                 "You are not authorized to create collections for this store.",
@@ -512,21 +513,68 @@ class CreateCollection(graphene.Mutation):
                     "status": 403
                 }
             )
+        
+        # Validate title length
+        if len(collection_inputs.title) > 255:
+            raise GraphQLError(
+                "Collection title is too long. Maximum 255 characters allowed.",
+                extensions={
+                    "code": "TITLE_TOO_LONG",
+                    "status": 400
+                }
+            )
+        
+        # Check for unique handle within the store
+        if Collection.objects.filter(store=store, handle=collection_inputs.handle).exists():
+            raise GraphQLError(
+                "A collection with this handle already exists in the store.",
+                extensions={
+                    "code": "DUPLICATE_HANDLE",
+                    "status": 400
+                }
+            )
+        
+        # Validate and limit SEO data
+        def validate_seo_data(seo_data):
+            MAX_TITLE_LENGTH = 70
+            MAX_DESCRIPTION_LENGTH = 160
+            
+            seo_data = seo_data if isinstance(seo_data, dict) else {}
+            seo_data['title'] = (seo_data.get('title', '') or collection_inputs.title)[:MAX_TITLE_LENGTH]
+            seo_data['description'] = (seo_data.get('description', '') or '')[:MAX_DESCRIPTION_LENGTH]
+            
+            return seo_data
+        
+        seo_data = validate_seo_data(collection_inputs.seo)
+        
+        # Create collection
         collection = Collection.objects.create(
             store=store,
             title=collection_inputs.title,
             description=collection_inputs.description or "",
             handle=collection_inputs.handle,
-            image_id=collection_inputs.image_id or None,
+            image_id=None,  # Will be set after validation
         )
-        seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
-            "title": collection.title, "description": ""}
+        
+        # Validate and set image if provided
+        if collection_inputs.image_id:
+            try:
+                image = Image.objects.get(pk=collection_inputs.image_id, store=store)
+                collection.image = image
+            except Image.DoesNotExist:
+                raise GraphQLError(
+                    "Image not found or does not belong to this store.",
+                    extensions={
+                        "code": "INVALID_IMAGE",
+                        "status": 404
+                    }
+                )
+        
+        # Create SEO
         seo = SEO.objects.create(**seo_data)
         collection.seo = seo
         collection.save()
-        if collection_inputs.image_id:
-            image = Image.objects.get(pk=collection_inputs.image_id)
-            collection.image = image
+        
         return CreateCollection(collection=collection)
 
 

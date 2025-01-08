@@ -1,6 +1,7 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
-from product.models import Collection, SEO, Image
+from product.models import Collection, Image
+from stores.models import Store
 
 CREATE_COLLECTION_MUTATION = """
 mutation CreateCollection(
@@ -210,3 +211,163 @@ def test_create_collection_with_optional_image(
     # Verify database state
     collection = Collection.objects.get(title="Image Collection")
     assert collection.image == product_image
+
+
+@pytest.mark.django_db
+def test_create_collection_duplicate_handle(
+    staff_api_client,
+    staff_member,
+    store
+):
+    """Test creating a collection with a duplicate handle."""
+    # Ensure staff member has permission to the store
+    staff_member.store = store
+    staff_member.save()
+
+    # Create initial collection
+    Collection.objects.create(
+        store=store,
+        title="First Collection",
+        handle="first-collection"
+    )
+
+    # Prepare variables for the mutation
+    variables = {
+        "defaultDomain": store.default_domain,
+        "collectionInputs": {
+            "title": "Duplicate Collection",
+            "handle": "first-collection"
+        }
+    }
+
+    # Execute the mutation
+    response = staff_api_client.post_graphql(
+        CREATE_COLLECTION_MUTATION, 
+        variables
+    )
+    
+    # Check for duplicate handle error
+    content = response.json()
+    assert 'errors' in content
+    assert any(
+        'A collection with this handle already exists' in error['message'] 
+        for error in content['errors']
+    )
+
+
+@pytest.mark.django_db
+def test_create_collection_long_title(
+    staff_api_client,
+    staff_member,
+    store
+):
+    """Test creating a collection with an excessively long title."""
+    # Ensure staff member has permission to the store
+    staff_member.store = store
+    staff_member.save()
+
+    # Prepare variables for the mutation with a very long title
+    variables = {
+        "defaultDomain": store.default_domain,
+        "collectionInputs": {
+            "title": "A" * 300,  # Exceeds 255 characters
+            "handle": "very-long-title-collection"
+        }
+    }
+
+    # Execute the mutation
+    response = staff_api_client.post_graphql(
+        CREATE_COLLECTION_MUTATION, 
+        variables
+    )
+    
+    # Check for title too long error
+    content = response.json()
+    assert 'errors' in content
+    assert any(
+        'Collection title is too long' in error['message'] 
+        for error in content['errors']
+    )
+
+
+@pytest.mark.django_db
+def test_create_collection_invalid_image(
+    staff_api_client,
+    staff_member,
+    store
+):
+    """Test creating a collection with an image from a different store."""
+    # Ensure staff member has permission to the store
+    staff_member.store = store
+    staff_member.save()
+
+    # Create an image from a different store
+    another_store = Store.objects.create(
+        name="Another Store", 
+        default_domain="another.com"
+    )
+    invalid_image = Image.objects.create(
+        store=another_store, 
+        alt_text="Invalid Image"
+    )
+
+    # Prepare variables for the mutation
+    variables = {
+        "defaultDomain": store.default_domain,
+        "collectionInputs": {
+            "title": "Image Collection",
+            "handle": "image-collection",
+            "imageId": invalid_image.pk
+        }
+    }
+
+    # Execute the mutation
+    response = staff_api_client.post_graphql(
+        CREATE_COLLECTION_MUTATION, 
+        variables
+    )
+    
+    # Check for invalid image error
+    content = response.json()
+    assert 'errors' in content
+    assert any(
+        'Image not found or does not belong to this store' in error['message'] 
+        for error in content['errors']
+    )
+
+
+@pytest.mark.django_db
+def test_create_collection_seo_truncation(
+    staff_api_client,
+    staff_member,
+    store
+):
+    """Test SEO data truncation for long titles and descriptions."""
+    # Ensure staff member has permission to the store
+    staff_member.store = store
+    staff_member.save()
+
+    # Prepare variables for the mutation with very long SEO data
+    variables = {
+        "defaultDomain": store.default_domain,
+        "collectionInputs": {
+            "title": "SEO Truncation Test",
+            "handle": "seo-truncation",
+            "seo": {
+                "title": "A" * 100,  # Exceeds 70 characters
+                "description": "B" * 200  # Exceeds 160 characters
+            }
+        }
+    }
+
+    # Execute the mutation
+    response = staff_api_client.post_graphql(
+        CREATE_COLLECTION_MUTATION, 
+        variables
+    )
+    content = get_graphql_content(response)
+
+    # Verify SEO data truncation
+    collection_data = content['data']['createCollection']['collection']
+    assert len(collection_data['seo']['title']) <= 70
+    assert len(collection_data['seo']['description']) <= 160
