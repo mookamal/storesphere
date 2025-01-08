@@ -416,36 +416,72 @@ class RemoveImagesProduct(graphene.Mutation):
     class Arguments:
         default_domain = graphene.String(required=True)
         product_id = graphene.ID(required=True)
-        image_ids = graphene.List(graphene.ID)
+        image_ids = graphene.List(graphene.ID, required=True)
 
     product = graphene.Field(ProductNode)
 
     def mutate(self, info, default_domain, product_id, image_ids):
         user = info.context.user
+        
+        # Validate store existence
         try:
             store = Store.objects.get(default_domain=default_domain)
-            if not StaffMember.objects.filter(user=user, store=store).exists():
-                raise GraphQLError(
-                    "You are not authorized to update products for this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
+        except Store.DoesNotExist:
+            raise GraphQLError(
+                "Store not found.",
+                extensions={
+                    "code": "STORE_NOT_FOUND",
+                    "status": 404
+                }
+            )
+        
+        # Check user permissions for the store
+        if not StaffMember.objects.filter(user=user, store=store).exists():
+            raise GraphQLError(
+                "You are not authorized to update products for this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
+        
+        # Validate product existence and ownership
+        try:
             product = Product.objects.get(pk=product_id, store=store)
-            images = Image.objects.filter(pk__in=image_ids)
-            product.first_variant.images.remove(*images)
-            return RemoveImagesProduct(product=product)
         except Product.DoesNotExist:
             raise GraphQLError(
                 "Product not found or you do not have access to this product.",
                 extensions={
-                    "code": "NOT_FOUND",
+                    "code": "PRODUCT_NOT_FOUND",
                     "status": 404
                 }
             )
-        except Exception as e:
-            raise GraphQLError(str(e))
+        
+        # Ensure product has a first variant
+        if not product.first_variant:
+            raise GraphQLError(
+                "Product does not have a first variant.",
+                extensions={
+                    "code": "NO_FIRST_VARIANT",
+                    "status": 400
+                }
+            )
+        
+        # Validate images
+        images = Image.objects.filter(pk__in=image_ids, store=store)
+        if not images.exists():
+            raise GraphQLError(
+                "No valid images found for removal.",
+                extensions={
+                    "code": "INVALID_IMAGES",
+                    "status": 400
+                }
+            )
+        
+        # Remove images from the first variant
+        product.first_variant.images.remove(*images)
+        
+        return RemoveImagesProduct(product=product)
 
 
 class CreateCollection(graphene.Mutation):
