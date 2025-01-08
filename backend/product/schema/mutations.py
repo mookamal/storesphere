@@ -7,6 +7,7 @@ from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
 from decimal import Decimal
+from django.utils import timezone
 
 
 class CreateProduct(graphene.Mutation):
@@ -172,7 +173,7 @@ class UpdateProduct(graphene.Mutation):
         # update options if provided
         if hasattr(product, 'options'):
             update_product_options_and_values(product_instance, product.options)
-        
+
         # Handle collection IDs safely
         collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
         if collection_ids is not None:
@@ -606,35 +607,93 @@ class UpdateCollection(graphene.Mutation):
                     "status": 404
                 }
             )
+        
+        # Validate unique handle within the store
+        if collection_inputs.handle:
+            existing_collection = Collection.objects.filter(
+                handle=collection_inputs.handle, 
+                store=collection.store
+            ).exclude(pk=collection.pk).exists()
+            if existing_collection:
+                raise GraphQLError(
+                    "A collection with this handle already exists in the store.",
+                    extensions={
+                        "code": "DUPLICATE_HANDLE",
+                        "status": 400
+                    }
+                )
+        
+        # Validate title length
+        if collection_inputs.title and len(collection_inputs.title) > 255:
+            raise GraphQLError(
+                "Collection title cannot exceed 255 characters.",
+                extensions={
+                    "code": "TITLE_TOO_LONG",
+                    "status": 400
+                }
+            )
+
+        if collection_inputs.description and len(collection_inputs.description) > 1000:
+            raise GraphQLError(
+                "Collection description cannot exceed 1000 characters.",
+                extensions={
+                    "code": "DESCRIPTION_TOO_LONG",
+                    "status": 400
+                }
+            )
+
+        # Update title and description
         collection.title = collection_inputs.title if collection_inputs.title is not None else collection.title
         collection.description = collection_inputs.description if collection_inputs.description is not None else collection.description
+        collection.handle = collection_inputs.handle if collection_inputs.handle is not None else collection.handle
 
-        collection.handle = collection_inputs.handle
+        # Handle SEO data
         seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
             "title": collection.title, "description": ""}
+        
+        # Truncate SEO data
+        seo_title = seo_data.get("title", collection.title)
+        if len(seo_title) > 70:
+            seo_title = seo_title[:67] + "..."
+        
+        seo_description = seo_data.get("description", "")
+        if len(seo_description) > 160:
+            seo_description = seo_description[:157] + "..."
+        
+        # Update or create SEO
         if collection.seo:
-            collection.seo.title = seo_data.get("title", collection.title)
-            collection.seo.description = seo_data.get("description", "")
+            collection.seo.title = seo_title
+            collection.seo.description = seo_description
         else:
-            seo = SEO.objects.create(**seo_data)
+            seo = SEO.objects.create(title=seo_title, description=seo_description)
             collection.seo = seo
         collection.seo.save()
-        if collection_inputs.image_id:
+
+        # Validate and update image
+        if collection_inputs.image_id is None:
+            collection.image = None
+        elif collection_inputs.image_id is not None:
             try:
                 image = Image.objects.get(pk=collection_inputs.image_id)
-                if not collection.image or collection.image.id != image.id:
-                    collection.image = image
+                if image.store != collection.store:
+                    raise GraphQLError(
+                        "Image with the given ID not found.",
+                        extensions={
+                            "code": "IMAGE_NOT_FOUND",
+                            "status": 404
+                        }
+                    )
+                collection.image = image
             except Image.DoesNotExist:
                 raise GraphQLError(
                     "Image with the given ID not found.",
                     extensions={
-                        "code": "NOT_FOUND",
+                        "code": "IMAGE_NOT_FOUND",
                         "status": 404
                     }
                 )
-        else:
-            collection.image = None
-
+        
+        # Save changes to the collection
         collection.save()
         return UpdateCollection(collection=collection)
 
