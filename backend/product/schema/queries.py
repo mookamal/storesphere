@@ -1,10 +1,8 @@
-
 import django_filters
 import graphene
 from graphql import GraphQLError
 from product.models import Collection, Image, Product
 from graphene_django.filter import DjangoFilterConnectionField
-from django.core.exceptions import PermissionDenied
 from stores.models import Store, StaffMember
 from .types import ProductNode, ImageNode, CollectionNode, ProductVariantNode
 
@@ -53,12 +51,25 @@ class Query(graphene.ObjectType):
                     data=kwargs, queryset=store.products.all()).qs
                 return filtered_products
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Store.DoesNotExist:
-            raise PermissionDenied("Store not found.")
+            raise GraphQLError("Store not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_product(self, info, id, **kwargs):
         try:
@@ -68,12 +79,25 @@ class Query(graphene.ObjectType):
             if StaffMember.objects.filter(user=user, store=store).exists():
                 return product
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this product.")
+                raise GraphQLError(
+                    "You are not authorized to access this product.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Product.DoesNotExist:
-            raise PermissionDenied("Product not found.")
+            raise GraphQLError("Product not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_product_details_variants(self, info, product_id, **kwargs):
         try:
@@ -86,12 +110,25 @@ class Query(graphene.ObjectType):
                     variants = variants.exclude(id=product.first_variant.id)
                 return variants
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Product.DoesNotExist:
-            raise PermissionDenied("Product not found.")
+            raise GraphQLError("Product not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_all_media_images(self, info, default_domain, **kwargs):
         try:
@@ -102,12 +139,25 @@ class Query(graphene.ObjectType):
                     store=store).order_by('-created_at')
                 return images
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Store.DoesNotExist:
-            raise PermissionDenied("Store not found.")
+            raise GraphQLError("Store not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_get_images_product(self, info, product_id, **kwargs):
         try:
@@ -118,12 +168,25 @@ class Query(graphene.ObjectType):
                 images = product.first_variant.images.all().order_by('-created_at')
                 return images
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Product.DoesNotExist:
-            raise PermissionDenied("Product not found.")
+            raise GraphQLError("Product not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_all_collections(self, info, default_domain, **kwargs):
         try:
@@ -134,12 +197,25 @@ class Query(graphene.ObjectType):
                     store=store).order_by('-created_at')
                 return collections
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Store.DoesNotExist:
-            raise PermissionDenied("Store not found.")
+            raise GraphQLError("Store not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_collection_by_id(self, info, id, **kwargs):
         try:
@@ -178,12 +254,25 @@ class Query(graphene.ObjectType):
                 products = collection.products.all().order_by('-created_at')
                 return products
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise PermissionDenied("Collection not found.")
+            raise GraphQLError("Collection not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_product_resource_collection(self, info, collection_id, **kwargs):
         try:
@@ -193,12 +282,25 @@ class Query(graphene.ObjectType):
             if StaffMember.objects.filter(user=user, store=store).exists():
                 return ProductFilter(data=kwargs, queryset=store.products.all().order_by('-created_at')).qs
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Collection.DoesNotExist:
-            raise PermissionDenied("Collection not found.")
+            raise GraphQLError("Collection not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
 
     def resolve_collections_find(self, info, default_domain, **kwargs):
         try:
@@ -209,9 +311,22 @@ class Query(graphene.ObjectType):
                     data=kwargs, queryset=store.collections.all()).qs
                 return filter_collections
             else:
-                raise PermissionDenied(
-                    "You are not authorized to access this store.")
+                raise GraphQLError(
+                    "You are not authorized to access this store.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
         except Store.DoesNotExist:
-            raise PermissionDenied("Store not found.")
+            raise GraphQLError("Store not found.",
+                               extensions={
+                                   "code": "NOT_FOUND",
+                                   "status": 404
+                               })
         except Exception as e:
-            raise PermissionDenied(f"Authentication failed: {str(e)}")
+            raise GraphQLError(f"Authentication failed: {str(e)}",
+                               extensions={
+                "code": "AUTHENTICATION_ERROR",
+                "status": 401
+            })
