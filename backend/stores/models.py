@@ -3,8 +3,63 @@ from accounts.models import User
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 from .utils import generate_unique_subdomain
+from .enums import StorePermissions
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
+class StorePermission(models.Model):
+    """
+    Store Permission Model
+    """
+    name = models.CharField(
+        max_length=255, 
+        verbose_name=_('Permission Name')
+    )
+    codename = models.CharField(
+        max_length=100, 
+        verbose_name=_('Codename')
+    )
+    content_type = models.ForeignKey(
+        ContentType, 
+        on_delete=models.CASCADE,
+        verbose_name=_('Content Type')
+    )
+
+    class Meta:
+        verbose_name = _('Store Permission')
+        verbose_name_plural = _('Store Permissions')
+        unique_together = ['codename', 'content_type']
+
+    def __str__(self):
+        return f"{self.name} ({self.codename})"
+
+    @classmethod
+    def sync_permissions(cls):
+        """
+        Sync permissions with Enum
+        """
+        from django.apps import apps
+
+        for perm in StorePermissions:
+            app_label, action = perm.value.split('.')
+            
+            # Try to find the model
+            try:
+                model = apps.get_model('stores', app_label)
+                content_type = ContentType.objects.get_for_model(model)
+            except (LookupError, ValueError):
+                # If the model is not found, use the Store model as default
+                content_type = ContentType.objects.get_for_model(Store)
+
+            # Create or update the permission
+            cls.objects.update_or_create(
+                codename=perm.codename,
+                content_type=content_type,
+                defaults={
+                    'name': f"Can {action} {content_type.model}"
+                }
+            )
 
 class StoreAddress(models.Model):
     store = models.ForeignKey(
@@ -40,12 +95,27 @@ class StaffMember(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    permissions = models.JSONField(blank=True, null=True)
+    permissions = models.ManyToManyField(
+        StorePermission, 
+        blank=True,
+        related_name='staff_members'
+    )
 
     class Meta:
         verbose_name_plural = "Staff Members"
         unique_together = ['user', 'store']
-
+    def has_permission(self, permission: StorePermissions):
+        """
+        Check permissions
+        """
+        # Owner has all permissions
+        if self.is_store_owner:
+            return True
+        
+        # Check permissions
+        return self.permissions.filter(
+            codename=permission.codename
+        ).exists()
     def __str__(self):
         return str(self.user)
 
