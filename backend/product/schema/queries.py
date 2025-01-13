@@ -4,6 +4,7 @@ from graphql import GraphQLError
 from product.models import Collection, Image, Product
 from graphene_django.filter import DjangoFilterConnectionField
 from stores.models import Store, StaffMember
+from stores.enums import StorePermissions
 from .types import ProductNode, ImageNode, CollectionNode, ProductVariantNode
 
 
@@ -46,18 +47,29 @@ class Query(graphene.ObjectType):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
-            if StaffMember.objects.filter(user=user, store=store).exists():
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 filtered_products = ProductFilter(
                     data=kwargs, queryset=store.products.all()).qs
                 return filtered_products
             else:
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 401
+                }
+            )
         except Store.DoesNotExist:
             raise GraphQLError("Store not found.",
                                extensions={

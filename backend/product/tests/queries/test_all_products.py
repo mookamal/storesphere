@@ -1,5 +1,7 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 
 ALL_PRODUCTS_QUERY = '''
 query AllProducts($defaultDomain: String!) {
@@ -23,8 +25,12 @@ def test_all_products_success(
     product, 
     active_product
 ):
-    """Test successful retrieval of all products for a store."""
-    # Ensure staff member is associated with the store
+    """Test successful retrieval of all products for a store with PRODUCTS_VIEW permission."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
     staff_member.store = store
     staff_member.save()
 
@@ -53,9 +59,14 @@ def test_all_products_success(
 @pytest.mark.django_db
 def test_all_products_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     store
 ):
-    """Test retrieving products without proper store permissions."""
+    """Test retrieving products without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables for the query
     variables = {
         "defaultDomain": store.default_domain
@@ -70,7 +81,7 @@ def test_all_products_unauthorized(
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized' in str(error) for error in content['errors'])
+    assert any('You do not have permission' in str(error) for error in content['errors'])
 
 
 @pytest.mark.django_db
@@ -105,8 +116,12 @@ def test_all_products_filter_by_status(
     draft_product, 
     active_product
 ):
-    """Test filtering products by status."""
-    # Ensure staff member is associated with the store
+    """Test filtering products by status with PRODUCTS_VIEW permission."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
     staff_member.store = store
     staff_member.save()
 
