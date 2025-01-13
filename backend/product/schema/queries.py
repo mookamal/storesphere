@@ -145,7 +145,9 @@ class Query(graphene.ObjectType):
                 variants = variants.exclude(id=product.first_variant.id)
             
             return variants
-        
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except StaffMember.DoesNotExist:
             raise GraphQLError(
                 "You are not a staff member of this store.",
