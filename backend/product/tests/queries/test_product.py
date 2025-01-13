@@ -1,5 +1,7 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 
 PRODUCT_QUERY = '''
 query GetProduct($id: ID!) {
@@ -22,8 +24,12 @@ def test_product_success(
     store, 
     product
 ):
-    """Test successful retrieval of a specific product."""
-    # Ensure staff member is associated with the store
+    """Test successful retrieval of a specific product with PRODUCTS_VIEW permission."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
     staff_member.store = store
     staff_member.save()
 
@@ -49,9 +55,14 @@ def test_product_success(
 @pytest.mark.django_db
 def test_product_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     product
 ):
-    """Test retrieving a product without proper store permissions."""
+    """Test retrieving a product without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = product.store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables for the query
     variables = {
         "id": str(product.id)
@@ -66,7 +77,7 @@ def test_product_unauthorized(
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized to access this product' in str(error) for error in content['errors'])
+    assert any('You do not have permission to view products' in str(error) for error in content['errors'])
 
 
 @pytest.mark.django_db
@@ -76,7 +87,11 @@ def test_product_nonexistent(
     store
 ):
     """Test retrieving a non-existent product."""
-    # Ensure staff member is associated with the store
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
     staff_member.store = store
     staff_member.save()
 

@@ -88,16 +88,27 @@ class Query(graphene.ObjectType):
             user = info.context.user
             product = Product.objects.get(pk=id)
             store = product.store
-            if StaffMember.objects.filter(user=user, store=store).exists():
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 return product
             else:
                 raise GraphQLError(
-                    "You are not authorized to access this product.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 401
+                }
+            )
         except Product.DoesNotExist:
             raise GraphQLError("Product not found.",
                                extensions={
