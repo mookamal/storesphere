@@ -85,11 +85,16 @@ def test_products_by_collection_empty(
 @pytest.mark.django_db
 def test_products_by_collection_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     store, 
     collection, 
     product
 ):
-    """Test unauthorized access to products in a collection."""
+    """Test retrieving products without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
     # Add a product to the collection
     collection.products.add(product)
     collection.save()
@@ -104,12 +109,14 @@ def test_products_by_collection_unauthorized(
         PRODUCTS_BY_COLLECTION_QUERY, 
         variables
     )
+    content = get_graphql_content(response, ignore_errors=True)
 
-    # Verify error message
-    assert response.status_code == 200
-    content = response.json()
-    assert 'errors' in content
-    assert content['errors'][0]['extensions']['code'] == 'AUTHENTICATION_ERROR'
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 @pytest.mark.django_db
 def test_products_by_collection_nonexistent(
