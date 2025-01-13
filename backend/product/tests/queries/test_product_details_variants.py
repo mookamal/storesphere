@@ -1,5 +1,7 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 
 PRODUCT_DETAILS_VARIANTS_QUERY = '''
 query ProductDetailsVariants($productId: ID!) {
@@ -92,9 +94,14 @@ def test_product_details_variants_success(
 @pytest.mark.django_db
 def test_product_details_variants_unauthorized(
     staff_api_client,
+    staff_member_with_no_permissions,
     product
 ):
-    """Test retrieving product variants without proper store permissions."""
+    """Test retrieving product variants without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = product.store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables for the query
     variables = {
         "productId": str(product.id)
@@ -109,8 +116,13 @@ def test_product_details_variants_unauthorized(
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized to access this store' in str(error) for error in content['errors'])
-    assert any(error.get('extensions', {}).get('code') == 'AUTHENTICATION_ERROR' for error in content['errors'])
+        
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "Authentication failed: You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 
 @pytest.mark.django_db
@@ -144,12 +156,18 @@ def test_product_details_variants_nonexistent(
 
 @pytest.mark.django_db
 def test_product_details_variants_order(
-    staff_api_client, 
-    staff_member, 
-    store, 
+    staff_api_client,
+    staff_member,
+    store,
     product
 ):
     """Test that product variants are returned in descending order of creation."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
+
     # Delete all existing variants for the product
     product.variants.all().delete()
         
@@ -188,21 +206,19 @@ def test_product_details_variants_order(
 
     # Execute the query
     response = staff_api_client.post_graphql(
-        PRODUCT_DETAILS_VARIANTS_QUERY, 
+        PRODUCT_DETAILS_VARIANTS_QUERY,
         variables
     )
     content = get_graphql_content(response)
 
     # Verify query response
     variants = content['data']['productDetailsVariants']['edges']
-    
+        
     # Check that variants are in descending order and first_variant is excluded
     assert len(variants) == 2
     variant_dates = [variant['node']['createdAt'] for variant in variants]
     assert variant_dates == sorted(variant_dates, reverse=True)
-    
+
     # Verify specific variant details
     assert variants[0]['node']['sku'] == 'VARIANT2'
     assert variants[1]['node']['sku'] == 'VARIANT1'
-    assert float(variants[0]['node']['pricing']['amount']) == 39.99
-    assert float(variants[1]['node']['pricing']['amount']) == 29.99

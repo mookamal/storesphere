@@ -127,19 +127,33 @@ class Query(graphene.ObjectType):
             user = info.context.user
             product = Product.objects.get(pk=product_id)
             store = product.store
-            if StaffMember.objects.filter(user=user, store=store).exists():
-                variants = product.variants.all().order_by('-created_at')
-                if product.first_variant:
-                    variants = variants.exclude(id=product.first_variant.id)
-                return variants
-            else:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+            
+            # Exclude the first variant and order by created_at in descending order
+            variants = product.variants.all().order_by('-created_at')
+            if product.first_variant:
+                variants = variants.exclude(id=product.first_variant.id)
+            
+            return variants
+        
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 401
+                }
+            )
         except Product.DoesNotExist:
             raise GraphQLError("Product not found.",
                                extensions={
@@ -149,7 +163,7 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise GraphQLError(f"Authentication failed: {str(e)}",
                                extensions={
-                "code": "AUTHENTICATION_ERROR",
+                "code": "PERMISSION_DENIED",
                 "status": 401
             })
 
