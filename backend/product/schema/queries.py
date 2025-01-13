@@ -186,30 +186,26 @@ class Query(graphene.ObjectType):
                 )
             
             # Retrieve images for the store, ordered by creation time
-            images = Image.objects.filter(
-                store=store).order_by('-created_at')
+            images = Image.objects.filter(store=store).order_by('-created_at')
             return images
         
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 401
-                }
-            )
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except Store.DoesNotExist:
             raise GraphQLError("Store not found.",
                                extensions={
                                    "code": "NOT_FOUND",
                                    "status": 404
                                })
-        except Exception as e:
-            raise GraphQLError(f"Authentication failed: {str(e)}",
-                               extensions={
-                "code": "PERMISSION_DENIED",
-                "status": 401
-            })
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "UNAUTHORIZED",
+                    "status": 401
+                }
+            )
 
     def resolve_get_images_product(self, info, product_id, **kwargs):
         try:

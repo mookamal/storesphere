@@ -88,7 +88,7 @@ def test_all_media_images_unauthorized(
     error_messages = [error.get('message', '') for error in content['errors']]
     error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
     
-    assert "Authentication failed: You do not have permission to view products." in error_messages
+    assert "You do not have permission to view products." in error_messages
     assert "PERMISSION_DENIED" in error_codes
 
 
