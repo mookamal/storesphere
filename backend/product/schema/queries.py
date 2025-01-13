@@ -295,28 +295,38 @@ class Query(graphene.ObjectType):
             user = info.context.user
             collection = Collection.objects.get(pk=id)
             store = collection.store
-            if StaffMember.objects.filter(user=user, store=store).exists():
-                return collection
-            else:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+            
+            # Return the collection
+            return collection
+        
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except Collection.DoesNotExist:
             raise GraphQLError("Collection not found.",
                                extensions={
                                    "code": "NOT_FOUND",
                                    "status": 404
                                })
-        except Exception as e:
-            raise GraphQLError(f"Authentication failed: {str(e)}",
-                               extensions={
-                "code": "AUTHENTICATION_ERROR",
-                "status": 401
-            })
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "UNAUTHORIZED",
+                    "status": 401
+                }
+            )
 
     def resolve_products_by_collection(self, info, collection_id, **kwargs):
         try:

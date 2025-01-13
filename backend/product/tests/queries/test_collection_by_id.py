@@ -47,12 +47,15 @@ def test_collection_by_id_success(
 @pytest.mark.django_db
 def test_collection_by_id_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     store, 
     collection
 ):
-    """Test retrieving a collection without proper store permissions."""
+    """Test retrieving a collection without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
 
-    
     variables = {
         "id": collection.id
     }
@@ -64,9 +67,12 @@ def test_collection_by_id_unauthorized(
     )
     content = get_graphql_content(response, ignore_errors=True)
 
-    # Verify error response
-    assert 'errors' in content
-    assert content['errors'][0]['extensions']['code'] == 'AUTHENTICATION_ERROR'
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 @pytest.mark.django_db
 def test_collection_by_id_nonexistent(
