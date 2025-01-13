@@ -79,7 +79,7 @@ def test_all_media_images_unauthorized(
         ALL_MEDIA_IMAGES_QUERY,
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
     # Verify unauthorized access
     assert 'errors' in content
