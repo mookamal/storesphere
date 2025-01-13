@@ -73,7 +73,7 @@ def test_product_unauthorized(
         PRODUCT_QUERY,
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
     # Check error message and code
     error_messages = [error.get('message', '') for error in content['errors']]

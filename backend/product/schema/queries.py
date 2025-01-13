@@ -76,6 +76,9 @@ class Query(graphene.ObjectType):
                                    "code": "NOT_FOUND",
                                    "status": 404
                                })
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except Exception as e:
             raise GraphQLError(f"Authentication failed: {str(e)}",
                                extensions={

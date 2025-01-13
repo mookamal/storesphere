@@ -77,11 +77,13 @@ def test_all_products_unauthorized(
         ALL_PRODUCTS_QUERY,
         variables
     )
-    content = response.json()
-
-    # Verify unauthorized access
-    assert 'errors' in content
-    assert any('You do not have permission' in str(error) for error in content['errors'])
+    content = get_graphql_content(response, ignore_errors=True)
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 
 @pytest.mark.django_db
