@@ -75,9 +75,12 @@ def test_product_unauthorized(
     )
     content = response.json()
 
-    # Verify unauthorized access
-    assert 'errors' in content
-    assert any('You do not have permission to view products' in str(error) for error in content['errors'])
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 
 @pytest.mark.django_db
