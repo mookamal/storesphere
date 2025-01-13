@@ -218,29 +218,39 @@ class Query(graphene.ObjectType):
             user = info.context.user
             product = Product.objects.get(pk=product_id)
             store = product.store
-            if StaffMember.objects.filter(user=user, store=store).exists():
-                images = product.first_variant.images.all().order_by('-created_at')
-                return images
-            else:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+            
+            # Retrieve images for the product, ordered by creation time
+            images = product.first_variant.images.all().order_by('-created_at')
+            return images
+        
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except Product.DoesNotExist:
             raise GraphQLError("Product not found.",
                                extensions={
                                    "code": "NOT_FOUND",
                                    "status": 404
                                })
-        except Exception as e:
-            raise GraphQLError(f"Authentication failed: {str(e)}",
-                               extensions={
-                "code": "AUTHENTICATION_ERROR",
-                "status": 401
-            })
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "UNAUTHORIZED",
+                    "status": 401
+                }
+            )
 
     def resolve_all_collections(self, info, default_domain, **kwargs):
         try:

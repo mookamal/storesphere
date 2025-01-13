@@ -64,9 +64,14 @@ def test_get_images_product_success(
 @pytest.mark.django_db
 def test_get_images_product_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     product
 ):
-    """Test retrieving product images without proper store permissions."""
+    """Test retrieving product images without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = product.store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables for the query
     variables = {
         "productId": str(product.id)
@@ -77,12 +82,14 @@ def test_get_images_product_unauthorized(
         GET_IMAGES_PRODUCT_QUERY,
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
-    # Verify unauthorized access
-    assert 'errors' in content
-    assert any('You are not authorized to access this store' in str(error) for error in content['errors'])
-    assert any(error.get('extensions', {}).get('code') == 'AUTHENTICATION_ERROR' for error in content['errors'])
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 
 @pytest.mark.django_db
