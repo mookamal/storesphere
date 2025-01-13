@@ -6,6 +6,7 @@ class BasePermissionEnum(Enum):
         return self.value.split(".")[1]
 
 class StorePermissions(BasePermissionEnum):
+    # Product permissions cover products, their images, and collections
     PRODUCTS_VIEW = "products.view"
     PRODUCTS_CREATE = "products.create"
     PRODUCTS_EDIT = "products.edit"
@@ -13,9 +14,6 @@ class StorePermissions(BasePermissionEnum):
 
     ORDERS_VIEW = "orders.view"
     ORDERS_MANAGE = "orders.manage"
-
-    COLLECTIONS_VIEW = "collections.view"
-    COLLECTIONS_EDIT = "collections.edit"
 
     STORE_SETTINGS = "store.settings"
     STORE_ANALYTICS = "store.analytics"

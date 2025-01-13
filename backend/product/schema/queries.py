@@ -171,18 +171,31 @@ class Query(graphene.ObjectType):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
-            if StaffMember.objects.filter(user=user, store=store).exists():
-                images = Image.objects.filter(
-                    store=store).order_by('-created_at')
-                return images
-            else:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+            
+            # Retrieve images for the store, ordered by creation time
+            images = Image.objects.filter(
+                store=store).order_by('-created_at')
+            return images
+        
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 401
+                }
+            )
         except Store.DoesNotExist:
             raise GraphQLError("Store not found.",
                                extensions={
@@ -192,7 +205,7 @@ class Query(graphene.ObjectType):
         except Exception as e:
             raise GraphQLError(f"Authentication failed: {str(e)}",
                                extensions={
-                "code": "AUTHENTICATION_ERROR",
+                "code": "PERMISSION_DENIED",
                 "status": 401
             })
 

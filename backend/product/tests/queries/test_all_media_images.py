@@ -1,5 +1,7 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 
 ALL_MEDIA_IMAGES_QUERY = '''
 query AllMediaImages($defaultDomain: String!) {
@@ -24,6 +26,12 @@ def test_all_media_images_success(
     product_video
 ):
     """Test successful retrieval of all media images for a store."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
+
     # Ensure staff member is associated with the store
     staff_member.store = store
     staff_member.save()
@@ -53,9 +61,14 @@ def test_all_media_images_success(
 @pytest.mark.django_db
 def test_all_media_images_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     store
 ):
-    """Test retrieving media images without proper store permissions."""
+    """Test retrieving media images without PRODUCTS_VIEW permission."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables for the query
     variables = {
         "defaultDomain": store.default_domain
@@ -70,8 +83,13 @@ def test_all_media_images_unauthorized(
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized to access this store' in str(error) for error in content['errors'])
-    assert any(error.get('extensions', {}).get('code') == 'AUTHENTICATION_ERROR' for error in content['errors'])
+    
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+    
+    assert "Authentication failed: You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 
 @pytest.mark.django_db
@@ -107,6 +125,12 @@ def test_all_media_images_order(
     product_video
 ):
     """Test that media images are returned in descending order of creation."""
+    # Add PRODUCTS_VIEW permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_VIEW.codename
+    )
+    staff_member.permissions.add(store_permission)
+
     # Ensure staff member is associated with the store
     staff_member.store = store
     staff_member.save()
