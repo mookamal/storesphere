@@ -1,5 +1,8 @@
 import json
+import pytest
 from product.models import Product
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 from core.graphql.tests.utils import get_graphql_content
 
 CREATE_PRODUCT_MUTATION = '''
@@ -37,8 +40,9 @@ CREATE_PRODUCT_MUTATION = '''
     }
 '''
 
-def test_create_product_success(staff_api_client, description_json, store, staff_member):
-    # Given
+@pytest.mark.django_db
+def test_create_product_success(staff_member, staff_api_client, description_json, store):
+    """Test successful product creation by store owner."""
     variables = {
         "product": {
             "title": "Test Product",
@@ -58,12 +62,11 @@ def test_create_product_success(staff_api_client, description_json, store, staff
         "defaultDomain": store.default_domain
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response)
     product_data = content["data"]["createProduct"]["product"]
     
-    # Then
+    # Verify product details
     assert product_data["title"] == "Test Product"
     assert product_data["status"] == "ACTIVE"
     assert product_data["seo"]["title"] == "Test SEO Title"
@@ -71,23 +74,30 @@ def test_create_product_success(staff_api_client, description_json, store, staff
     assert float(product_data["firstVariant"]["compareAtPrice"]) == 120.0
     assert product_data["firstVariant"]["stock"] == 10
 
-    # Verify product was created in database
+    # Verify database creation
     product = Product.objects.get(title=variables['product']['title'])
     assert product is not None
     assert product.store == store
     
-    # Verify SEO was created
     assert product.seo.title == variables['product']['seo']['title']
     assert product.seo.description == variables['product']['seo']['description']
     
-    # Verify first variant was created
     variant = product.first_variant
     assert variant.price_amount == variables['product']['firstVariant']['price']
     assert variant.compare_at_price == variables['product']['firstVariant']['compareAtPrice']
     assert variant.stock == variables['product']['firstVariant']['stock']
 
-def test_create_product_unauthorized(staff_api_client, description_json, store):
-    # Given
+@pytest.mark.django_db
+def test_create_product_with_permission(staff_api_client, description_json, store, staff_member_with_no_permissions):
+    """Test product creation with explicit PRODUCTS_CREATE permission."""
+    # Add PRODUCTS_CREATE permission to staff member without store ownership
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member_with_no_permissions.permissions.add(store_permission)
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
     variables = {
         "product": {
             "title": "Test Product",
@@ -107,16 +117,50 @@ def test_create_product_unauthorized(staff_api_client, description_json, store):
         "defaultDomain": store.default_domain
     }
 
-    # When
+    response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
+    content = get_graphql_content(response)
+    product_data = content["data"]["createProduct"]["product"]
+    
+    # Verify product details
+    assert product_data["title"] == "Test Product"
+    assert product_data["status"] == "ACTIVE"
+
+@pytest.mark.django_db
+def test_create_product_unauthorized(staff_api_client, description_json, store, staff_member_with_no_permissions):
+    """Test product creation without PRODUCTS_CREATE permission."""
+    # Ensure no permissions are added
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
+    variables = {
+        "product": {
+            "title": "Test Product",
+            "description": json.dumps(description_json),
+            "status": "ACTIVE",
+            "seo": {
+                "title": "Test SEO Title",
+                "description": "Test SEO Description"
+            },
+            "firstVariant": {
+                "price": 100.0,
+                "compareAtPrice": 120.0,
+                "stock": 10
+            },
+            "collectionIds": []
+        },
+        "defaultDomain": store.default_domain
+    }
+
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response, ignore_errors=True)
 
-    # Then
     assert 'errors' in content
-    assert "permission" in content["errors"][0]["message"].lower()
+    assert "You do not have permission to create products." in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
 
-def test_create_product_invalid_store(staff_api_client, description_json, store, staff_member):
-    # Given
+@pytest.mark.django_db
+def test_create_product_invalid_store(staff_api_client, description_json, staff_member):
+    """Test product creation with non-existent store."""
     variables = {
         "product": {
             "title": "Test Product",
@@ -133,19 +177,25 @@ def test_create_product_invalid_store(staff_api_client, description_json, store,
             },
             "collectionIds": []
         },
-        "defaultDomain": "invalid-store-domain"
+        "defaultDomain": "nonexistent.store"
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response, ignore_errors=True)
 
-    # Then
-    assert "errors" in content
-    assert "store" in content["errors"][0]["message"].lower()
+    assert 'errors' in content
+    assert content['errors'][0]['message'] == "Store not found."
+    assert content['errors'][0]['extensions']['code'] == "NOT_FOUND"
 
-def test_create_product_missing_required_fields(staff_api_client, description_json, store, staff_member):
-    # Given
+@pytest.mark.django_db
+def test_create_product_missing_title(staff_api_client, description_json, store, staff_member):
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member.permissions.add(store_permission)
+    staff_member.store = store
+    staff_member.save()
+
     variables = {
         "product": {
             "description": json.dumps(description_json),
@@ -164,16 +214,60 @@ def test_create_product_missing_required_fields(staff_api_client, description_js
         "defaultDomain": store.default_domain
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response, ignore_errors=True)
 
-    # Then
-    assert "errors" in content
-    assert "title" in content["errors"][0]["message"].lower()
+    assert 'errors' in content
+    assert "Field 'title' of required type 'String!' was not provided" in content['errors'][0]['message']
 
+@pytest.mark.django_db
+def test_create_product_negative_price(staff_api_client, description_json, store, staff_member):
+    """Test product creation with negative price."""
+    # Add PRODUCTS_CREATE permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member.permissions.add(store_permission)
+    staff_member.store = store
+    staff_member.save()
+
+    variables = {
+        "product": {
+            "title": "Test Product",
+            "description": json.dumps(description_json),
+            "status": "ACTIVE",
+            "seo": {
+                "title": "Test SEO Title",
+                "description": "Test SEO Description"
+            },
+            "firstVariant": {
+                "price": -100.0,
+                "compareAtPrice": 120.0,
+                "stock": 10
+            },
+            "collectionIds": []
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
+    content = get_graphql_content(response, ignore_errors=True)
+
+    assert 'errors' in content
+    assert "Price cannot be negative" in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "VARIANT_ERROR"
+
+@pytest.mark.django_db
 def test_create_product_invalid_status(staff_api_client, description_json, store, staff_member):
-    # Given
+    """Test product creation with invalid status."""
+    # Add PRODUCTS_CREATE permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member.permissions.add(store_permission)
+    staff_member.store = store
+    staff_member.save()
+
     variables = {
         "product": {
             "title": "Test Product",
@@ -193,20 +287,24 @@ def test_create_product_invalid_status(staff_api_client, description_json, store
         "defaultDomain": store.default_domain
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
-    content = get_graphql_content(response, ignore_errors=True)
+    content = get_graphql_content(response)
+    
+    # Verify status defaults to DRAFT
+    product_data = content["data"]["createProduct"]["product"]
+    assert product_data["status"] == "DRAFT"
 
-    # Then
-    # Since the mutation might default to DRAFT instead of raising an error
-    # we'll check if the status is DRAFT or if there are errors
-    if "errors" not in content:
-        assert content["data"]["createProduct"]["product"]["status"] == "DRAFT"
-    else:
-        assert "status" in content["errors"][0]["message"].lower()
-
+@pytest.mark.django_db
 def test_create_product_with_collection(staff_api_client, description_json, store, staff_member, collection):
-    # Given
+    """Test product creation with collection."""
+    # Add PRODUCTS_CREATE permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member.permissions.add(store_permission)
+    staff_member.store = store
+    staff_member.save()
+
     variables = {
         "product": {
             "title": "Test Product",
@@ -226,11 +324,9 @@ def test_create_product_with_collection(staff_api_client, description_json, stor
         "defaultDomain": store.default_domain
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response)
     product_data = content["data"]["createProduct"]["product"]
-    
 
     product_id = product_data['productId']
     
@@ -239,8 +335,17 @@ def test_create_product_with_collection(staff_api_client, description_json, stor
     assert product.collections.count() == 1
     assert product.collections.first() == collection
 
+@pytest.mark.django_db
 def test_create_product_with_option(staff_api_client, description_json, store, staff_member):
-    # Given
+    """Test product creation with product options."""
+    # Add PRODUCTS_CREATE permission
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_CREATE.codename
+    )
+    staff_member.permissions.add(store_permission)
+    staff_member.store = store
+    staff_member.save()
+
     variables = {
         "product": {
             "title": "Test Product with Options",
@@ -254,23 +359,15 @@ def test_create_product_with_option(staff_api_client, description_json, store, s
                 {
                     "name": "Color",
                     "values": [
-                        {
-                            "name": "Red"
-                        },
-                        {
-                            "name": "Blue"
-                        }
+                        {"name": "Red"},
+                        {"name": "Blue"}
                     ]
                 },
                 {
                     "name": "Size",
                     "values": [
-                        {
-                            "name": "Small"
-                        },
-                        {
-                            "name": "Medium"
-                        }
+                        {"name": "Small"},
+                        {"name": "Medium"}
                     ]
                 }
             ],
@@ -284,12 +381,11 @@ def test_create_product_with_option(staff_api_client, description_json, store, s
         "defaultDomain": store.default_domain
     }
 
-    # When
     response = staff_api_client.post_graphql(CREATE_PRODUCT_MUTATION, variables)
     content = get_graphql_content(response)
     product_data = content["data"]["createProduct"]["product"]
     
-    # Then
+    # Verify product details
     assert product_data["title"] == "Test Product with Options"
     assert product_data["status"] == "ACTIVE"
     
