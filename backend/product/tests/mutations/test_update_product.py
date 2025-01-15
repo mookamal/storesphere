@@ -289,3 +289,50 @@ def test_update_product_with_option(staff_api_client, store, staff_member, produ
     assert product_data["options"][0]["name"] == color_option.name
     assert product_data["options"][1]["name"] == "Size"
     assert len(product_data["options"][1]["values"]) == 2
+
+def test_update_product_without_update_permission(staff_api_client, store, staff_member_with_no_permissions, product, description_json):
+    """
+    Test updating a product without PRODUCTS_UPDATE permission.
+    
+    Verifies that:
+    1. A staff member without update permission cannot modify a product
+    2. A GraphQL error is raised with correct error code and message
+    """
+    # Ensure staff member is associated with the store but has no update permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
+    variables = {
+        "id": str(product.id),
+        "product": {
+            "title": product.title,
+            "description": json.dumps(description_json),
+            "status": "ACTIVE",
+            "seo": {
+                "title": "Updated SEO Title",
+                "description": "Updated SEO Description"
+            },
+            "firstVariant": {
+                "price": 150.0,
+                "compareAtPrice": 170.0,
+                "stock": 15
+            }
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    # Perform the update mutation
+    response = staff_api_client.post_graphql(UPDATE_PRODUCT_MUTATION, variables)
+    content = get_graphql_content(response, ignore_errors=True)
+
+    # Assert that an error was returned
+    assert 'errors' in content, "Expected an error response"
+    
+    # Check the specific error details
+    error = content['errors'][0]
+    assert error['message'] == "You do not have permission to update products.", \
+        f"Unexpected error message: {error['message']}"
+    assert error['extensions']['code'] == "PERMISSION_DENIED", \
+        f"Unexpected error code: {error['extensions']['code']}"
+    assert error['extensions']['status'] == 403, \
+        f"Unexpected error status: {error['extensions']['status']}"
