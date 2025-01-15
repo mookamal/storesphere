@@ -192,102 +192,197 @@ class UpdateProduct(graphene.Mutation):
         default_domain = graphene.String(required=True)
 
     def mutate(self, info, id, product, default_domain):
-        user = info.context.user
-
         try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store with the provided domain does not exist.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+            # Check user authentication
+            user = info.context.user
+            if not user or not user.is_authenticated:
+                raise GraphQLError(
+                    "Authentication required.",
+                    extensions={
+                        "code": "UNAUTHENTICATED",
+                        "status": 401
+                    }
+                )
 
-        if not StaffMember.objects.filter(user=user, store=store).exists():
-            raise GraphQLError(
-                "You are not authorized to update products for this store.",
-                extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
-                }
-            )
+            # Verify store existence
+            try:
+                store = Store.objects.get(default_domain=default_domain)
+            except Store.DoesNotExist:
+                raise GraphQLError(
+                    "Store not found.",
+                    extensions={
+                        "code": "NOT_FOUND",
+                        "status": 404
+                    }
+                )
 
-        try:
-            product_instance = Product.objects.get(pk=id, store=store)
-        except Product.DoesNotExist:
-            raise GraphQLError(
-                "Product not found or you do not have access to this product.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+            # Check staff membership
+            try:
+                staff_member = StaffMember.objects.get(user=user, store=store)
+            except StaffMember.DoesNotExist:
+                raise GraphQLError(
+                    "You are not a staff member of this store.",
+                    extensions={
+                        "code": "NOT_AUTHORIZED",
+                        "status": 403
+                    }
+                )
 
-        if len(product.title) > 255:
-            raise GraphQLError(
-                "Title length cannot exceed 255 characters.",
-                extensions={
-                    "code": "INVALID_INPUT",
-                    "status": 400
-                }
-            )
+            # Verify specific permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
+                raise GraphQLError(
+                    "You do not have permission to update products.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
 
-        if product.seo and product.seo.title and len(product.seo.title) > 255:
-            raise GraphQLError(
-                "SEO title length cannot exceed 255 characters.",
-                extensions={
-                    "code": "INVALID_INPUT",
-                    "status": 400
-                }
-            )
+            # Validate product existence
+            try:
+                product_instance = Product.objects.get(pk=id, store=store)
+            except Product.DoesNotExist:
+                raise GraphQLError(
+                    "Product not found or you do not have access to this product.",
+                    extensions={
+                        "code": "NOT_FOUND",
+                        "status": 404
+                    }
+                )
 
-        product_instance.title = product.title
-        product_instance.description = product.description
-        product_instance.status = product.status
-        product_instance.handle = product.handle
-        
-        # Handle SEO fields safely
-        if product.seo:
-            seo = product_instance.seo
-            seo.title = product.seo.title or seo.title
-            seo.description = product.seo.description or seo.description
-            seo.save()
-        
-        first_variant = product_instance.first_variant
-        if product.first_variant.price < 0:
-            raise GraphQLError(
-                "Price cannot be negative.",
-                extensions={
-                    "code": "INVALID_PRICE",
-                    "status": 400
-                }
-            )
-        if product.first_variant.compare_at_price and product.first_variant.compare_at_price < product.first_variant.price:
-            raise GraphQLError(
-                "Compare at price cannot be less than price.",
-                extensions={
-                    "code": "INVALID_PRICE",
-                    "status": 400
-                }
-            )
-        first_variant.price_amount = product.first_variant.price
-        first_variant.compare_at_price = product.first_variant.compare_at_price
-        first_variant.stock = product.first_variant.stock
-        first_variant.save()
-        product_instance.save()
-        
-        # update options if provided
-        if hasattr(product, 'options'):
-            update_product_options_and_values(product_instance, product.options)
+            # Validate title length
+            if not product.title or len(product.title.strip()) == 0:
+                raise GraphQLError(
+                    "Product title cannot be empty.",
+                    extensions={
+                        "code": "INVALID_INPUT",
+                        "status": 400
+                    }
+                )
 
-        # Handle collection IDs safely
-        collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
-        if collection_ids is not None:
-            update_product_collections(product_instance, collection_ids)
-                
-        return UpdateProduct(product=product_instance)
+            if len(product.title) > 255:
+                raise GraphQLError(
+                    "Title length cannot exceed 255 characters.",
+                    extensions={
+                        "code": "INVALID_INPUT",
+                        "status": 400
+                    }
+                )
+
+            # Update product details
+            product_instance.title = product.title
+            product_instance.description = product.description or {}
+            product_instance.status = product.status if product.status in dict(Product.STATUS) else product_instance.status
+            product_instance.handle = product.handle
+
+            # Handle SEO data
+            try:
+                if product.seo and isinstance(product.seo, dict):
+                    if product_instance.seo:
+                        seo = product_instance.seo
+                        seo.title = product.seo.get('title', seo.title)
+                        seo.description = product.seo.get('description', seo.description)
+                    else:
+                        seo = SEO.objects.create(**product.seo)
+                        product_instance.seo = seo
+                    seo.save()
+                elif not product_instance.seo:
+                    seo = SEO.objects.create(title=product.title)
+                    product_instance.seo = seo
+            except Exception as seo_error:
+                raise GraphQLError(
+                    f"Error updating SEO data: {str(seo_error)}",
+                    extensions={
+                        "code": "SEO_ERROR",
+                        "status": 400
+                    }
+                )
+
+            # Handle first variant
+            try:
+                first_variant = product_instance.first_variant
+                first_variant_data = product.first_variant
+
+                # Flexible price input
+                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(first_variant_data, 'price', first_variant.price_amount)
+                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(first_variant_data, 'compareAtPrice', first_variant.compare_at_price)
+                stock = getattr(first_variant_data, 'stock', first_variant.stock)
+
+                # Validate price
+                if price_amount < 0:
+                    raise GraphQLError(
+                        "Price cannot be negative.",
+                        extensions={
+                            "code": "INVALID_PRICE",
+                            "status": 400
+                        }
+                    )
+
+                # Validate compare at price
+                if compare_at_price is not None and compare_at_price < price_amount:
+                    raise GraphQLError(
+                        "Compare at price cannot be less than price.",
+                        extensions={
+                            "code": "INVALID_PRICE",
+                            "status": 400
+                        }
+                    )
+
+                first_variant.price_amount = Decimal(str(price_amount))
+                first_variant.compare_at_price = Decimal(str(compare_at_price)) if compare_at_price is not None else None
+                first_variant.stock = stock
+                first_variant.save()
+            except Exception as variant_error:
+                raise GraphQLError(
+                    f"Error updating product variant: {str(variant_error)}",
+                    extensions={
+                        "code": "VARIANT_ERROR",
+                        "status": 400
+                    }
+                )
+
+            # Handle collections
+            try:
+                collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
+                if collection_ids is not None:
+                    update_product_collections(product_instance, collection_ids)
+            except Exception as collection_error:
+                raise GraphQLError(
+                    f"Error updating collections: {str(collection_error)}",
+                    extensions={
+                        "code": "COLLECTION_ERROR",
+                        "status": 400
+                    }
+                )
+
+            # Handle product options
+            if product.options:
+                try:
+                    update_product_options_and_values(product_instance, product.options)
+                except Exception as options_error:
+                    raise GraphQLError(
+                        f"Error updating product options: {str(options_error)}",
+                        extensions={
+                            "code": "OPTIONS_ERROR",
+                            "status": 400
+                        }
+                    )
+
+            product_instance.save()
+            return UpdateProduct(product=product_instance)
+
+        except GraphQLError as gql_error:
+            # Re-raise GraphQL errors as-is
+            raise gql_error
+        except Exception as e:
+            # Handle unexpected errors
+            raise GraphQLError(
+                f"Unexpected error: {str(e)}",
+                extensions={
+                    "code": "INTERNAL_SERVER_ERROR",
+                    "status": 500
+                }
+            )
 
 
 class VariantActions(graphene.Enum):

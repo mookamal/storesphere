@@ -9,7 +9,7 @@ class StorePermissions(BasePermissionEnum):
     # Product permissions cover products, their images, and collections
     PRODUCTS_VIEW = "products.view"
     PRODUCTS_CREATE = "products.create"
-    PRODUCTS_EDIT = "products.edit"
+    PRODUCTS_UPDATE = "products.update"
     PRODUCTS_DELETE = "products.delete"
 
     ORDERS_VIEW = "orders.view"
