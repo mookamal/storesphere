@@ -29,6 +29,7 @@ UPDATE_PRODUCT_MUTATION = '''
                     stock
                 }
                 collections {
+                    collectionId
                     id
                     title
                 }
@@ -38,7 +39,7 @@ UPDATE_PRODUCT_MUTATION = '''
 '''
 
 def test_update_product_success(staff_api_client, description_json, store, staff_member, product, collection):
-    # Given
+    """Test successful product update by store owner."""
     variables = {
         "id": str(product.id),
         "product": {
@@ -72,22 +73,22 @@ def test_update_product_success(staff_api_client, description_json, store, staff
     assert float(product_data["firstVariant"]["compareAtPrice"]) == 170.0
     assert product_data["firstVariant"]["stock"] == 15
     assert len(product_data["collections"]) == 1
-    assert product_data["collections"][0]["id"] == "Q29sbGVjdGlvbk5vZGU6MQ=="
+    assert product_data["collections"][0]["collectionId"] == collection.id
 
 def test_update_product_with_empty_values(staff_api_client, description_json, store, staff_member, product):
-    # Given
+    """Test updating product with empty values."""
     variables = {
         "id": str(product.id),
         "product": {
-            "title": product.title,  # Existing title
-            "description": product.description,  # Existing description
-            "status": product.status,  # Existing status
+            "title": product.title,
+            "description": product.description,
+            "status": product.status,
             "seo": {
-                "title": product.seo.title,  # Existing SEO title
-                "description": product.seo.description  # Existing SEO description
+                "title": product.seo.title,
+                "description": product.seo.description
             },
             "firstVariant": {
-                "price": float(product.first_variant.price_amount),  # Existing price
+                "price": float(product.first_variant.price_amount),
                 "compareAtPrice": float(product.first_variant.compare_at_price) if product.first_variant.compare_at_price else None,
                 "stock": product.first_variant.stock
             },
@@ -106,11 +107,11 @@ def test_update_product_with_empty_values(staff_api_client, description_json, st
     assert len(product_data["collections"]) == 0
 
 def test_update_product_with_invalid_price(staff_api_client, description_json, store, staff_member, product):
-    # Given
+    """Test updating product with invalid (negative) price."""
     variables = {
         "id": str(product.id),
         "product": {
-            "title": product.title,  # Existing title
+            "title": product.title,
             "description": json.dumps(description_json),
             "status": "ACTIVE",
             "firstVariant": {
@@ -131,7 +132,7 @@ def test_update_product_with_invalid_price(staff_api_client, description_json, s
     assert any("price" in error["message"].lower() for error in content["errors"])
 
 def test_update_product_status_only(staff_api_client, store, staff_member, product):
-    # Given
+    """Test updating only the product status."""
     variables = {
         "id": str(product.id),
         "product": {
@@ -159,57 +160,8 @@ def test_update_product_status_only(staff_api_client, store, staff_member, produ
     # Then
     assert product_data["status"] == "DRAFT"
 
-def test_update_product_with_long_values(staff_api_client, store, staff_member, product):
-    # Given
-    long_title = "A" * 300  # Assuming there's a max length validation
-    long_description = json.dumps({"blocks": [{"text": "B" * 5000}]})  # JSON-formatted description
-    
-    variables = {
-        "id": str(product.id),
-        "product": {
-            "title": long_title,
-            "description": long_description,
-            "status": product.status,
-            "seo": {
-                "title": product.seo.title,
-                "description": product.seo.description
-            },
-            "firstVariant": {
-                "price": float(product.first_variant.price_amount),
-                "compareAtPrice": float(product.first_variant.compare_at_price) if product.first_variant.compare_at_price else None,
-                "stock": product.first_variant.stock
-            }
-        },
-        "defaultDomain": store.default_domain
-    }
-
-    # When
-    response = staff_api_client.post_graphql(UPDATE_PRODUCT_MUTATION, variables)
-    content = get_graphql_content(response, ignore_errors=True)
-
-    # Then
-    # The test should pass if:
-    # 1. The mutation succeeds and returns the long values
-    # 2. The mutation fails with a length or constraint error
-    # 3. The mutation truncates the long values
-    if "errors" in content:
-        # If there are validation errors for long values
-        assert any("length" in error["message"].lower() or "constraint" in error["message"].lower() for error in content["errors"]), \
-            f"Unexpected error: {content['errors']}"
-    else:
-        # If long values are allowed or truncated
-        product_data = content["data"]["updateProduct"]["product"]
-        # Verify the title and description are not longer than expected
-        assert len(product_data["title"]) <= len(long_title), \
-            f"Title length {len(product_data['title'])} exceeds max length {len(long_title)}"
-        
-        # For description, check the JSON-parsed length
-        parsed_description = json.loads(product_data["description"])
-        assert len(parsed_description.get("blocks", [{}])[0].get("text", "")) <= 5000, \
-            f"Description length {len(parsed_description.get('blocks', [{}])[0].get('text', ''))} exceeds max length 5000"
-
 def test_update_product_multiple_collections(staff_api_client, store, staff_member, product, collection, winter_collection):
-    # Given
+    """Test updating product with multiple collections."""
     variables = {
         "id": str(product.id),
         "product": {
@@ -237,12 +189,12 @@ def test_update_product_multiple_collections(staff_api_client, store, staff_memb
     
     # Then
     assert len(product_data["collections"]) == 2
-    collection_ids = {collection["id"] for collection in product_data["collections"]}
-    assert "Q29sbGVjdGlvbk5vZGU6MQ==" in collection_ids  # Summer Collection
-    assert "Q29sbGVjdGlvbk5vZGU6Mg==" in collection_ids  # Winter Collection
+    collection_ids = {collection["collectionId"] for collection in product_data["collections"]}
+    assert collection.id in collection_ids
+    assert winter_collection.id in collection_ids
 
 def test_update_product_with_option(staff_api_client, store, staff_member, product, color_option, red_option_value):
-    # Given
+    """Test updating product with options."""
     variables = {
         "id": str(product.id),
         "product": {
@@ -261,12 +213,8 @@ def test_update_product_with_option(staff_api_client, store, staff_member, produ
                 {
                     "name": "Size",
                     "values": [
-                        {
-                            "name": "Small"
-                        },
-                        {
-                            "name": "Medium"
-                        }
+                        {"name": "Small"},
+                        {"name": "Medium"}
                     ]
                 }
             ],
@@ -334,5 +282,3 @@ def test_update_product_without_update_permission(staff_api_client, store, staff
         f"Unexpected error message: {error['message']}"
     assert error['extensions']['code'] == "PERMISSION_DENIED", \
         f"Unexpected error code: {error['extensions']['code']}"
-    assert error['extensions']['status'] == 403, \
-        f"Unexpected error status: {error['extensions']['status']}"

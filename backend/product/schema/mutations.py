@@ -394,44 +394,92 @@ class CreateProductVariant(graphene.Mutation):
     class Arguments:
         product_id = graphene.ID(required=True)
         variant_inputs = ProductVariantInput(required=True)
+        default_domain = graphene.String(required=True)
 
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
-    def mutate(cls, root, info, product_id, variant_inputs):
-        user = info.context.user
+    def mutate(cls, root, info, product_id, variant_inputs, default_domain):
         try:
-            product = Product.objects.get(pk=product_id)
-            store = product.store
-
-            if not StaffMember.objects.filter(user=user, store=store).exists():
+            # 1. Authentication Check
+            user = info.context.user
+            if not user or not user.is_authenticated:
                 raise GraphQLError(
-                    "You do not have permission to create product variants.",
+                    "Authentication is required to create a product variant.",
                     extensions={
-                        "code": "PERMISSION_DENIED",
+                        "code": "UNAUTHENTICATED",
+                        "status": 401
+                    }
+                )
+
+            # 2. Store Verification
+            try:
+                store = Store.objects.get(default_domain=default_domain)
+            except Store.DoesNotExist:
+                raise GraphQLError(
+                    f"Store with domain '{default_domain}' not found.",
+                    extensions={
+                        "code": "STORE_NOT_FOUND",
+                        "status": 404
+                    }
+                )
+
+            # 3. Staff Membership Check
+            try:
+                staff_member = StaffMember.objects.get(user=user, store=store)
+            except StaffMember.DoesNotExist:
+                raise GraphQLError(
+                    "You are not a staff member of this store.",
+                    extensions={
+                        "code": "NOT_STAFF_MEMBER",
                         "status": 403
                     }
                 )
 
-            # Validate inputs
-            if variant_inputs.price is not None and variant_inputs.price < 0:
+            # 4. Permission Verification
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
                 raise GraphQLError(
-                    "Price cannot be negative.",
+                    "You do not have permission to create product variants.",
                     extensions={
-                        "code": "INVALID_PRICE",
-                        "status": 400
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "status": 403
                     }
                 )
 
-            if variant_inputs.stock is not None and variant_inputs.stock < 0:
+            # 5. Product Existence Validation
+            try:
+                product = Product.objects.get(pk=product_id, store=store)
+            except Product.DoesNotExist:
                 raise GraphQLError(
-                    "Stock cannot be negative.",
+                    f"Product with ID {product_id} not found in the store.",
                     extensions={
-                        "code": "INVALID_STOCK",
-                        "status": 400
+                        "code": "PRODUCT_NOT_FOUND",
+                        "status": 404
                     }
                 )
 
+            # 6. Input Validation
+            if variant_inputs.price is not None:
+                if variant_inputs.price < 0:
+                    raise GraphQLError(
+                        "Price cannot be negative.",
+                        extensions={
+                            "code": "INVALID_PRICE",
+                            "status": 400
+                        }
+                    )
+
+            if variant_inputs.stock is not None:
+                if variant_inputs.stock < 0:
+                    raise GraphQLError(
+                        "Stock cannot be negative.",
+                        extensions={
+                            "code": "INVALID_STOCK",
+                            "status": 400
+                        }
+                    )
+
+            # 7. Variant Creation
             variant = ProductVariant(
                 product=product,
                 price_amount=variant_inputs.price,
@@ -440,17 +488,33 @@ class CreateProductVariant(graphene.Mutation):
             )
             variant.save()
 
-            # Add values to the variant
-            add_values_to_variant(variant, variant_inputs.option_values)
+            # 8. Option Values Handling
+            if variant_inputs.option_values:
+                try:
+                    add_values_to_variant(variant, variant_inputs.option_values)
+                except Exception as option_error:
+                    # Rollback variant creation if option values fail
+                    variant.delete()
+                    raise GraphQLError(
+                        f"Error adding option values: {str(option_error)}",
+                        extensions={
+                            "code": "OPTION_VALUE_ERROR",
+                            "status": 400
+                        }
+                    )
 
             return CreateProductVariant(product_variant=variant)
 
-        except Product.DoesNotExist:
+        except GraphQLError as gql_error:
+            # Re-raise GraphQL-specific errors
+            raise gql_error
+        except Exception as unexpected_error:
+            # Catch and log any unexpected errors
             raise GraphQLError(
-                "Product not found.",
+                f"An unexpected error occurred: {str(unexpected_error)}",
                 extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
+                    "code": "INTERNAL_SERVER_ERROR",
+                    "status": 500
                 }
             )
 
@@ -476,7 +540,7 @@ class UpdateProductVariant(graphene.Mutation):
             # Check user permissions for the store
             if not StaffMember.objects.filter(user=user, store=store).exists():
                 raise GraphQLError(
-                    "You do not have permission to update product variants for this store.",
+                    "You are not authorized to update product variants for this store.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
