@@ -399,27 +399,37 @@ class Query(graphene.ObjectType):
         try:
             user = info.context.user
             store = Store.objects.get(default_domain=default_domain)
-            if StaffMember.objects.filter(user=user, store=store).exists():
-                filter_collections = CollectionFilter(
-                    data=kwargs, queryset=store.collections.all()).qs
-                return filter_collections
-            else:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for products view permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_VIEW):
                 raise GraphQLError(
-                    "You are not authorized to access this store.",
+                    "You do not have permission to view products.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
                     }
                 )
+            
+            # Apply collection filter for the store
+            filter_collections = CollectionFilter(
+                data=kwargs, queryset=store.collections.all()).qs
+            return filter_collections
+        
+        except GraphQLError as gql_error:
+            # Handle GraphQL-specific errors
+            raise gql_error
         except Store.DoesNotExist:
             raise GraphQLError("Store not found.",
                                extensions={
                                    "code": "NOT_FOUND",
                                    "status": 404
                                })
-        except Exception as e:
-            raise GraphQLError(f"Authentication failed: {str(e)}",
-                               extensions={
-                "code": "AUTHENTICATION_ERROR",
-                "status": 401
-            })
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "UNAUTHORIZED",
+                    "status": 401
+                }
+            )

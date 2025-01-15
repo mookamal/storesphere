@@ -85,27 +85,36 @@ def test_collections_find_filter_by_title(
 @pytest.mark.django_db
 def test_collections_find_unauthorized(
     staff_api_client, 
+    staff_member_with_no_permissions,
     store, 
     collection
 ):
     """Test unauthorized access to collections."""
+    # Use staff member with no permissions
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
     # Prepare variables
     variables = {
         "defaultDomain": store.default_domain
     }
 
-    # Execute the query with no permissions
+    # Execute the query
     response = staff_api_client.post_graphql(
         COLLECTIONS_FIND_QUERY, 
-        variables,
-        permissions=[]  # Remove all permissions
+        variables
     )
 
     # Verify error message
     assert response.status_code == 200
-    content = response.json()
-    assert 'errors' in content
-    assert content['errors'][0]['extensions']['code'] == 'AUTHENTICATION_ERROR'
+    content = get_graphql_content(response, ignore_errors=True)
+
+    # Check error message and code
+    error_messages = [error.get('message', '') for error in content['errors']]
+    error_codes = [error.get('extensions', {}).get('code', '') for error in content['errors']]
+        
+    assert "You do not have permission to view products." in error_messages
+    assert "PERMISSION_DENIED" in error_codes
 
 @pytest.mark.django_db
 def test_collections_find_nonexistent_store(
