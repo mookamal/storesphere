@@ -692,6 +692,14 @@ class AddImagesProduct(graphene.Mutation):
 
     def mutate(self, info, default_domain, product_id, image_ids):
         user = info.context.user
+        if not user or not user.is_authenticated:
+            raise GraphQLError(
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
 
         # Verify store existence
         try:
@@ -740,7 +748,7 @@ class AddImagesProduct(graphene.Mutation):
             )
 
         # Validate images
-        images = Image.objects.filter(pk__in=image_ids)
+        images = Image.objects.filter(pk__in=image_ids, store=store)
         if not images.exists():
             raise GraphQLError(
                 "No valid images found for addition.",
@@ -751,7 +759,16 @@ class AddImagesProduct(graphene.Mutation):
             )
 
         # Add images to the first variant
-        product.first_variant.images.add(*images)
+        if product.first_variant:
+            product.first_variant.images.add(*images)
+        else:
+            raise GraphQLError(
+                "Product does not have a first variant.",
+                extensions={
+                    "code": "NO_FIRST_VARIANT",
+                    "status": 400
+                }
+            )
 
         return AddImagesProduct(product=product)
 
