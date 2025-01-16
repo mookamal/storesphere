@@ -1,6 +1,6 @@
 import graphene
 from core.models import SEO
-from product.models import Collection, Image, Product,ProductVariant
+from product.models import Collection, Image, Product, ProductVariant
 from product.utils import add_values_to_variant, update_product_options_and_values, update_product_collections
 from stores.models import StaffMember, Store
 from stores.enums import StorePermissions
@@ -79,7 +79,8 @@ class CreateProduct(graphene.Mutation):
                 store=store,
                 title=product.title,
                 description=product.description or {},
-                status=product.status if product.status in dict(Product.STATUS) else "DRAFT"
+                status=product.status if product.status in dict(
+                    Product.STATUS) else "DRAFT"
             )
 
             # Handle SEO data
@@ -105,8 +106,10 @@ class CreateProduct(graphene.Mutation):
             try:
                 first_variant_data = product.first_variant
                 # Flexible price input
-                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(first_variant_data, 'price', 0.0)
-                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(first_variant_data, 'compareAtPrice', None)
+                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(
+                    first_variant_data, 'price', 0.0)
+                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(
+                    first_variant_data, 'compareAtPrice', None)
                 stock = getattr(first_variant_data, 'stock', 0)
 
                 # Validate price
@@ -122,7 +125,8 @@ class CreateProduct(graphene.Mutation):
                 first_variant = ProductVariant(
                     product=product_obj,
                     price_amount=Decimal(str(price_amount)),
-                    compare_at_price=Decimal(str(compare_at_price)) if compare_at_price is not None else None,
+                    compare_at_price=Decimal(
+                        str(compare_at_price)) if compare_at_price is not None else None,
                     stock=stock,
                 )
 
@@ -142,7 +146,8 @@ class CreateProduct(graphene.Mutation):
 
             # Handle collections
             try:
-                collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
+                collection_ids = getattr(product, 'collection_ids', None) or getattr(
+                    product, 'collectionIds', None)
                 if collection_ids is not None:
                     update_product_collections(product_obj, collection_ids)
             except Exception as collection_error:
@@ -157,10 +162,12 @@ class CreateProduct(graphene.Mutation):
             # Handle product options
             if product.options:
                 try:
-                    update_product_options_and_values(product_obj, product.options)
+                    update_product_options_and_values(
+                        product_obj, product.options)
                 except Exception as options_error:
                     raise GraphQLError(
-                        f"Error updating product options: {str(options_error)}",
+                        f"Error updating product options: {
+                            str(options_error)}",
                         extensions={
                             "code": "OPTIONS_ERROR",
                             "status": 400
@@ -272,7 +279,8 @@ class UpdateProduct(graphene.Mutation):
             # Update product details
             product_instance.title = product.title
             product_instance.description = product.description or {}
-            product_instance.status = product.status if product.status in dict(Product.STATUS) else product_instance.status
+            product_instance.status = product.status if product.status in dict(
+                Product.STATUS) else product_instance.status
             product_instance.handle = product.handle
 
             # Handle SEO data
@@ -281,7 +289,8 @@ class UpdateProduct(graphene.Mutation):
                     if product_instance.seo:
                         seo = product_instance.seo
                         seo.title = product.seo.get('title', seo.title)
-                        seo.description = product.seo.get('description', seo.description)
+                        seo.description = product.seo.get(
+                            'description', seo.description)
                     else:
                         seo = SEO.objects.create(**product.seo)
                         product_instance.seo = seo
@@ -304,9 +313,12 @@ class UpdateProduct(graphene.Mutation):
                 first_variant_data = product.first_variant
 
                 # Flexible price input
-                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(first_variant_data, 'price', first_variant.price_amount)
-                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(first_variant_data, 'compareAtPrice', first_variant.compare_at_price)
-                stock = getattr(first_variant_data, 'stock', first_variant.stock)
+                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(
+                    first_variant_data, 'price', first_variant.price_amount)
+                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(
+                    first_variant_data, 'compareAtPrice', first_variant.compare_at_price)
+                stock = getattr(first_variant_data, 'stock',
+                                first_variant.stock)
 
                 # Validate price
                 if price_amount < 0:
@@ -329,7 +341,8 @@ class UpdateProduct(graphene.Mutation):
                     )
 
                 first_variant.price_amount = Decimal(str(price_amount))
-                first_variant.compare_at_price = Decimal(str(compare_at_price)) if compare_at_price is not None else None
+                first_variant.compare_at_price = Decimal(
+                    str(compare_at_price)) if compare_at_price is not None else None
                 first_variant.stock = stock
                 first_variant.save()
             except Exception as variant_error:
@@ -343,9 +356,11 @@ class UpdateProduct(graphene.Mutation):
 
             # Handle collections
             try:
-                collection_ids = getattr(product, 'collection_ids', None) or getattr(product, 'collectionIds', None)
+                collection_ids = getattr(product, 'collection_ids', None) or getattr(
+                    product, 'collectionIds', None)
                 if collection_ids is not None:
-                    update_product_collections(product_instance, collection_ids)
+                    update_product_collections(
+                        product_instance, collection_ids)
             except Exception as collection_error:
                 raise GraphQLError(
                     f"Error updating collections: {str(collection_error)}",
@@ -358,10 +373,12 @@ class UpdateProduct(graphene.Mutation):
             # Handle product options
             if product.options:
                 try:
-                    update_product_options_and_values(product_instance, product.options)
+                    update_product_options_and_values(
+                        product_instance, product.options)
                 except Exception as options_error:
                     raise GraphQLError(
-                        f"Error updating product options: {str(options_error)}",
+                        f"Error updating product options: {
+                            str(options_error)}",
                         extensions={
                             "code": "OPTIONS_ERROR",
                             "status": 400
@@ -491,7 +508,8 @@ class CreateProductVariant(graphene.Mutation):
             # 8. Option Values Handling
             if variant_inputs.option_values:
                 try:
-                    add_values_to_variant(variant, variant_inputs.option_values)
+                    add_values_to_variant(
+                        variant, variant_inputs.option_values)
                 except Exception as option_error:
                     # Rollback variant creation if option values fail
                     variant.delete()
@@ -522,25 +540,36 @@ class CreateProductVariant(graphene.Mutation):
 class UpdateProductVariant(graphene.Mutation):
     class Arguments:
         variant_inputs = ProductVariantInput(required=True)
-    
+
     product_variant = graphene.Field(ProductVariantNode)
 
     @classmethod
     def mutate(cls, root, info, variant_inputs):
-        # Get current user from request context
         user = info.context.user
-        
+
         try:
             # Find product variant by ID
             variant = ProductVariant.objects.get(id=variant_inputs.variant_id)
-            
+
             # Extract store from product
             store = variant.product.store
 
             # Check user permissions for the store
-            if not StaffMember.objects.filter(user=user, store=store).exists():
+            try:
+                staff_member = StaffMember.objects.get(user=user, store=store)
+            except StaffMember.DoesNotExist:
                 raise GraphQLError(
-                    "You are not authorized to update product variants for this store.",
+                    "You are not a staff member of this store.",
+                    extensions={
+                        "code": "NOT_AUTHORIZED",
+                        "status": 403
+                    }
+                )
+
+            # Verify specific permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
+                raise GraphQLError(
+                    "You do not have permission to update product variants.",
                     extensions={
                         "code": "PERMISSION_DENIED",
                         "status": 403
@@ -548,7 +577,6 @@ class UpdateProductVariant(graphene.Mutation):
                 )
 
         except ProductVariant.DoesNotExist:
-            # Handle case when product variant is not found
             raise GraphQLError(
                 "Product variant not found.",
                 extensions={
@@ -559,7 +587,6 @@ class UpdateProductVariant(graphene.Mutation):
 
         # Validate and update price
         if variant_inputs.price is not None:
-            # Ensure price is not negative
             if variant_inputs.price < 0:
                 raise GraphQLError(
                     "Price cannot be negative.",
@@ -572,7 +599,6 @@ class UpdateProductVariant(graphene.Mutation):
 
         # Validate and update stock
         if variant_inputs.stock is not None:
-            # Ensure stock is not negative
             if variant_inputs.stock < 0:
                 raise GraphQLError(
                     "Stock cannot be negative.",
@@ -593,7 +619,6 @@ class UpdateProductVariant(graphene.Mutation):
         # Add values to the variant
         add_values_to_variant(variant, variant_inputs.option_values)
 
-        # Return updated product variant
         return UpdateProductVariant(product_variant=variant)
 
 
@@ -608,10 +633,10 @@ class PerformActionOnVariants(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, action, variant_ids):
         user = info.context.user
-        
+
         # Check variant existence in a single query
         variants = ProductVariant.objects.filter(id__in=variant_ids)
-        
+
         # Verify all requested variants exist
         if variants.count() != len(variant_ids):
             raise GraphQLError(
@@ -630,7 +655,7 @@ class PerformActionOnVariants(graphene.Mutation):
                     "status": 403
                 }
             )
-        
+
         if action == VariantActions.DELETE:
             variants.delete()
             return PerformActionOnVariants(success=True, message="Product variants deleted successfully.")
@@ -690,7 +715,7 @@ class RemoveImagesProduct(graphene.Mutation):
 
     def mutate(self, info, default_domain, product_id, image_ids):
         user = info.context.user
-        
+
         # Validate store existence
         try:
             store = Store.objects.get(default_domain=default_domain)
@@ -702,7 +727,7 @@ class RemoveImagesProduct(graphene.Mutation):
                     "status": 404
                 }
             )
-        
+
         # Check user permissions for the store
         if not StaffMember.objects.filter(user=user, store=store).exists():
             raise GraphQLError(
@@ -712,7 +737,7 @@ class RemoveImagesProduct(graphene.Mutation):
                     "status": 403
                 }
             )
-        
+
         # Validate product existence and ownership
         try:
             product = Product.objects.get(pk=product_id, store=store)
@@ -724,7 +749,7 @@ class RemoveImagesProduct(graphene.Mutation):
                     "status": 404
                 }
             )
-        
+
         # Ensure product has a first variant
         if not product.first_variant:
             raise GraphQLError(
@@ -734,7 +759,7 @@ class RemoveImagesProduct(graphene.Mutation):
                     "status": 400
                 }
             )
-        
+
         # Validate images
         images = Image.objects.filter(pk__in=image_ids, store=store)
         if not images.exists():
@@ -745,10 +770,10 @@ class RemoveImagesProduct(graphene.Mutation):
                     "status": 400
                 }
             )
-        
+
         # Remove images from the first variant
         product.first_variant.images.remove(*images)
-        
+
         return RemoveImagesProduct(product=product)
 
 
@@ -772,7 +797,7 @@ class CreateCollection(graphene.Mutation):
                     "status": 404
                 }
             )
-        
+
         if not StaffMember.objects.filter(user=user, store=store).exists():
             raise GraphQLError(
                 "You are not authorized to create collections for this store.",
@@ -781,7 +806,7 @@ class CreateCollection(graphene.Mutation):
                     "status": 403
                 }
             )
-        
+
         # Validate title length
         if len(collection_inputs.title) > 255:
             raise GraphQLError(
@@ -791,7 +816,7 @@ class CreateCollection(graphene.Mutation):
                     "status": 400
                 }
             )
-        
+
         # Check for unique handle within the store
         if Collection.objects.filter(store=store, handle=collection_inputs.handle).exists():
             raise GraphQLError(
@@ -801,20 +826,22 @@ class CreateCollection(graphene.Mutation):
                     "status": 400
                 }
             )
-        
+
         # Validate and limit SEO data
         def validate_seo_data(seo_data):
             MAX_TITLE_LENGTH = 70
             MAX_DESCRIPTION_LENGTH = 160
-            
+
             seo_data = seo_data if isinstance(seo_data, dict) else {}
-            seo_data['title'] = (seo_data.get('title', '') or collection_inputs.title)[:MAX_TITLE_LENGTH]
-            seo_data['description'] = (seo_data.get('description', '') or '')[:MAX_DESCRIPTION_LENGTH]
-            
+            seo_data['title'] = (seo_data.get('title', '') or collection_inputs.title)[
+                :MAX_TITLE_LENGTH]
+            seo_data['description'] = (seo_data.get('description', '') or '')[
+                :MAX_DESCRIPTION_LENGTH]
+
             return seo_data
-        
+
         seo_data = validate_seo_data(collection_inputs.seo)
-        
+
         # Create collection
         collection = Collection.objects.create(
             store=store,
@@ -823,11 +850,12 @@ class CreateCollection(graphene.Mutation):
             handle=collection_inputs.handle,
             image_id=None,  # Will be set after validation
         )
-        
+
         # Validate and set image if provided
         if collection_inputs.image_id:
             try:
-                image = Image.objects.get(pk=collection_inputs.image_id, store=store)
+                image = Image.objects.get(
+                    pk=collection_inputs.image_id, store=store)
                 collection.image = image
             except Image.DoesNotExist:
                 raise GraphQLError(
@@ -837,12 +865,12 @@ class CreateCollection(graphene.Mutation):
                         "status": 404
                     }
                 )
-        
+
         # Create SEO
         seo = SEO.objects.create(**seo_data)
         collection.seo = seo
         collection.save()
-        
+
         return CreateCollection(collection=collection)
 
 
@@ -874,11 +902,11 @@ class UpdateCollection(graphene.Mutation):
                     "status": 404
                 }
             )
-        
+
         # Validate unique handle within the store
         if collection_inputs.handle:
             existing_collection = Collection.objects.filter(
-                handle=collection_inputs.handle, 
+                handle=collection_inputs.handle,
                 store=collection.store
             ).exclude(pk=collection.pk).exists()
             if existing_collection:
@@ -889,7 +917,7 @@ class UpdateCollection(graphene.Mutation):
                         "status": 400
                     }
                 )
-        
+
         # Validate title length
         if collection_inputs.title and len(collection_inputs.title) > 255:
             raise GraphQLError(
@@ -917,22 +945,23 @@ class UpdateCollection(graphene.Mutation):
         # Handle SEO data
         seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
             "title": collection.title, "description": ""}
-        
+
         # Truncate SEO data
         seo_title = seo_data.get("title", collection.title)
         if len(seo_title) > 70:
             seo_title = seo_title[:67] + "..."
-        
+
         seo_description = seo_data.get("description", "")
         if len(seo_description) > 160:
             seo_description = seo_description[:157] + "..."
-        
+
         # Update or create SEO
         if collection.seo:
             collection.seo.title = seo_title
             collection.seo.description = seo_description
         else:
-            seo = SEO.objects.create(title=seo_title, description=seo_description)
+            seo = SEO.objects.create(
+                title=seo_title, description=seo_description)
             collection.seo = seo
         collection.seo.save()
 
@@ -959,7 +988,7 @@ class UpdateCollection(graphene.Mutation):
                         "status": 404
                     }
                 )
-        
+
         # Save changes to the collection
         collection.save()
         return UpdateCollection(collection=collection)

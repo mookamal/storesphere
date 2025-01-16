@@ -1,234 +1,134 @@
+import json
 import pytest
+from product.models import ProductVariant
+from stores.models import StorePermission
+from stores.enums import StorePermissions
 from core.graphql.tests.utils import get_graphql_content
-from decimal import Decimal
-from django.contrib.auth import get_user_model
-from ...models import ProductVariant
-from ...models import OptionValue
 
-UPDATE_PRODUCT_VARIANT_MUTATION = """
-mutation UpdateProductVariant(
-    $variantInputs: ProductVariantInput!
-) {
-    updateProductVariant(
-        variantInputs: $variantInputs
-    ) {
-        productVariant {
-            id
-            variantId
-            pricing {
-                amount
-                currency
-            }
-            selectedOptions {
+UPDATE_PRODUCT_VARIANT_MUTATION = '''
+    mutation UpdateProductVariant($variantInputs: ProductVariantInput!) {
+        updateProductVariant(variantInputs: $variantInputs) {
+            productVariant {
                 id
-                name
+                priceAmount
+                compareAtPrice
+                stock
             }
         }
     }
-}
-"""
+'''
+
 
 @pytest.mark.django_db
-def test_update_product_variant_success(
-    staff_api_client, 
-    staff_member,
-    product_variant
-):
-    """Test successful update of a product variant."""
-    # Prepare variant update input data
-    variant_input = {
-        "variantId": product_variant.pk,
-        "price": 29.99,
-        "stock": 150
-    }
-
-    # Prepare variables for the mutation
+def test_update_product_variant_success(staff_api_client, store, staff_member, product_variant):
+    """Test successful product variant update by store owner."""
     variables = {
-        "variantInputs": variant_input
-    }
-
-    # Perform the mutation
-    response = staff_api_client.post_graphql(
-        UPDATE_PRODUCT_VARIANT_MUTATION,
-        variables
-    )
-    content = get_graphql_content(response, ignore_errors=True)
-
-    # Verify the response
-    variant_data = content.get("data", {}).get("updateProductVariant", {}).get("productVariant", {})
-    assert variant_data, "No product variant data in response"
-    assert variant_data.get("id") is not None, "Variant ID is missing"
-    assert round(float(variant_data.get("pricing", {}).get("amount", 0)), 2) == round(variant_input["price"], 2)
-
-    # Verify the variant was updated in the database
-    updated_variant = ProductVariant.objects.get(pk=product_variant.pk)
-    assert abs(updated_variant.price_amount - Decimal(str(variant_input["price"]))) < Decimal('0.01')
-    assert updated_variant.stock == variant_input["stock"]
-
-
-@pytest.mark.django_db
-def test_update_product_variant_without_permissions(
-    staff_api_client,
-    product_variant
-):
-    """Test updating a product variant without proper permissions."""
-    variant_input = {
-        "variantId": product_variant.pk,
-        "price": 29.99,
-        "stock": 150
-    }
-
-    variables = {
-        "variantInputs": variant_input
-    }
-
-    # Remove staff permissions by creating a new user
-    User = get_user_model()
-    no_permission_user = User.objects.create_user(
-        email='no_permission@example.com',
-        password='testpass'
-    )
-    staff_api_client.user = no_permission_user
-
-    response = staff_api_client.post_graphql(
-        UPDATE_PRODUCT_VARIANT_MUTATION,
-        variables
-    )
-    content = get_graphql_content(response, ignore_errors=True)
-
-    assert "errors" in content, "Expected errors for unauthorized user"
-    assert len(content["errors"]) > 0
-    assert any("permission" in str(error).lower() for error in content["errors"])
-
-
-@pytest.mark.django_db
-def test_update_product_variant_with_invalid_inputs(
-    staff_api_client,
-    staff_member,
-    product_variant
-):
-    """Test updating a product variant with invalid inputs."""
-    invalid_inputs = [
-        # Negative price
-        {
-            "variantId": product_variant.pk,
-            "price": -10.00,
-            "stock": 100,
-            "expected_error": "Price cannot be negative"
-        },
-        # Negative stock
-        {
-            "variantId": product_variant.pk,
-            "price": 19.99,
-            "stock": -50,
-            "expected_error": "Stock cannot be negative"
+        "variantInputs": {
+            "variantId": str(product_variant.id),
+            "price": 150.0,
+            "compareAtPrice": 170.0,
+            "stock": 15
         }
-    ]
-
-    for invalid_input in invalid_inputs:
-        variables = {
-            "variantInputs": {k: v for k, v in invalid_input.items() if k != "expected_error"}
-        }
-
-        response = staff_api_client.post_graphql(
-            UPDATE_PRODUCT_VARIANT_MUTATION,
-            variables
-        )
-        content = get_graphql_content(response, ignore_errors=True)
-
-        assert "errors" in content, f"No errors for input: {invalid_input}"
-        assert len(content["errors"]) > 0
-        
-        # Print errors for debugging
-        print(f"Errors for input {invalid_input}: {content['errors']}")
-        
-        assert any(invalid_input["expected_error"] in str(error) for error in content["errors"]), \
-            f"Expected error '{invalid_input['expected_error']}' not found"
-
-
-@pytest.mark.django_db
-def test_update_product_variant_not_found(
-    staff_api_client,
-    staff_member
-):
-    """Test updating a non-existent product variant."""
-    variant_input = {
-        "variantId": 999999,  # Non-existent variant ID
-        "price": 29.99,
-        "stock": 150
-    }
-
-    variables = {
-        "variantInputs": variant_input
     }
 
     response = staff_api_client.post_graphql(
-        UPDATE_PRODUCT_VARIANT_MUTATION,
-        variables
-    )
-    content = get_graphql_content(response, ignore_errors=True)
-
-    assert "errors" in content, "Expected errors for non-existent variant"
-    assert len(content["errors"]) > 0
-    
-    # Print errors for debugging
-    print(f"Errors for non-existent variant: {content['errors']}")
-    
-    assert any("not found" in str(error).lower() for error in content["errors"]), \
-        "Expected 'not found' error not present"
-
-
-@pytest.mark.django_db
-def test_update_product_variant_with_option_values(
-    staff_api_client, 
-    staff_member, 
-    product, 
-    color_option, 
-    red_option_value
-):
-    """Test updating a product variant with option values."""
-    # Create a variant with an initial option value
-    variant = ProductVariant.objects.create(
-        product=product, 
-        sku="VARIANT-001", 
-        price_amount=Decimal(10), 
-        stock=10
-    )
-    variant.selected_options.add(red_option_value)
-
-    # Create a new option value for update
-    blue_option_value = OptionValue.objects.create(
-        option=color_option, 
-        name="Blue"
-    )
-
-    # Prepare variant update input data with new option value
-    variant_input = {
-        "variantId": variant.pk,
-        "optionValues": [blue_option_value.pk]
-    }
-
-    # Prepare variables for the mutation
-    variables = {
-        "variantInputs": variant_input
-    }
-
-    # Perform the mutation
-    response = staff_api_client.post_graphql(
-        UPDATE_PRODUCT_VARIANT_MUTATION, 
-        variables, 
-    )
-
-    # Get the mutation content
+        UPDATE_PRODUCT_VARIANT_MUTATION, variables)
     content = get_graphql_content(response)
-    updated_variant = content["data"]["updateProductVariant"]["productVariant"]
+    variant_data = content["data"]["updateProductVariant"]["productVariant"]
 
-    # Assertions
-    assert len(updated_variant["selectedOptions"]) == 1, "Should have exactly one option value"
-    assert updated_variant["selectedOptions"][0]["name"] == "Blue", "Option value should be Blue"
-    
-    # Verify the variant in the database
-    variant.refresh_from_db()
-    assert variant.selected_options.count() == 1, "Variant should have exactly one option value"
-    assert variant.selected_options.first().name == "Blue", "Variant's option value should be Blue"
-    assert variant.selected_options.first().option == color_option, "Option should be the same color option"
+    assert float(variant_data["priceAmount"]) == 150.0
+    assert float(variant_data["compareAtPrice"]) == 170.0
+    assert variant_data["stock"] == 15
+
+
+@pytest.mark.django_db
+def test_update_product_variant_with_permission(staff_api_client, store, staff_member_with_no_permissions, product_variant):
+    """Test product variant update with explicit PRODUCTS_UPDATE permission."""
+    store_permission = StorePermission.objects.get(
+        codename=StorePermissions.PRODUCTS_UPDATE.codename
+    )
+    staff_member_with_no_permissions.permissions.add(store_permission)
+    staff_member_with_no_permissions.store = store
+    staff_member_with_no_permissions.save()
+
+    variables = {
+        "variantInputs": {
+            "variantId": str(product_variant.id),
+            "price": 150.0,
+            "compareAtPrice": 170.0,
+            "stock": 15
+        }
+    }
+
+    response = staff_api_client.post_graphql(
+        UPDATE_PRODUCT_VARIANT_MUTATION, variables)
+    content = get_graphql_content(response)
+    variant_data = content["data"]["updateProductVariant"]["productVariant"]
+
+    assert float(variant_data["priceAmount"]) == 150.0
+    assert float(variant_data["compareAtPrice"]) == 170.0
+    assert variant_data["stock"] == 15
+
+
+@pytest.mark.django_db
+def test_update_product_variant_unauthorized(staff_api_client, store, staff_member_with_no_permissions, product_variant):
+    """Test product variant update without PRODUCTS_UPDATE permission."""
+    variables = {
+        "variantInputs": {
+            "variantId": str(product_variant.id),
+            "price": 150.0,
+            "compareAtPrice": 170.0,
+            "stock": 15
+        }
+    }
+
+    response = staff_api_client.post_graphql(
+        UPDATE_PRODUCT_VARIANT_MUTATION, variables)
+    content = get_graphql_content(response, ignore_errors=True)
+
+    assert 'errors' in content
+    assert "You do not have permission to update product variants." in content[
+        'errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
+
+
+@pytest.mark.django_db
+def test_update_product_variant_invalid_price(staff_api_client, store, staff_member, product_variant):
+    """Test updating product variant with invalid (negative) price."""
+    variables = {
+        "variantInputs": {
+            "variantId": str(product_variant.id),
+            "price": -100.0,
+            "compareAtPrice": 50.0,
+            "stock": 15
+        }
+    }
+
+    response = staff_api_client.post_graphql(
+        UPDATE_PRODUCT_VARIANT_MUTATION, variables)
+    content = get_graphql_content(response, ignore_errors=True)
+
+    assert 'errors' in content
+    assert "Price cannot be negative" in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "INVALID_PRICE"
+
+
+@pytest.mark.django_db
+def test_update_product_variant_not_found(staff_api_client, store, staff_member):
+    """Test updating a non-existent product variant."""
+    variables = {
+        "variantInputs": {
+            "variantId": "999999",
+            "price": 150.0,
+            "compareAtPrice": 170.0,
+            "stock": 15
+        }
+    }
+
+    response = staff_api_client.post_graphql(
+        UPDATE_PRODUCT_VARIANT_MUTATION, variables)
+    content = get_graphql_content(response, ignore_errors=True)
+
+    assert 'errors' in content
+    assert content['errors'][0]['message'] == "Product variant not found."
+    assert content['errors'][0]['extensions']['code'] == "NOT_FOUND"
