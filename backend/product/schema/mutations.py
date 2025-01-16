@@ -647,9 +647,25 @@ class PerformActionOnVariants(graphene.Mutation):
                 }
             )
 
-        if not StaffMember.objects.filter(user=user, store=variants.first().product.store).exists():
+        # Extract store from the first variant
+        store = variants.first().product.store
+
+        # Check user permissions for the store
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
             raise GraphQLError(
-                "You are not authorized to perform action on product variants for this store.",
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
+            raise GraphQLError(
+                "You do not have permission to perform actions on product variants.",
                 extensions={
                     "code": "PERMISSION_DENIED",
                     "status": 403
@@ -659,6 +675,11 @@ class PerformActionOnVariants(graphene.Mutation):
         if action == VariantActions.DELETE:
             variants.delete()
             return PerformActionOnVariants(success=True, message="Product variants deleted successfully.")
+
+        # Handle other actions if needed
+        # ...
+
+        return PerformActionOnVariants(success=False, message="Action not performed.")
 
 
 class AddImagesProduct(graphene.Mutation):
