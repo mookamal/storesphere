@@ -1,5 +1,5 @@
 import pytest
-from ...models import Image, Video
+from product.models import Image, Video
 
 
 @pytest.fixture

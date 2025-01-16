@@ -692,6 +692,8 @@ class AddImagesProduct(graphene.Mutation):
 
     def mutate(self, info, default_domain, product_id, image_ids):
         user = info.context.user
+
+        # Verify store existence
         try:
             store = Store.objects.get(default_domain=default_domain)
         except Store.DoesNotExist:
@@ -703,19 +705,31 @@ class AddImagesProduct(graphene.Mutation):
                 }
             )
 
-        if not StaffMember.objects.filter(user=user, store=store).exists():
+        # Check staff membership
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
             raise GraphQLError(
-                "You are not authorized to update products for this store.",
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
+            raise GraphQLError(
+                "You do not have permission to update products.",
                 extensions={
                     "code": "PERMISSION_DENIED",
                     "status": 403
                 }
             )
+
+        # Validate product existence
         try:
             product = Product.objects.get(pk=product_id, store=store)
-            images = Image.objects.filter(pk__in=image_ids)
-            product.first_variant.images.add(*images)
-            return AddImagesProduct(product=product)
         except Product.DoesNotExist:
             raise GraphQLError(
                 "Product not found or you do not have access to this product.",
@@ -724,6 +738,22 @@ class AddImagesProduct(graphene.Mutation):
                     "status": 404
                 }
             )
+
+        # Validate images
+        images = Image.objects.filter(pk__in=image_ids)
+        if not images.exists():
+            raise GraphQLError(
+                "No valid images found for addition.",
+                extensions={
+                    "code": "INVALID_IMAGES",
+                    "status": 400
+                }
+            )
+
+        # Add images to the first variant
+        product.first_variant.images.add(*images)
+
+        return AddImagesProduct(product=product)
 
 
 class RemoveImagesProduct(graphene.Mutation):
