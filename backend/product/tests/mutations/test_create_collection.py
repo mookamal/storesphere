@@ -81,9 +81,10 @@ def test_create_collection_success(
 @pytest.mark.django_db
 def test_create_collection_unauthorized(
     staff_api_client,
-    store
+    store,
+    staff_member_with_no_permissions  # Use staff member without collection create permissions
 ):
-    """Test creating a collection without store permissions."""
+    """Test creating a collection without collection create permissions."""
     # Prepare variables for the mutation
     variables = {
         "defaultDomain": store.default_domain,
@@ -99,12 +100,10 @@ def test_create_collection_unauthorized(
     )
     
     # Check for permission denied error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'You are not authorized' in error['message'] 
-        for error in content['errors']
-    )
+    assert "You do not have permission to create collections." in content['errors'][0]['message']
+    assert "PERMISSION_DENIED" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -128,12 +127,10 @@ def test_create_collection_nonexistent_store(
     )
     
     # Check for store not found error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'Store with the provided domain does not exist' in error['message'] 
-        for error in content['errors']
-    )
+    assert "Store not found" in content['errors'][0]['message']
+    assert "NOT_FOUND" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -224,14 +221,14 @@ def test_create_collection_duplicate_handle(
     staff_member.store = store
     staff_member.save()
 
-    # Create initial collection
-    Collection.objects.create(
-        store=store,
-        title="First Collection",
+    # Create an initial collection
+    first_collection = Collection.objects.create(
+        store=store, 
+        title="First Collection", 
         handle="first-collection"
     )
 
-    # Prepare variables for the mutation
+    # Prepare variables for the mutation with duplicate handle
     variables = {
         "defaultDomain": store.default_domain,
         "collectionInputs": {
@@ -247,12 +244,10 @@ def test_create_collection_duplicate_handle(
     )
     
     # Check for duplicate handle error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'A collection with this handle already exists' in error['message'] 
-        for error in content['errors']
-    )
+    assert "A collection with this handle already exists in the store." in content['errors'][0]['message']
+    assert "DUPLICATE_HANDLE" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -266,12 +261,11 @@ def test_create_collection_long_title(
     staff_member.store = store
     staff_member.save()
 
-    # Prepare variables for the mutation with a very long title
+    # Prepare variables for the mutation with long title
     variables = {
         "defaultDomain": store.default_domain,
         "collectionInputs": {
-            "title": "A" * 300,  # Exceeds 255 characters
-            "handle": "very-long-title-collection"
+            "title": "A" * 256  # Exceeds maximum title length
         }
     }
 
@@ -281,13 +275,11 @@ def test_create_collection_long_title(
         variables
     )
     
-    # Check for title too long error
-    content = response.json()
+    # Check for title length error
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'Collection title is too long' in error['message'] 
-        for error in content['errors']
-    )
+    assert "Collection title is too long. Maximum 255 characters allowed." in content['errors'][0]['message']
+    assert "TITLE_TOO_LONG" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -328,12 +320,10 @@ def test_create_collection_invalid_image(
     )
     
     # Check for invalid image error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'Image not found or does not belong to this store' in error['message'] 
-        for error in content['errors']
-    )
+    assert "Image not found or does not belong to this store" in content['errors'][0]['message']
+    assert "INVALID_IMAGE" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db

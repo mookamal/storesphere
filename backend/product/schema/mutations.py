@@ -8,6 +8,7 @@ from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
 from decimal import Decimal
+from django.utils.text import slugify
 
 
 class CreateProduct(graphene.Mutation):
@@ -874,22 +875,71 @@ class CreateCollection(graphene.Mutation):
     collection = graphene.Field(CollectionNode)
 
     @classmethod
+    def validate_seo_data(cls, seo_data, title):
+        """Validate and truncate SEO data."""
+        MAX_TITLE_LENGTH = 70
+        MAX_DESCRIPTION_LENGTH = 160
+
+        # If no SEO data provided, use default from title
+        if not seo_data:
+            return {
+                'title': title[:MAX_TITLE_LENGTH],
+                'description': ''
+            }
+
+        # Ensure seo_data is a dictionary
+        seo_data = seo_data if isinstance(seo_data, dict) else {}
+
+        # Use title as fallback for SEO title
+        seo_title = (seo_data.get('title', '') or title)[:MAX_TITLE_LENGTH]
+        seo_description = (seo_data.get('description', '') or '')[:MAX_DESCRIPTION_LENGTH]
+
+        return {
+            'title': seo_title,
+            'description': seo_description
+        }
+
+    @classmethod
     def mutate(cls, root, info, default_domain, collection_inputs):
+        # Authentication check
         user = info.context.user
+        if not user or not user.is_authenticated:
+            raise GraphQLError(
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
+
+        # Validate store existence
         try:
             store = Store.objects.get(default_domain=default_domain)
         except Store.DoesNotExist:
             raise GraphQLError(
-                "Store with the provided domain does not exist.",
+                "Store not found",
                 extensions={
                     "code": "NOT_FOUND",
                     "status": 404
                 }
             )
 
-        if not StaffMember.objects.filter(user=user, store=store).exists():
+        # Check staff membership
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
             raise GraphQLError(
-                "You are not authorized to create collections for this store.",
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.COLLECTIONS_CREATE):
+            raise GraphQLError(
+                "You do not have permission to create collections.",
                 extensions={
                     "code": "PERMISSION_DENIED",
                     "status": 403
@@ -897,7 +947,8 @@ class CreateCollection(graphene.Mutation):
             )
 
         # Validate title length
-        if len(collection_inputs.title) > 255:
+        title = collection_inputs.title.strip()
+        if len(title) > 255:
             raise GraphQLError(
                 "Collection title is too long. Maximum 255 characters allowed.",
                 extensions={
@@ -906,8 +957,9 @@ class CreateCollection(graphene.Mutation):
                 }
             )
 
-        # Check for unique handle within the store
-        if Collection.objects.filter(store=store, handle=collection_inputs.handle).exists():
+        # Check for duplicate handle
+        handle = collection_inputs.handle
+        if handle and Collection.objects.filter(store=store, handle=handle).exists():
             raise GraphQLError(
                 "A collection with this handle already exists in the store.",
                 extensions={
@@ -916,49 +968,49 @@ class CreateCollection(graphene.Mutation):
                 }
             )
 
-        # Validate and limit SEO data
-        def validate_seo_data(seo_data):
-            MAX_TITLE_LENGTH = 70
-            MAX_DESCRIPTION_LENGTH = 160
-
-            seo_data = seo_data if isinstance(seo_data, dict) else {}
-            seo_data['title'] = (seo_data.get('title', '') or collection_inputs.title)[
-                :MAX_TITLE_LENGTH]
-            seo_data['description'] = (seo_data.get('description', '') or '')[
-                :MAX_DESCRIPTION_LENGTH]
-
-            return seo_data
-
-        seo_data = validate_seo_data(collection_inputs.seo)
-
-        # Create collection
-        collection = Collection.objects.create(
-            store=store,
-            title=collection_inputs.title,
-            description=collection_inputs.description or "",
-            handle=collection_inputs.handle,
-            image_id=None,  # Will be set after validation
-        )
-
-        # Validate and set image if provided
+        # Validate and handle image
+        image = None
         if collection_inputs.image_id:
             try:
-                image = Image.objects.get(
-                    pk=collection_inputs.image_id, store=store)
-                collection.image = image
+                image = Image.objects.get(pk=collection_inputs.image_id)
+                if image.store != store:
+                    raise GraphQLError(
+                        "Image not found or does not belong to this store",
+                        extensions={
+                            "code": "INVALID_IMAGE",
+                            "status": 400
+                        }
+                    )
             except Image.DoesNotExist:
                 raise GraphQLError(
-                    "Image not found or does not belong to this store.",
+                    "Image not found or does not belong to this store",
                     extensions={
                         "code": "INVALID_IMAGE",
-                        "status": 404
+                        "status": 400
                     }
                 )
 
-        # Create SEO
-        seo = SEO.objects.create(**seo_data)
-        collection.seo = seo
-        collection.save()
+        # Validate SEO data
+        seo_data = cls.validate_seo_data(collection_inputs.seo, title)
+
+        # Create SEO object
+        seo_obj = SEO.objects.create(
+            title=seo_data['title'], 
+            description=seo_data['description']
+        )
+
+        # Prepare collection data
+        collection_data = {
+            'store': store,
+            'title': title,
+            'description': collection_inputs.description or '',
+            'handle': handle or slugify(title),
+            'image': image,
+            'seo': seo_obj
+        }
+
+        # Create collection
+        collection = Collection.objects.create(**{k: v for k, v in collection_data.items() if v is not None})
 
         return CreateCollection(collection=collection)
 
