@@ -115,8 +115,10 @@ def test_remove_images_product_nonexistent_store(
     )
     
     # Check for store not found error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
+    assert "Store not found" in content['errors'][0]['message']
+    assert "NOT_FOUND" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -141,12 +143,10 @@ def test_remove_images_product_nonexistent_product(
     )
     
     # Check for product not found error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'Product not found or you do not have access to this product' in error['message']
-        for error in content['errors']
-    )
+    assert "Product not found" in content['errors'][0]['message']
+    assert "NOT_FOUND" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -218,12 +218,10 @@ def test_remove_images_product_no_first_variant(
     )
     
     # Check for no first variant error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'Product does not have a first variant' in error['message'] 
-        for error in content['errors']
-    )
+    assert "Product does not have a first variant." in content['errors'][0]['message']
+    assert "NO_FIRST_VARIANT" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
