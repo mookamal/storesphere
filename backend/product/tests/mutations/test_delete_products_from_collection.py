@@ -2,14 +2,17 @@ import pytest
 from core.graphql.tests.utils import get_graphql_content
 from product.models import Collection
 
+
 DELETE_PRODUCTS_FROM_COLLECTION_MUTATION = '''
 mutation DeleteProductsFromCollection(
     $collectionId: ID!
     $productIds: [ID]!
+    $defaultDomain: String!
 ) {
     deleteProductsFromCollection(
         collectionId: $collectionId
         productIds: $productIds
+        defaultDomain: $defaultDomain
     ) {
         success
     }
@@ -36,7 +39,8 @@ def test_delete_products_from_collection_success(
     # Prepare variables for the mutation
     variables = {
         "collectionId": str(collection.id),
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain,
     }
 
     # Execute the mutation
@@ -62,7 +66,8 @@ def test_delete_products_from_collection_unauthorized(
     staff_api_client, 
     store, 
     collection, 
-    product, 
+    product,
+    staff_member_with_no_permissions,
     active_product
 ):
     """Test deleting products from a collection without proper permissions."""
@@ -72,7 +77,8 @@ def test_delete_products_from_collection_unauthorized(
     # Prepare variables for the mutation
     variables = {
         "collectionId": str(collection.id),
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain,
     }
 
     # Execute the mutation
@@ -80,11 +86,12 @@ def test_delete_products_from_collection_unauthorized(
         DELETE_PRODUCTS_FROM_COLLECTION_MUTATION,
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response , ignore_errors=True)
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized' in str(error) for error in content['errors'])
+    assert "You do not have permission to update collections." in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
 
 
 @pytest.mark.django_db
@@ -103,7 +110,8 @@ def test_delete_products_from_collection_nonexistent_collection(
     # Prepare variables with a non-existent collection ID
     variables = {
         "collectionId": "999999",  # Non-existent ID
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain,
     }
 
     # Execute the mutation
@@ -111,11 +119,12 @@ def test_delete_products_from_collection_nonexistent_collection(
         DELETE_PRODUCTS_FROM_COLLECTION_MUTATION, 
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response , ignore_errors=True)
 
     # Verify collection not found error
     assert 'errors' in content
-    assert any('Collection not found' in str(error) for error in content['errors'])
+    assert "Collection not found" in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "NOT_FOUND"
 
 
 @pytest.mark.django_db
@@ -133,7 +142,8 @@ def test_delete_products_from_collection_nonexistent_products(
     # Prepare variables with non-existent product IDs
     variables = {
         "collectionId": str(collection.id),
-        "productIds": ["999999", "888888"]  # Non-existent product IDs
+        "productIds": ["999999", "888888"],  # Non-existent product IDs
+        "defaultDomain": store.default_domain,
     }
 
     # Execute the mutation
@@ -141,7 +151,9 @@ def test_delete_products_from_collection_nonexistent_products(
         DELETE_PRODUCTS_FROM_COLLECTION_MUTATION, 
         variables
     )
-    content = get_graphql_content(response)
+    content = get_graphql_content(response , ignore_errors=True)
 
-    # Verify mutation still succeeds when trying to remove non-existent products
-    assert content['data']['deleteProductsFromCollection']['success'] is True
+    # Verify error for non-existent products
+    assert 'errors' in content
+    assert "One or more products not found or do not belong to this store." in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "INVALID_PRODUCTS"
