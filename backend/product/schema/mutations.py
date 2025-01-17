@@ -782,7 +782,16 @@ class RemoveImagesProduct(graphene.Mutation):
     product = graphene.Field(ProductNode)
 
     def mutate(self, info, default_domain, product_id, image_ids):
+        # Check user authentication
         user = info.context.user
+        if not user or not user.is_authenticated:
+            raise GraphQLError(
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
 
         # Validate store existence
         try:
@@ -791,15 +800,27 @@ class RemoveImagesProduct(graphene.Mutation):
             raise GraphQLError(
                 "Store not found.",
                 extensions={
-                    "code": "STORE_NOT_FOUND",
+                    "code": "NOT_FOUND",
                     "status": 404
                 }
             )
 
-        # Check user permissions for the store
-        if not StaffMember.objects.filter(user=user, store=store).exists():
+        # Check staff membership and permissions
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            
+            # Check for product update permission
+            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
+                raise GraphQLError(
+                    "You do not have permission to update products.",
+                    extensions={
+                        "code": "PERMISSION_DENIED",
+                        "status": 403
+                    }
+                )
+        except StaffMember.DoesNotExist:
             raise GraphQLError(
-                "You are not authorized to update products for this store.",
+                "You are not a staff member of this store.",
                 extensions={
                     "code": "PERMISSION_DENIED",
                     "status": 403
@@ -813,7 +834,7 @@ class RemoveImagesProduct(graphene.Mutation):
             raise GraphQLError(
                 "Product not found or you do not have access to this product.",
                 extensions={
-                    "code": "PRODUCT_NOT_FOUND",
+                    "code": "NOT_FOUND",
                     "status": 404
                 }
             )

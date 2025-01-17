@@ -1,6 +1,6 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
-from product.models import Product, Image, ProductVariant
+from product.models import Product, Image
 
 REMOVE_IMAGES_PRODUCT_MUTATION = """
 mutation RemoveImagesProduct(
@@ -69,7 +69,8 @@ def test_remove_images_product_unauthorized(
     staff_api_client,
     store,
     product,
-    product_image
+    product_image,
+    staff_member_with_no_permissions,
 ):
     """Test removing images without store permissions."""
     # Prepare variables for the mutation
@@ -86,12 +87,10 @@ def test_remove_images_product_unauthorized(
     )
     
     # Check for permission denied error
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'You are not authorized' in error['message'] 
-        for error in content['errors']
-    )
+    assert "You do not have permission to update products." in content['errors'][0]['message']
+    assert "PERMISSION_DENIED" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
