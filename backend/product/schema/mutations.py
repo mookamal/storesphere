@@ -1234,22 +1234,60 @@ class AddProductsToCollection(graphene.Mutation):
     class Arguments:
         collection_id = graphene.ID(required=True)
         product_ids = graphene.List(graphene.ID)
+        default_domain = graphene.String(required=True)
 
     success = graphene.Boolean()
 
     @classmethod
-    def mutate(cls, root, info, collection_id, product_ids):
+    def mutate(cls, root, info, collection_id, product_ids, default_domain):
+        # Authentication check
         user = info.context.user
+        if not user or not user.is_authenticated:
+            raise GraphQLError(
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
+
+        # Validate store existence
         try:
-            collection = Collection.objects.get(id=collection_id)
-            if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise GraphQLError(
-                    "You are not authorized to update collections for this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
+            store = Store.objects.get(default_domain=default_domain)
+        except Store.DoesNotExist:
+            raise GraphQLError(
+                "Store not found.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
+
+        # Check staff membership
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
+            raise GraphQLError(
+                "You do not have permission to update collections.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
+
+        # Validate collection existence
+        try:
+            collection = Collection.objects.get(id=collection_id, store=store)
         except Collection.DoesNotExist:
             raise GraphQLError(
                 "Collection not found.",
@@ -1258,12 +1296,25 @@ class AddProductsToCollection(graphene.Mutation):
                     "status": 404
                 }
             )
-        try:
-            products = Product.objects.filter(id__in=product_ids)
+
+        # Validate products
+        if product_ids:
+            products = Product.objects.filter(id__in=product_ids, store=store)
+            
+            # Check if all requested products exist in the store
+            if products.count() != len(product_ids):
+                raise GraphQLError(
+                    "One or more products not found or do not belong to this store.",
+                    extensions={
+                        "code": "INVALID_PRODUCTS",
+                        "status": 400
+                    }
+                )
+
+            # Add products to collection
             collection.products.add(*products)
-            return AddProductsToCollection(success=True)
-        except Exception as e:
-            raise GraphQLError(str(e))
+
+        return AddProductsToCollection(success=True)
 
 
 class DeleteProductsFromCollection(graphene.Mutation):

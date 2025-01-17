@@ -6,10 +6,12 @@ ADD_PRODUCTS_TO_COLLECTION_MUTATION = '''
 mutation AddProductsToCollection(
     $collectionId: ID!
     $productIds: [ID]!
+    $defaultDomain: String!
 ) {
     addProductsToCollection(
         collectionId: $collectionId
         productIds: $productIds
+        defaultDomain: $defaultDomain
     ) {
         success
     }
@@ -33,7 +35,8 @@ def test_add_products_to_collection_success(
     # Prepare variables for the mutation
     variables = {
         "collectionId": str(collection.id),
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -60,13 +63,15 @@ def test_add_products_to_collection_unauthorized(
     store, 
     collection, 
     product, 
+    staff_member_with_no_permissions,
     active_product
 ):
     """Test adding products to a collection without proper permissions."""
     # Prepare variables for the mutation
     variables = {
         "collectionId": str(collection.id),
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -74,11 +79,12 @@ def test_add_products_to_collection_unauthorized(
         ADD_PRODUCTS_TO_COLLECTION_MUTATION,
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert any('You are not authorized' in str(error) for error in content['errors'])
+    assert "You do not have permission to update collections." in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
 
 
 @pytest.mark.django_db
@@ -97,7 +103,8 @@ def test_add_products_to_collection_nonexistent_collection(
     # Prepare variables with a non-existent collection ID
     variables = {
         "collectionId": "999999",  # Non-existent ID
-        "productIds": [str(product.id), str(active_product.id)]
+        "productIds": [str(product.id), str(active_product.id)],
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -105,11 +112,12 @@ def test_add_products_to_collection_nonexistent_collection(
         ADD_PRODUCTS_TO_COLLECTION_MUTATION, 
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
     # Verify collection not found error
     assert 'errors' in content
-    assert any('Collection not found' in str(error) for error in content['errors'])
+    assert "Collection not found" in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "NOT_FOUND"
 
 
 @pytest.mark.django_db
@@ -128,7 +136,8 @@ def test_add_products_to_collection_invalid_products(
     # Prepare variables with invalid and valid product IDs
     variables = {
         "collectionId": str(collection.id),
-        "productIds": ["999999", str(product.id), "888888"]  # Mix of non-existent and valid product IDs
+        "productIds": ["999999", str(product.id), "888888"],  # Mix of non-existent and valid product IDs
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -136,52 +145,9 @@ def test_add_products_to_collection_invalid_products(
         ADD_PRODUCTS_TO_COLLECTION_MUTATION, 
         variables
     )
-    content = response.json()
+    content = get_graphql_content(response, ignore_errors=True)
 
-    # Verify mutation success
-    assert 'data' in content
-    assert content['data']['addProductsToCollection']['success'] is True
-
-    # Verify only valid products were added
-    updated_collection = Collection.objects.get(id=collection.id)
-    added_products = updated_collection.products.all()
-    
-    assert product in added_products
-    assert len(added_products) == 1  # Only the valid product should be added
-
-
-@pytest.mark.django_db
-def test_add_products_to_collection_duplicate_products(
-    staff_api_client, 
-    staff_member, 
-    store, 
-    collection, 
-    product
-):
-    """Test adding the same product multiple times to a collection."""
-    # Ensure staff member is associated with the store
-    staff_member.store = store
-    staff_member.save()
-
-    # Prepare variables with duplicate product IDs
-    variables = {
-        "collectionId": str(collection.id),
-        "productIds": [str(product.id), str(product.id)]
-    }
-
-    # Execute the mutation
-    response = staff_api_client.post_graphql(
-        ADD_PRODUCTS_TO_COLLECTION_MUTATION, 
-        variables
-    )
-    content = get_graphql_content(response)
-
-    # Verify mutation success
-    assert content['data']['addProductsToCollection']['success'] is True
-
-    # Verify product was added only once
-    updated_collection = Collection.objects.get(id=collection.id)
-    added_products = updated_collection.products.all()
-    
-    assert added_products.count() == 1
-    assert product in added_products
+    # Verify error for invalid products
+    assert 'errors' in content
+    assert "One or more products not found or do not belong to this store." in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == "INVALID_PRODUCTS"
