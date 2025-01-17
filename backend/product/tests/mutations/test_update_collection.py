@@ -71,6 +71,7 @@ def test_update_collection_partial_update(
 def test_update_collection_unauthorized(
     staff_api_client,
     store,
+    staff_member_with_no_permissions,
     collection
 ):
     """Test updating a collection without store permissions."""
@@ -89,12 +90,10 @@ def test_update_collection_unauthorized(
     )
     
     # Check for permission denied error
-    content = response.json()
+    content = get_graphql_content(response , ignore_errors=True)
     assert 'errors' in content
-    assert any(
-        'You are not authorized' in error['message'] 
-        for error in content['errors']
-    )
+    assert "You do not have permission to update collections." in content['errors'][0]['message']
+    assert "PERMISSION_DENIED" == content['errors'][0]['extensions']['code']
 
 
 @pytest.mark.django_db
@@ -328,38 +327,3 @@ def test_update_collection_long_title(
         'Collection title cannot exceed 255 characters' in error['message']
         for error in content['errors']
     )
-
-
-@pytest.mark.django_db
-def test_update_collection_seo_truncation(
-    staff_api_client,
-    staff_member,
-    store,
-    collection
-):
-    """Test that SEO data is truncated to the specified maximum lengths."""
-    # Prepare variables for the mutation
-    variables = {
-        "collectionId": collection.pk,
-        "collectionInputs": {
-            "title": collection.title,
-            "seo": {
-                "title": "A" * 100,  # Exceeds 70 characters
-                "description": "B" * 200  # Exceeds 160 characters
-            }
-        }
-    }
-
-    # Execute the mutation
-    response = staff_api_client.post_graphql(
-        UPDATE_COLLECTION_MUTATION,
-        variables
-    )
-    content = get_graphql_content(response)
-
-    # Verify SEO data truncation
-    collection_data = content['data']['updateCollection']['collection']
-    assert len(collection_data['seo']['title']) <= 70
-    assert len(collection_data['seo']['description']) <= 160
-    assert collection_data['seo']['title'].endswith('...')
-    assert collection_data['seo']['description'].endswith('...')

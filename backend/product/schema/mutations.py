@@ -1024,17 +1024,21 @@ class UpdateCollection(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, collection_id, collection_inputs):
+        # Authentication check
         user = info.context.user
+        if not user or not user.is_authenticated:
+            raise GraphQLError(
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
+
+        # Validate collection existence
         try:
             collection = Collection.objects.get(id=collection_id)
-            if not StaffMember.objects.filter(user=user, store=collection.store).exists():
-                raise GraphQLError(
-                    "You are not authorized to update collections for this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
+            store = collection.store
         except Collection.DoesNotExist:
             raise GraphQLError(
                 "Collection not found.",
@@ -1044,11 +1048,34 @@ class UpdateCollection(graphene.Mutation):
                 }
             )
 
+        # Check staff membership
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
+            raise GraphQLError(
+                "You do not have permission to update collections.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
+
         # Validate unique handle within the store
-        if collection_inputs.handle:
+        handle = collection_inputs.handle
+        if handle:
             existing_collection = Collection.objects.filter(
-                handle=collection_inputs.handle,
-                store=collection.store
+                handle=handle,
+                store=store
             ).exclude(pk=collection.pk).exists()
             if existing_collection:
                 raise GraphQLError(
@@ -1078,48 +1105,10 @@ class UpdateCollection(graphene.Mutation):
                 }
             )
 
-        # Update title and description
-        collection.title = collection_inputs.title if collection_inputs.title is not None else collection.title
-        collection.description = collection_inputs.description if collection_inputs.description is not None else collection.description
-        collection.handle = collection_inputs.handle if collection_inputs.handle is not None else collection.handle
-
-        # Handle SEO data
-        seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {
-            "title": collection.title, "description": ""}
-
-        # Truncate SEO data
-        seo_title = seo_data.get("title", collection.title)
-        if len(seo_title) > 70:
-            seo_title = seo_title[:67] + "..."
-
-        seo_description = seo_data.get("description", "")
-        if len(seo_description) > 160:
-            seo_description = seo_description[:157] + "..."
-
-        # Update or create SEO
-        if collection.seo:
-            collection.seo.title = seo_title
-            collection.seo.description = seo_description
-        else:
-            seo = SEO.objects.create(
-                title=seo_title, description=seo_description)
-            collection.seo = seo
-        collection.seo.save()
-
-        # Validate and update image
-        if collection_inputs.image_id is None:
-            collection.image = None
-        elif collection_inputs.image_id is not None:
+        # Validate and update image if provided
+        if collection_inputs.image_id is not None:
             try:
-                image = Image.objects.get(pk=collection_inputs.image_id)
-                if image.store != collection.store:
-                    raise GraphQLError(
-                        "Image with the given ID not found.",
-                        extensions={
-                            "code": "IMAGE_NOT_FOUND",
-                            "status": 404
-                        }
-                    )
+                image = Image.objects.get(pk=collection_inputs.image_id,store=store)
                 collection.image = image
             except Image.DoesNotExist:
                 raise GraphQLError(
@@ -1129,6 +1118,36 @@ class UpdateCollection(graphene.Mutation):
                         "status": 404
                     }
                 )
+        elif collection_inputs.image_id is None:
+            # Explicitly remove image
+            collection.image = None
+
+        # Update title and description
+        if collection_inputs.title is not None:
+            collection.title = collection_inputs.title
+        if collection_inputs.description is not None:
+            collection.description = collection_inputs.description
+        if collection_inputs.handle is not None:
+            collection.handle = collection_inputs.handle
+
+        # Handle SEO data
+        seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {}
+
+        # Truncate SEO data
+        seo_title = (seo_data.get("title", collection.title) or collection.title)[:70]
+        seo_description = (seo_data.get("description", "") or "")[:160]
+
+        # Update or create SEO
+        if collection.seo:
+            collection.seo.title = seo_title
+            collection.seo.description = seo_description
+            collection.seo.save()
+        else:
+            seo = SEO.objects.create(
+                title=seo_title, 
+                description=seo_description
+            )
+            collection.seo = seo
 
         # Save changes to the collection
         collection.save()
