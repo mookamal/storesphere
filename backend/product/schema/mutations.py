@@ -1156,32 +1156,77 @@ class UpdateCollection(graphene.Mutation):
 
 class DeleteCollections(graphene.Mutation):
     class Arguments:
-        collection_ids = graphene.List(graphene.ID)
+        collection_ids = graphene.List(graphene.ID, required=True)
+        default_domain = graphene.String(required=True)
 
     success = graphene.Boolean()
 
     @classmethod
-    def mutate(cls, root, info, collection_ids):
+    def mutate(cls, root, info, collection_ids, default_domain):
+        # Authentication check
         user = info.context.user
-        try:
-            collections = Collection.objects.filter(id__in=collection_ids)
-            if not StaffMember.objects.filter(user=user, store=collections.first().store).exists():
-                raise GraphQLError(
-                    "You are not authorized to delete collections for this store.",
-                    extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
-                    }
-                )
-        except Collection.DoesNotExist:
+        if not user or not user.is_authenticated:
             raise GraphQLError(
-                "Collection not found.",
+                "Authentication required.",
+                extensions={
+                    "code": "UNAUTHENTICATED",
+                    "status": 401
+                }
+            )
+
+        # Validate store existence
+        try:
+            store = Store.objects.get(default_domain=default_domain)
+        except Store.DoesNotExist:
+            raise GraphQLError(
+                "Store not found.",
                 extensions={
                     "code": "NOT_FOUND",
                     "status": 404
                 }
             )
+
+        # Check staff membership
+        try:
+            staff_member = StaffMember.objects.get(user=user, store=store)
+        except StaffMember.DoesNotExist:
+            raise GraphQLError(
+                "You are not a staff member of this store.",
+                extensions={
+                    "code": "NOT_AUTHORIZED",
+                    "status": 403
+                }
+            )
+
+        # Verify specific permission
+        if not staff_member.has_permission(StorePermissions.COLLECTIONS_DELETE):
+            raise GraphQLError(
+                "You do not have permission to delete collections.",
+                extensions={
+                    "code": "PERMISSION_DENIED",
+                    "status": 403
+                }
+            )
+
+        # Validate collection existence and ownership
+        collections = Collection.objects.filter(
+            id__in=collection_ids, 
+            store=store
+        )
+
+        # Check if all requested collections exist in the store
+        if collections.count() != len(collection_ids):
+            raise GraphQLError(
+                "One or more collections not found or do not belong to this store.",
+                extensions={
+                    "code": "NOT_FOUND",
+                    "status": 404
+                }
+            )
+
+        # Delete collections
         collections.delete()
+
         return DeleteCollections(success=True)
 
 
