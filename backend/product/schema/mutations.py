@@ -12,6 +12,20 @@ from django.utils.text import slugify
 
 
 class CreateProduct(graphene.Mutation):
+    """
+    GraphQL mutation for creating a new product.
+    
+    Handles the process of creating a product with its first variant, 
+    options, and associated metadata. Performs authentication and 
+    authorization checks.
+    
+    Attributes:
+        product (graphene.Field): The newly created product.
+    
+    Arguments:
+        product (ProductInput): Input data for creating the product.
+        default_domain (str): Domain of the store where the product is being created.
+    """
     product = graphene.Field(ProductNode)
 
     class Arguments:
@@ -19,6 +33,20 @@ class CreateProduct(graphene.Mutation):
         default_domain = graphene.String(required=True)
 
     def mutate(root, info, product, default_domain):
+        """
+        Mutation method to create a new product.
+        
+        Args:
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            product (ProductInput): Detailed input for creating the product.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            CreateProduct: A mutation result containing the created product.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         try:
             # Check user authentication
             user = info.context.user
@@ -192,6 +220,20 @@ class CreateProduct(graphene.Mutation):
 
 
 class UpdateProduct(graphene.Mutation):
+    """
+    GraphQL mutation for updating an existing product.
+    
+    Handles updating product details, variants, options, and metadata.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        product (graphene.Field): The updated product.
+    
+    Arguments:
+        id (graphene.ID): ID of the product to update.
+        product (ProductInput): Input data for updating the product.
+        default_domain (str): Domain of the store where the product exists.
+    """
     product = graphene.Field(ProductNode)
 
     class Arguments:
@@ -200,6 +242,21 @@ class UpdateProduct(graphene.Mutation):
         default_domain = graphene.String(required=True)
 
     def mutate(self, info, id, product, default_domain):
+        """
+        Mutation method to update an existing product.
+        
+        Args:
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            id (int): Unique identifier of the product to update.
+            product (ProductInput): Detailed input for updating the product.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            UpdateProduct: A mutation result containing the updated product.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         try:
             # Check user authentication
             user = info.context.user
@@ -404,20 +461,53 @@ class UpdateProduct(graphene.Mutation):
 
 
 class VariantActions(graphene.Enum):
+    """
+    Enum for actions that can be performed on product variants.
+    """
     DELETE = "DELETE"
     UPDATE_PRICE = "UPDATE_PRICE"
 
 
 class CreateProductVariant(graphene.Mutation):
+    """
+    GraphQL mutation for creating a new product variant.
+    
+    Handles the process of adding a new variant to an existing product.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        product_variant (graphene.Field): The newly created product variant.
+    
+    Arguments:
+        product_id (graphene.ID): ID of the product to add the variant to.
+        variant_inputs (ProductVariantInput): Input data for creating the variant.
+        default_domain (str): Domain of the store where the variant is being created.
+    """
+    product_variant = graphene.Field(ProductVariantNode)
+
     class Arguments:
         product_id = graphene.ID(required=True)
         variant_inputs = ProductVariantInput(required=True)
         default_domain = graphene.String(required=True)
 
-    product_variant = graphene.Field(ProductVariantNode)
-
     @classmethod
     def mutate(cls, root, info, product_id, variant_inputs, default_domain):
+        """
+        Mutation method to create a new product variant.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            product_id (int): Unique identifier of the product.
+            variant_inputs (ProductVariantInput): Detailed input for creating the variant.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            CreateProductVariant: A mutation result containing the created product variant.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         try:
             # 1. Authentication Check
             user = info.context.user
@@ -539,13 +629,39 @@ class CreateProductVariant(graphene.Mutation):
 
 
 class UpdateProductVariant(graphene.Mutation):
+    """
+    GraphQL mutation for updating an existing product variant.
+    
+    Handles updating variant details and associated metadata.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        product_variant (graphene.Field): The updated product variant.
+    
+    Arguments:
+        variant_inputs (ProductVariantInput): Input data for updating the variant.
+    """
+    product_variant = graphene.Field(ProductVariantNode)
+
     class Arguments:
         variant_inputs = ProductVariantInput(required=True)
 
-    product_variant = graphene.Field(ProductVariantNode)
-
     @classmethod
     def mutate(cls, root, info, variant_inputs):
+        """
+        Mutation method to update an existing product variant.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            variant_inputs (ProductVariantInput): Detailed input for updating the variant.
+        
+        Returns:
+            UpdateProductVariant: A mutation result containing the updated product variant.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         user = info.context.user
 
         try:
@@ -624,15 +740,46 @@ class UpdateProductVariant(graphene.Mutation):
 
 
 class PerformActionOnVariants(graphene.Mutation):
-    class Arguments:
-        action = VariantActions(required=True)
-        variant_ids = graphene.List(graphene.ID, required=True)
+    """
+    GraphQL mutation for performing actions on product variants.
+    
+    Handles actions such as deleting variants.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        success (graphene.Boolean): Whether the action was successful.
+        message (graphene.String): A message describing the result of the action.
+        errors (graphene.List): A list of error messages if the action failed.
+    
+    Arguments:
+        action (VariantActions): The action to perform.
+        variant_ids (graphene.List): IDs of the variants to perform the action on.
+    """
     success = graphene.Boolean()
     message = graphene.String()
     errors = graphene.List(graphene.String)
 
+    class Arguments:
+        action = VariantActions(required=True)
+        variant_ids = graphene.List(graphene.ID, required=True)
+
     @classmethod
     def mutate(cls, root, info, action, variant_ids):
+        """
+        Mutation method to perform an action on product variants.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            action (VariantActions): The action to perform.
+            variant_ids (list): IDs of the variants to perform the action on.
+        
+        Returns:
+            PerformActionOnVariants: A mutation result containing the outcome of the action.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         user = info.context.user
 
         # Check variant existence in a single query
@@ -684,14 +831,43 @@ class PerformActionOnVariants(graphene.Mutation):
 
 
 class AddImagesProduct(graphene.Mutation):
+    """
+    GraphQL mutation for adding images to a product.
+    
+    Handles adding images to a product's first variant.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        product (graphene.Field): The product with the added images.
+    
+    Arguments:
+        default_domain (str): Domain of the store where the product exists.
+        product_id (graphene.ID): ID of the product to add images to.
+        image_ids (graphene.List): IDs of the images to add.
+    """
+    product = graphene.Field(ProductNode)
+
     class Arguments:
         default_domain = graphene.String(required=True)
         product_id = graphene.ID(required=True)
         image_ids = graphene.List(graphene.ID)
 
-    product = graphene.Field(ProductNode)
-
     def mutate(self, info, default_domain, product_id, image_ids):
+        """
+        Mutation method to add images to a product.
+        
+        Args:
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            default_domain (str): Domain of the store.
+            product_id (int): Unique identifier of the product.
+            image_ids (list): IDs of the images to add.
+        
+        Returns:
+            AddImagesProduct: A mutation result containing the product with the added images.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         user = info.context.user
         if not user or not user.is_authenticated:
             raise GraphQLError(
@@ -775,14 +951,43 @@ class AddImagesProduct(graphene.Mutation):
 
 
 class RemoveImagesProduct(graphene.Mutation):
+    """
+    GraphQL mutation for removing images from a product.
+    
+    Handles removing images from a product's first variant.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        product (graphene.Field): The product with the removed images.
+    
+    Arguments:
+        default_domain (str): Domain of the store where the product exists.
+        product_id (graphene.ID): ID of the product to remove images from.
+        image_ids (graphene.List): IDs of the images to remove.
+    """
+    product = graphene.Field(ProductNode)
+
     class Arguments:
         default_domain = graphene.String(required=True)
         product_id = graphene.ID(required=True)
         image_ids = graphene.List(graphene.ID, required=True)
 
-    product = graphene.Field(ProductNode)
-
     def mutate(self, info, default_domain, product_id, image_ids):
+        """
+        Mutation method to remove images from a product.
+        
+        Args:
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            default_domain (str): Domain of the store.
+            product_id (int): Unique identifier of the product.
+            image_ids (list): IDs of the images to remove.
+        
+        Returns:
+            RemoveImagesProduct: A mutation result containing the product with the removed images.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Check user authentication
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -868,15 +1073,37 @@ class RemoveImagesProduct(graphene.Mutation):
 
 
 class CreateCollection(graphene.Mutation):
+    """
+    GraphQL mutation for creating a new collection.
+    
+    Handles the process of creating a collection with its associated metadata.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        collection (graphene.Field): The newly created collection.
+    
+    Arguments:
+        default_domain (str): Domain of the store where the collection is being created.
+        collection_inputs (CollectionInputs): Input data for creating the collection.
+    """
+    collection = graphene.Field(CollectionNode)
+
     class Arguments:
         default_domain = graphene.String(required=True)
         collection_inputs = CollectionInputs(required=True)
 
-    collection = graphene.Field(CollectionNode)
-
     @classmethod
     def validate_seo_data(cls, seo_data, title):
-        """Validate and truncate SEO data."""
+        """
+        Validate and truncate SEO data.
+        
+        Args:
+            seo_data (dict): SEO data to validate.
+            title (str): Title of the collection.
+        
+        Returns:
+            dict: Validated and truncated SEO data.
+        """
         MAX_TITLE_LENGTH = 70
         MAX_DESCRIPTION_LENGTH = 160
 
@@ -901,6 +1128,21 @@ class CreateCollection(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, default_domain, collection_inputs):
+        """
+        Mutation method to create a new collection.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            default_domain (str): Domain of the store.
+            collection_inputs (CollectionInputs): Detailed input for creating the collection.
+        
+        Returns:
+            CreateCollection: A mutation result containing the created collection.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Authentication check
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -1016,14 +1258,42 @@ class CreateCollection(graphene.Mutation):
 
 
 class UpdateCollection(graphene.Mutation):
+    """
+    GraphQL mutation for updating an existing collection.
+    
+    Handles updating collection details and associated metadata.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        collection (graphene.Field): The updated collection.
+    
+    Arguments:
+        collection_id (graphene.ID): ID of the collection to update.
+        collection_inputs (CollectionInputs): Input data for updating the collection.
+    """
+    collection = graphene.Field(CollectionNode)
+
     class Arguments:
         collection_id = graphene.ID(required=True)
         collection_inputs = CollectionInputs(required=True)
 
-    collection = graphene.Field(CollectionNode)
-
     @classmethod
     def mutate(cls, root, info, collection_id, collection_inputs):
+        """
+        Mutation method to update an existing collection.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            collection_id (int): Unique identifier of the collection.
+            collection_inputs (CollectionInputs): Detailed input for updating the collection.
+        
+        Returns:
+            UpdateCollection: A mutation result containing the updated collection.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Authentication check
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -1155,14 +1425,42 @@ class UpdateCollection(graphene.Mutation):
 
 
 class DeleteCollections(graphene.Mutation):
+    """
+    GraphQL mutation for deleting collections.
+    
+    Handles deleting multiple collections at once.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        success (graphene.Boolean): Whether the deletion was successful.
+    
+    Arguments:
+        collection_ids (graphene.List): IDs of the collections to delete.
+        default_domain (str): Domain of the store where the collections exist.
+    """
+    success = graphene.Boolean()
+
     class Arguments:
         collection_ids = graphene.List(graphene.ID, required=True)
         default_domain = graphene.String(required=True)
 
-    success = graphene.Boolean()
-
     @classmethod
     def mutate(cls, root, info, collection_ids, default_domain):
+        """
+        Mutation method to delete collections.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            collection_ids (list): IDs of the collections to delete.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            DeleteCollections: A mutation result indicating the success of the deletion.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Authentication check
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -1231,15 +1529,45 @@ class DeleteCollections(graphene.Mutation):
 
 
 class AddProductsToCollection(graphene.Mutation):
+    """
+    GraphQL mutation for adding products to a collection.
+    
+    Handles adding multiple products to a collection at once.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        success (graphene.Boolean): Whether the addition was successful.
+    
+    Arguments:
+        collection_id (graphene.ID): ID of the collection to add products to.
+        product_ids (graphene.List): IDs of the products to add.
+        default_domain (str): Domain of the store where the collection exists.
+    """
+    success = graphene.Boolean()
+
     class Arguments:
         collection_id = graphene.ID(required=True)
         product_ids = graphene.List(graphene.ID)
         default_domain = graphene.String(required=True)
 
-    success = graphene.Boolean()
-
     @classmethod
     def mutate(cls, root, info, collection_id, product_ids, default_domain):
+        """
+        Mutation method to add products to a collection.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            collection_id (int): Unique identifier of the collection.
+            product_ids (list): IDs of the products to add.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            AddProductsToCollection: A mutation result indicating the success of the addition.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Authentication check
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -1318,15 +1646,45 @@ class AddProductsToCollection(graphene.Mutation):
 
 
 class DeleteProductsFromCollection(graphene.Mutation):
+    """
+    GraphQL mutation for removing products from a collection.
+    
+    Handles removing multiple products from a collection at once.
+    Performs authentication and authorization checks.
+    
+    Attributes:
+        success (graphene.Boolean): Whether the removal was successful.
+    
+    Arguments:
+        collection_id (graphene.ID): ID of the collection to remove products from.
+        product_ids (graphene.List): IDs of the products to remove.
+        default_domain (str): Domain of the store where the collection exists.
+    """
+    success = graphene.Boolean()
+
     class Arguments:
         collection_id = graphene.ID(required=True)
         product_ids = graphene.List(graphene.ID)
         default_domain = graphene.String(required=True)
 
-    success = graphene.Boolean()
-
     @classmethod
     def mutate(cls, root, info, collection_id, product_ids, default_domain):
+        """
+        Mutation method to remove products from a collection.
+        
+        Args:
+            root: Root resolver.
+            info (GraphQLResolveInfo): GraphQL resolver information.
+            collection_id (int): Unique identifier of the collection.
+            product_ids (list): IDs of the products to remove.
+            default_domain (str): Domain of the store.
+        
+        Returns:
+            DeleteProductsFromCollection: A mutation result indicating the success of the removal.
+        
+        Raises:
+            GraphQLError: If authentication fails or store-related checks do not pass.
+        """
         # Authentication check
         user = info.context.user
         if not user or not user.is_authenticated:
@@ -1405,6 +1763,9 @@ class DeleteProductsFromCollection(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
+    """
+    GraphQL mutation type for product-related mutations.
+    """
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
     create_product_variant = CreateProductVariant.Field()
