@@ -380,7 +380,7 @@ class VariantActions(graphene.Enum):
     UPDATE_PRICE = "UPDATE_PRICE"
 
 
-class CreateProductVariant(graphene.Mutation):
+class CreateProductVariant(BaseMutation):
     """
     GraphQL mutation for creating a new product variant.
     
@@ -422,49 +422,16 @@ class CreateProductVariant(graphene.Mutation):
         """
         try:
             # 1. Authentication Check
-            user = info.context.user
-            if not user or not user.is_authenticated:
-                raise GraphQLError(
-                    "Authentication is required to create a product variant.",
-                    extensions={
-                        "code": "UNAUTHENTICATED",
-                        "status": 401
-                    }
-                )
+            user = cls.check_authentication(info)
 
             # 2. Store Verification
-            try:
-                store = Store.objects.get(default_domain=default_domain)
-            except Store.DoesNotExist:
-                raise GraphQLError(
-                    f"Store with domain '{default_domain}' not found.",
-                    extensions={
-                        "code": "STORE_NOT_FOUND",
-                        "status": 404
-                    }
-                )
+            store = cls.get_store(default_domain)
 
             # 3. Staff Membership Check
-            try:
-                staff_member = StaffMember.objects.get(user=user, store=store)
-            except StaffMember.DoesNotExist:
-                raise GraphQLError(
-                    "You are not a staff member of this store.",
-                    extensions={
-                        "code": "NOT_STAFF_MEMBER",
-                        "status": 403
-                    }
-                )
+            staff_member = cls.get_staff_member(user, store)
 
             # 4. Permission Verification
-            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
-                raise GraphQLError(
-                    StorePermissionErrors.PERMISSION_DENIED['message'],
-                    extensions={
-                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                    }
-                )
+            cls.check_permission(staff_member, StorePermissions.PRODUCTS_UPDATE)
 
             # 5. Product Existence Validation
             try:
