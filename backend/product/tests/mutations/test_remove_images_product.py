@@ -1,5 +1,6 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 from product.models import Product, Image
 
 REMOVE_IMAGES_PRODUCT_MUTATION = """
@@ -89,8 +90,8 @@ def test_remove_images_product_unauthorized(
     # Check for permission denied error
     content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert "You do not have permission to update products." in content['errors'][0]['message']
-    assert "PERMISSION_DENIED" == content['errors'][0]['extensions']['code']
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 
 @pytest.mark.django_db

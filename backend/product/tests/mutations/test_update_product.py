@@ -1,5 +1,6 @@
 import json
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 
 UPDATE_PRODUCT_MUTATION = '''
     mutation UpdateProduct($id: ID!, $product: ProductInput!, $defaultDomain: String!) {
@@ -241,7 +242,7 @@ def test_update_product_with_option(staff_api_client, store, staff_member, produ
 def test_update_product_without_update_permission(staff_api_client, store, staff_member_with_no_permissions, product, description_json):
     """
     Test updating a product without PRODUCTS_UPDATE permission.
-    
+
     Verifies that:
     1. A staff member without update permission cannot modify a product
     2. A GraphQL error is raised with correct error code and message
@@ -275,10 +276,9 @@ def test_update_product_without_update_permission(staff_api_client, store, staff
 
     # Assert that an error was returned
     assert 'errors' in content, "Expected an error response"
-    
+
     # Check the specific error details
     error = content['errors'][0]
-    assert error['message'] == "You do not have permission to update products.", \
+    assert error['message'] == StorePermissionErrors.PERMISSION_DENIED["message"], \
         f"Unexpected error message: {error['message']}"
-    assert error['extensions']['code'] == "PERMISSION_DENIED", \
-        f"Unexpected error code: {error['extensions']['code']}"
+    assert error['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]

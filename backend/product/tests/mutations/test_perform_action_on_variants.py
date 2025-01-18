@@ -3,6 +3,7 @@ from product.models import ProductVariant
 from stores.models import StorePermission
 from stores.enums import StorePermissions
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 
 PERFORM_ACTION_ON_VARIANTS_MUTATION = '''
     mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]!) {
@@ -71,9 +72,8 @@ def test_perform_action_on_variants_unauthorized(staff_api_client, store, staff_
     content = get_graphql_content(response, ignore_errors=True)
 
     assert 'errors' in content
-    assert "You do not have permission to perform actions on product variants." in content[
-        'errors'][0]['message']
-    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 
 @pytest.mark.django_db
