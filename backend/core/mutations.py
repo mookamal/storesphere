@@ -30,14 +30,25 @@ class BaseMutation(graphene.Mutation):
     def get_staff_member(cls, user, store):
         """
         Retrieve the staff member for a given user and store.
+        
+        Args:
+            user (User): The authenticated user.
+            store (Store): The store context.
+        
+        Returns:
+            StaffMember: The staff member instance.
+        
+        Raises:
+            GraphQLError: If the user is not a staff member of the store.
         """
         try:
-            return StaffMember.objects.get(user=user, store=store)
+            staff_member = StaffMember.objects.get(user=user, store=store)
+            return staff_member
         except StaffMember.DoesNotExist:
             raise GraphQLError(
                 "You are not a staff member of this store.",
                 extensions={
-                    "code": "NOT_AUTHORIZED",
+                    "code": "NOT_STAFF_MEMBER",
                     "status": 403
                 }
             )
