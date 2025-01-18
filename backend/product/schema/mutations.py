@@ -507,7 +507,7 @@ class CreateProductVariant(BaseMutation):
             )
 
 
-class UpdateProductVariant(graphene.Mutation):
+class UpdateProductVariant(BaseMutation):
     """
     GraphQL mutation for updating an existing product variant.
     
@@ -524,9 +524,10 @@ class UpdateProductVariant(graphene.Mutation):
 
     class Arguments:
         variant_inputs = ProductVariantInput(required=True)
+        default_domain = graphene.String(required=True)
 
     @classmethod
-    def mutate(cls, root, info, variant_inputs):
+    def mutate(cls, root, info, variant_inputs, default_domain):
         """
         Mutation method to update an existing product variant.
         
@@ -541,37 +542,22 @@ class UpdateProductVariant(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        user = info.context.user
+        # Get user
+        user = cls.check_authentication(info)
 
+        # Get store
+        store = cls.get_store(default_domain)
+
+        # Get staff member
+        staff_member = cls.get_staff_member(user, store)
+
+        # Check permission
+        cls.check_permission(staff_member, StorePermissions.PRODUCTS_UPDATE)
+
+        # Get product variant
         try:
             # Find product variant by ID
             variant = ProductVariant.objects.get(id=variant_inputs.variant_id)
-
-            # Extract store from product
-            store = variant.product.store
-
-            # Check user permissions for the store
-            try:
-                staff_member = StaffMember.objects.get(user=user, store=store)
-            except StaffMember.DoesNotExist:
-                raise GraphQLError(
-                    "You are not a staff member of this store.",
-                    extensions={
-                        "code": "NOT_AUTHORIZED",
-                        "status": 403
-                    }
-                )
-
-            # Verify specific permission
-            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
-                raise GraphQLError(
-                    StorePermissionErrors.PERMISSION_DENIED['message'],
-                    extensions={
-                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                    }
-                )
-
         except ProductVariant.DoesNotExist:
             raise GraphQLError(
                 "Product variant not found.",

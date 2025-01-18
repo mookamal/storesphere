@@ -1,14 +1,12 @@
-import json
 import pytest
-from product.models import ProductVariant
 from stores.models import StorePermission
 from stores.enums import StorePermissions
 from core.graphql.tests.utils import get_graphql_content
 from core.utils.constants import StorePermissionErrors
 
 UPDATE_PRODUCT_VARIANT_MUTATION = '''
-    mutation UpdateProductVariant($variantInputs: ProductVariantInput!) {
-        updateProductVariant(variantInputs: $variantInputs) {
+    mutation UpdateProductVariant($variantInputs: ProductVariantInput! $defaultDomain: String!) {
+        updateProductVariant(variantInputs: $variantInputs defaultDomain: $defaultDomain) {
             productVariant {
                 id
                 priceAmount
@@ -29,7 +27,8 @@ def test_update_product_variant_success(staff_api_client, store, staff_member, p
             "price": 150.0,
             "compareAtPrice": 170.0,
             "stock": 15
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -58,7 +57,8 @@ def test_update_product_variant_with_permission(staff_api_client, store, staff_m
             "price": 150.0,
             "compareAtPrice": 170.0,
             "stock": 15
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -80,7 +80,8 @@ def test_update_product_variant_unauthorized(staff_api_client, store, staff_memb
             "price": 150.0,
             "compareAtPrice": 170.0,
             "stock": 15
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -101,7 +102,8 @@ def test_update_product_variant_invalid_price(staff_api_client, store, staff_mem
             "price": -100.0,
             "compareAtPrice": 50.0,
             "stock": 15
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -122,7 +124,8 @@ def test_update_product_variant_not_found(staff_api_client, store, staff_member)
             "price": 150.0,
             "compareAtPrice": 170.0,
             "stock": 15
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
