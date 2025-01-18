@@ -10,9 +10,10 @@ from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
 from decimal import Decimal
 from django.utils.text import slugify
+from core.mutations import BaseMutation
 
 
-class CreateProduct(graphene.Mutation):
+class CreateProduct(BaseMutation):
     """
     GraphQL mutation for creating a new product.
     
@@ -33,191 +34,132 @@ class CreateProduct(graphene.Mutation):
         product = ProductInput(required=True)
         default_domain = graphene.String(required=True)
 
-    def mutate(root, info, product, default_domain):
+    @classmethod
+    def mutate(cls, root, info, product, default_domain):
         """
         Mutation method to create a new product.
-        
-        Args:
-            info (GraphQLResolveInfo): GraphQL resolver information.
-            product (ProductInput): Detailed input for creating the product.
-            default_domain (str): Domain of the store.
-        
-        Returns:
-            CreateProduct: A mutation result containing the created product.
-        
-        Raises:
-            GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        try:
-            # Check user authentication
-            user = info.context.user
-            if not user or not user.is_authenticated:
-                raise GraphQLError(
-                    "Authentication required.",
-                    extensions={
-                        "code": "UNAUTHENTICATED",
-                        "status": 401
-                    }
-                )
-
-            # Verify store existence
-            try:
-                store = Store.objects.get(default_domain=default_domain)
-            except Store.DoesNotExist:
-                raise GraphQLError(
-                    "Store not found.",
-                    extensions={
-                        "code": "NOT_FOUND",
-                        "status": 404
-                    }
-                )
-
-            # Check staff membership
-            try:
-                staff_member = StaffMember.objects.get(user=user, store=store)
-            except StaffMember.DoesNotExist:
-                raise GraphQLError(
-                    "You are not a staff member of this store.",
-                    extensions={
-                        "code": "NOT_AUTHORIZED",
-                        "status": 403
-                    }
-                )
-
-            # Verify specific permission
-            if not staff_member.has_permission(StorePermissions.PRODUCTS_CREATE):
-                raise GraphQLError(
-                    StorePermissionErrors.PERMISSION_DENIED['message'],
-                    extensions={
-                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                    }
-                )
-
-            # Validate input
-            if not product.title or len(product.title.strip()) == 0:
-                raise GraphQLError(
-                    "Product title cannot be empty.",
-                    extensions={
-                        "code": "INVALID_INPUT",
-                        "status": 400
-                    }
-                )
-
-            # Create product object
-            product_obj = Product(
-                store=store,
-                title=product.title,
-                description=product.description or {},
-                status=product.status if product.status in dict(
-                    Product.STATUS) else "DRAFT"
-            )
-
-            # Handle SEO data
-            try:
-                if product.seo and isinstance(product.seo, dict):
-                    seo = SEO.objects.create(**product.seo)
-                else:
-                    seo = SEO.objects.create(title=product.title)
-                product_obj.seo = seo
-            except Exception as seo_error:
-                raise GraphQLError(
-                    f"Error creating SEO data: {str(seo_error)}",
-                    extensions={
-                        "code": "SEO_ERROR",
-                        "status": 400
-                    }
-                )
-
-            # Save product
-            product_obj.save()
-
-            # Handle first variant
-            try:
-                first_variant_data = product.first_variant
-                # Flexible price input
-                price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(
-                    first_variant_data, 'price', 0.0)
-                compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(
-                    first_variant_data, 'compareAtPrice', None)
-                stock = getattr(first_variant_data, 'stock', 0)
-
-                # Validate price
-                if price_amount < 0:
-                    raise GraphQLError(
-                        "Price cannot be negative.",
-                        extensions={
-                            "code": "INVALID_PRICE",
-                            "status": 400
-                        }
-                    )
-
-                first_variant = ProductVariant(
-                    product=product_obj,
-                    price_amount=Decimal(str(price_amount)),
-                    compare_at_price=Decimal(
-                        str(compare_at_price)) if compare_at_price is not None else None,
-                    stock=stock,
-                )
-
-                first_variant.save()
-                product_obj.first_variant = first_variant
-                product_obj.save()
-            except Exception as variant_error:
-                # Rollback product creation if variant fails
-                product_obj.delete()
-                raise GraphQLError(
-                    f"Error creating product variant: {str(variant_error)}",
-                    extensions={
-                        "code": "VARIANT_ERROR",
-                        "status": 400
-                    }
-                )
-
-            # Handle collections
-            try:
-                collection_ids = getattr(product, 'collection_ids', None) or getattr(
-                    product, 'collectionIds', None)
-                if collection_ids is not None:
-                    update_product_collections(product_obj, collection_ids)
-            except Exception as collection_error:
-                raise GraphQLError(
-                    f"Error updating collections: {str(collection_error)}",
-                    extensions={
-                        "code": "COLLECTION_ERROR",
-                        "status": 400
-                    }
-                )
-
-            # Handle product options
-            if product.options:
-                try:
-                    update_product_options_and_values(
-                        product_obj, product.options)
-                except Exception as options_error:
-                    raise GraphQLError(
-                        f"Error updating product options: {
-                            str(options_error)}",
-                        extensions={
-                            "code": "OPTIONS_ERROR",
-                            "status": 400
-                        }
-                    )
-
-            return CreateProduct(product=product_obj)
-
-        except GraphQLError as gql_error:
-            # Re-raise GraphQL errors as-is
-            raise gql_error
-        except Exception as e:
-            # Handle unexpected errors
+        # Authenticate and get user
+        user = cls.check_authentication(info)
+        
+        # Get store
+        store = cls.get_store(default_domain)
+        
+        # Get staff member
+        staff_member = cls.get_staff_member(user, store)
+        
+        # Check permission
+        cls.check_permission(staff_member, StorePermissions.PRODUCTS_CREATE)
+        
+        # Validate input
+        if not product.title or len(product.title.strip()) == 0:
             raise GraphQLError(
-                f"Unexpected error: {str(e)}",
+                "Product title cannot be empty.",
                 extensions={
-                    "code": "INTERNAL_SERVER_ERROR",
-                    "status": 500
+                    "code": "INVALID_INPUT",
+                    "status": 400
                 }
             )
+
+        # Create product object
+        product_obj = Product(
+            store=store,
+            title=product.title,
+            description=product.description or {},
+            status=product.status if product.status in dict(Product.STATUS) else "DRAFT"
+        )
+
+        # Handle SEO data
+        try:
+            if product.seo and isinstance(product.seo, dict):
+                seo = SEO.objects.create(**product.seo)
+            else:
+                seo = SEO.objects.create(title=product.title)
+            product_obj.seo = seo
+        except Exception as seo_error:
+            raise GraphQLError(
+                f"Error creating SEO data: {str(seo_error)}",
+                extensions={
+                    "code": "SEO_ERROR",
+                    "status": 400
+                }
+            )
+
+        # Save product
+        product_obj.save()
+
+        # Handle first variant
+        try:
+            first_variant_data = product.first_variant
+            # Flexible price input
+            price_amount = getattr(first_variant_data, 'price_amount', None) or getattr(
+                first_variant_data, 'price', 0.0)
+            compare_at_price = getattr(first_variant_data, 'compare_at_price', None) or getattr(
+                first_variant_data, 'compareAtPrice', None)
+            stock = getattr(first_variant_data, 'stock', 0)
+
+            # Validate price
+            if price_amount < 0:
+                raise GraphQLError(
+                    "Price cannot be negative.",
+                    extensions={
+                        "code": "INVALID_PRICE",
+                        "status": 400
+                    }
+                )
+
+            first_variant = ProductVariant(
+                product=product_obj,
+                price_amount=Decimal(str(price_amount)),
+                compare_at_price=Decimal(
+                    str(compare_at_price)) if compare_at_price is not None else None,
+                stock=stock,
+            )
+
+            first_variant.save()
+            product_obj.first_variant = first_variant
+            product_obj.save()
+        except Exception as variant_error:
+            # Rollback product creation if variant fails
+            product_obj.delete()
+            raise GraphQLError(
+                f"Error creating product variant: {str(variant_error)}",
+                extensions={
+                    "code": "VARIANT_ERROR",
+                    "status": 400
+                }
+            )
+
+        # Handle collections
+        try:
+            collection_ids = getattr(product, 'collection_ids', None) or getattr(
+                product, 'collectionIds', None)
+            if collection_ids is not None:
+                update_product_collections(product_obj, collection_ids)
+        except Exception as collection_error:
+            raise GraphQLError(
+                f"Error updating collections: {str(collection_error)}",
+                extensions={
+                    "code": "COLLECTION_ERROR",
+                    "status": 400
+                }
+            )
+
+        # Handle product options
+        if product.options:
+            try:
+                update_product_options_and_values(
+                    product_obj, product.options)
+            except Exception as options_error:
+                raise GraphQLError(
+                    f"Error updating product options: {str(options_error)}",
+                    extensions={
+                        "code": "OPTIONS_ERROR",
+                        "status": 400
+                    }
+                )
+
+        return CreateProduct(product=product_obj)
 
 
 class UpdateProduct(graphene.Mutation):
@@ -339,7 +281,7 @@ class UpdateProduct(graphene.Mutation):
             product_instance.title = product.title
             product_instance.description = product.description or {}
             product_instance.status = product.status if product.status in dict(
-                Product.STATUS) else product_instance.status
+                Product.STATUS) else "DRAFT"
             product_instance.handle = product.handle
 
             # Handle SEO data
