@@ -4,6 +4,7 @@ from product.models import Product
 from stores.models import StorePermission
 from stores.enums import StorePermissions
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 
 CREATE_PRODUCT_MUTATION = '''
     mutation CreateProduct($product: ProductInput!, $defaultDomain: String!) {
@@ -155,8 +156,8 @@ def test_create_product_unauthorized(staff_api_client, description_json, store, 
     content = get_graphql_content(response, ignore_errors=True)
 
     assert 'errors' in content
-    assert "You do not have permission to create products." in content['errors'][0]['message']
-    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 @pytest.mark.django_db
 def test_create_product_invalid_store(staff_api_client, description_json, staff_member):

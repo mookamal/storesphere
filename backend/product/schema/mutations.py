@@ -4,6 +4,7 @@ from product.models import Collection, Image, Product, ProductVariant
 from product.utils import add_values_to_variant, update_product_options_and_values, update_product_collections
 from stores.models import StaffMember, Store
 from stores.enums import StorePermissions
+from core.utils.constants import StorePermissionErrors
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
@@ -86,10 +87,10 @@ class CreateProduct(graphene.Mutation):
             # Verify specific permission
             if not staff_member.has_permission(StorePermissions.PRODUCTS_CREATE):
                 raise GraphQLError(
-                    "You do not have permission to create products.",
+                    StorePermissionErrors.PERMISSION_DENIED['message'],
                     extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
+                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
                     }
                 )
 
@@ -296,10 +297,10 @@ class UpdateProduct(graphene.Mutation):
             # Verify specific permission
             if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
                 raise GraphQLError(
-                    "You do not have permission to update products.",
+                    StorePermissionErrors.PERMISSION_DENIED['message'],
                     extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
+                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
                     }
                 )
 
@@ -547,10 +548,10 @@ class CreateProductVariant(graphene.Mutation):
             # 4. Permission Verification
             if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
                 raise GraphQLError(
-                    "You do not have permission to create product variants.",
+                    StorePermissionErrors.PERMISSION_DENIED['message'],
                     extensions={
-                        "code": "INSUFFICIENT_PERMISSIONS",
-                        "status": 403
+                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
                     }
                 )
 
@@ -686,10 +687,10 @@ class UpdateProductVariant(graphene.Mutation):
             # Verify specific permission
             if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
                 raise GraphQLError(
-                    "You do not have permission to update product variants.",
+                    StorePermissionErrors.PERMISSION_DENIED['message'],
                     extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
+                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
                     }
                 )
 
@@ -813,10 +814,10 @@ class PerformActionOnVariants(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
             raise GraphQLError(
-                "You do not have permission to perform actions on product variants.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -905,10 +906,10 @@ class AddImagesProduct(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
             raise GraphQLError(
-                "You do not have permission to update products.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -1018,10 +1019,10 @@ class RemoveImagesProduct(graphene.Mutation):
             # Check for product update permission
             if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
                 raise GraphQLError(
-                    "You do not have permission to update products.",
+                    StorePermissionErrors.PERMISSION_DENIED['message'],
                     extensions={
-                        "code": "PERMISSION_DENIED",
-                        "status": 403
+                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
                     }
                 )
         except StaffMember.DoesNotExist:
@@ -1181,10 +1182,10 @@ class CreateCollection(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.COLLECTIONS_CREATE):
             raise GraphQLError(
-                "You do not have permission to create collections.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -1333,10 +1334,10 @@ class UpdateCollection(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
             raise GraphQLError(
-                "You do not have permission to update collections.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -1499,10 +1500,10 @@ class DeleteCollections(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.COLLECTIONS_DELETE):
             raise GraphQLError(
-                "You do not have permission to delete collections.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -1606,10 +1607,10 @@ class AddProductsToCollection(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
             raise GraphQLError(
-                "You do not have permission to update collections.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
@@ -1723,10 +1724,10 @@ class DeleteProductsFromCollection(graphene.Mutation):
         # Verify specific permission
         if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
             raise GraphQLError(
-                "You do not have permission to update collections.",
+                StorePermissionErrors.PERMISSION_DENIED['message'],
                 extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
+                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
+                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 
