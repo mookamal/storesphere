@@ -519,6 +519,7 @@ class UpdateProductVariant(BaseMutation):
     
     Arguments:
         variant_inputs (ProductVariantInput): Input data for updating the variant.
+        default_domain (str): Domain of the store.
     """
     product_variant = graphene.Field(ProductVariantNode)
 
@@ -535,6 +536,7 @@ class UpdateProductVariant(BaseMutation):
             root: Root resolver.
             info (GraphQLResolveInfo): GraphQL resolver information.
             variant_inputs (ProductVariantInput): Detailed input for updating the variant.
+            default_domain (str): Domain of the store.
         
         Returns:
             UpdateProductVariant: A mutation result containing the updated product variant.
@@ -604,7 +606,7 @@ class UpdateProductVariant(BaseMutation):
         return UpdateProductVariant(product_variant=variant)
 
 
-class PerformActionOnVariants(graphene.Mutation):
+class PerformActionOnVariants(BaseMutation):
     """
     GraphQL mutation for performing actions on product variants.
     
@@ -619,6 +621,7 @@ class PerformActionOnVariants(graphene.Mutation):
     Arguments:
         action (VariantActions): The action to perform.
         variant_ids (graphene.List): IDs of the variants to perform the action on.
+        default_domain (graphene.String): The domain of the store.
     """
     success = graphene.Boolean()
     message = graphene.String()
@@ -627,9 +630,10 @@ class PerformActionOnVariants(graphene.Mutation):
     class Arguments:
         action = VariantActions(required=True)
         variant_ids = graphene.List(graphene.ID, required=True)
+        default_domain = graphene.String(required=True)
 
     @classmethod
-    def mutate(cls, root, info, action, variant_ids):
+    def mutate(cls, root, info, action, variant_ids, default_domain):
         """
         Mutation method to perform an action on product variants.
         
@@ -638,6 +642,7 @@ class PerformActionOnVariants(graphene.Mutation):
             info (GraphQLResolveInfo): GraphQL resolver information.
             action (VariantActions): The action to perform.
             variant_ids (list): IDs of the variants to perform the action on.
+            default_domain (str): Domain of the store.
         
         Returns:
             PerformActionOnVariants: A mutation result containing the outcome of the action.
@@ -645,7 +650,17 @@ class PerformActionOnVariants(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        user = info.context.user
+        # Get user
+        user = cls.check_authentication(info)
+
+        # Get store
+        store = cls.get_store(default_domain)
+
+        # Get staff member
+        staff_member = cls.get_staff_member(user, store)
+
+        # Check permission
+        cls.check_permission(staff_member, StorePermissions.PRODUCTS_UPDATE)
 
         # Check variant existence in a single query
         variants = ProductVariant.objects.filter(id__in=variant_ids)
@@ -657,31 +672,6 @@ class PerformActionOnVariants(graphene.Mutation):
                 extensions={
                     "code": "NOT_FOUND",
                     "status": 404
-                }
-            )
-
-        # Extract store from the first variant
-        store = variants.first().product.store
-
-        # Check user permissions for the store
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "NOT_AUTHORIZED",
-                    "status": 403
-                }
-            )
-
-        # Verify specific permission
-        if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
-            raise GraphQLError(
-                StorePermissionErrors.PERMISSION_DENIED['message'],
-                extensions={
-                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
                 }
             )
 

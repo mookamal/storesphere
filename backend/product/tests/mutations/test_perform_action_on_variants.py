@@ -6,8 +6,8 @@ from core.graphql.tests.utils import get_graphql_content
 from core.utils.constants import StorePermissionErrors
 
 PERFORM_ACTION_ON_VARIANTS_MUTATION = '''
-    mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]!) {
-        performActionOnVariants(action: $action, variantIds: $variantIds) {
+    mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]! $defaultDomain: String!) {
+        performActionOnVariants(action: $action, variantIds: $variantIds, defaultDomain: $defaultDomain) {
             success
             message
             errors
@@ -21,7 +21,8 @@ def test_perform_action_on_variants_delete_success(staff_api_client, store, staf
     """Test successful deletion of product variants by store owner."""
     variables = {
         "action": "DELETE",
-        "variantIds": [str(product_variant.id)]
+        "variantIds": [str(product_variant.id)],
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -46,7 +47,8 @@ def test_perform_action_on_variants_with_permission(staff_api_client, store, sta
 
     variables = {
         "action": "DELETE",
-        "variantIds": [str(product_variant.id)]
+        "variantIds": [str(product_variant.id)],
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -64,7 +66,8 @@ def test_perform_action_on_variants_unauthorized(staff_api_client, store, staff_
     """Test deletion of product variants without PRODUCTS_UPDATE permission."""
     variables = {
         "action": "DELETE",
-        "variantIds": [str(product_variant.id)]
+        "variantIds": [str(product_variant.id)],
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
@@ -81,7 +84,8 @@ def test_perform_action_on_variants_not_found(staff_api_client, store, staff_mem
     """Test deletion of non-existent product variants."""
     variables = {
         "action": "DELETE",
-        "variantIds": ["999999"]
+        "variantIds": ["999999"],
+        "defaultDomain": store.default_domain
     }
 
     response = staff_api_client.post_graphql(
