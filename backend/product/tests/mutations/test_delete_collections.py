@@ -1,6 +1,7 @@
 import pytest
 from product.models import Collection, Product
 from stores.models import StaffMember
+from core.utils.constants import StorePermissionErrors
 
 DELETE_COLLECTIONS_MUTATION = '''
 mutation DeleteCollections($collectionIds: [ID]!, $defaultDomain: String!) {
@@ -50,8 +51,8 @@ def test_delete_collections_unauthorized(staff_api_client, store, collection,sta
     # Verify error response
     response_json = response.json()
     assert 'errors' in response_json
-    assert response_json['errors'][0]['extensions']['code'] == 'PERMISSION_DENIED'
-    assert 'You do not have permission to delete collections' in response_json['errors'][0]['message']
+    assert response_json['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in response_json['errors'][0]['message']
 
 @pytest.mark.django_db
 def test_delete_multiple_collections(staff_api_client, staff_member, store):

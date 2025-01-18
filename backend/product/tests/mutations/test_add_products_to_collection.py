@@ -1,5 +1,6 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 from product.models import Collection
 
 ADD_PRODUCTS_TO_COLLECTION_MUTATION = '''
@@ -83,8 +84,8 @@ def test_add_products_to_collection_unauthorized(
 
     # Verify unauthorized access
     assert 'errors' in content
-    assert "You do not have permission to update collections." in content['errors'][0]['message']
-    assert content['errors'][0]['extensions']['code'] == "PERMISSION_DENIED"
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 
 @pytest.mark.django_db

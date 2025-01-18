@@ -1,5 +1,6 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 from product.models import Collection, Image
 from stores.models import Store
 
@@ -102,8 +103,8 @@ def test_create_collection_unauthorized(
     # Check for permission denied error
     content = get_graphql_content(response, ignore_errors=True)
     assert 'errors' in content
-    assert "You do not have permission to create collections." in content['errors'][0]['message']
-    assert "PERMISSION_DENIED" == content['errors'][0]['extensions']['code']
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in content['errors'][0]['message']
+    assert content['errors'][0]['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 
 @pytest.mark.django_db
