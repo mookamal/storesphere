@@ -40,6 +40,7 @@ def test_product_details_variants_success(
 
     # Create the first variant for the product
     first_variant = product.variants.create(
+        product=product,
         sku='123',
         price_amount=10.0,
         stock=5,
@@ -52,12 +53,14 @@ def test_product_details_variants_success(
 
     # Create additional variants
     additional_variant1 = product.variants.create(
+        product=product,
         sku='VARIANT2',
         price_amount=29.99,
         stock=15,
         created_at='2023-02-01T00:00:00Z'
     )
     additional_variant2 = product.variants.create(
+        product=product,
         sku='VARIANT3',
         price_amount=39.99,
         stock=20,
@@ -85,6 +88,9 @@ def test_product_details_variants_success(
     # Check variant details (sorted by created_at in descending order)
     assert variants[0]['node']['sku'] == 'VARIANT3'
     assert variants[1]['node']['sku'] == 'VARIANT2'
+    assert 'pricing' in variants[0]['node'], "Pricing field is missing in the first variant"
+    assert variants[0]['node']['pricing'] is not None, "Pricing data is missing in the first variant"
+    assert 'amount' in variants[0]['node']['pricing'], "Amount field is missing in the pricing"
     assert float(variants[0]['node']['pricing']['amount']) == 39.99
     assert float(variants[1]['node']['pricing']['amount']) == 29.99
     assert variants[0]['node']['stock'] == 20

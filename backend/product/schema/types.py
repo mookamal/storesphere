@@ -116,6 +116,20 @@ class ProductVariantNode(DjangoObjectType):
         """
         return self.selected_options.all()
 
+    def resolve_pricing(self, info):
+        """
+        Resolves the pricing information for the product variant.
+        
+        Args:
+            info: GraphQL resolver info.
+        
+        Returns:
+            Money: Pricing information for the variant.
+        """
+        if self.price_amount is not None:
+            return Money(amount=float(self.price_amount), currency=self.get_currency)
+        return None
+
 
 class ImageNode(DjangoObjectType):
     """
