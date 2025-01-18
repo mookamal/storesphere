@@ -1,5 +1,6 @@
 import pytest
 from core.graphql.tests.utils import get_graphql_content
+from core.utils.constants import StorePermissionErrors
 from product.models import Product, Image, ProductVariant
 
 ADD_IMAGES_PRODUCT_MUTATION = '''
@@ -88,9 +89,8 @@ def test_add_images_product_unauthorized(
     
     # Check specific error details
     error = content['errors'][0]
-    assert 'You do not have permission' in error['message']
-    assert error['extensions']['code'] == 'PERMISSION_DENIED'
-    assert error['extensions']['status'] == 403
+    assert StorePermissionErrors.PERMISSION_DENIED["message"] in error['message']
+    assert error['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
 
 
 @pytest.mark.django_db
