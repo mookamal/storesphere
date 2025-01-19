@@ -2,7 +2,7 @@ import graphene
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import PermissionDenied
 from product.schema.queries import Query as productQueries
-from product.schema.mutations import Mutation as productMutations
+from product.schema.mutation import Mutation as productMutations
 from customer.schema.queries import Query as customerQueries
 from customer.schema.mutations import Mutation as customerMutations
 from stores.schema.queries import Query as storesQueries
