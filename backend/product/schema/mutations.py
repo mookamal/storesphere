@@ -2,9 +2,7 @@ import graphene
 from core.models import SEO
 from product.models import Collection, Image, Product, ProductVariant
 from product.utils import add_values_to_variant, update_product_options_and_values, update_product_collections
-from stores.models import StaffMember, Store
 from stores.enums import StorePermissions
-from core.utils.constants import StorePermissionErrors
 from .types import CollectionNode, ProductNode, ProductVariantNode
 from .inputs import CollectionInputs, ProductInput, ProductVariantInput
 from graphql import GraphQLError
