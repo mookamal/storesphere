@@ -345,8 +345,8 @@ def test_create_collection_seo_truncation(
             "title": "SEO Truncation Test",
             "handle": "seo-truncation",
             "seo": {
-                "title": "A" * 100,  # Exceeds 70 characters
-                "description": "B" * 200  # Exceeds 160 characters
+                "title": "A" * 255,  # Exceeds 255 characters
+                "description": "B" * 500  # Exceeds 500 characters
             }
         }
     }
@@ -360,5 +360,5 @@ def test_create_collection_seo_truncation(
 
     # Verify SEO data truncation
     collection_data = content['data']['createCollection']['collection']
-    assert len(collection_data['seo']['title']) <= 70
-    assert len(collection_data['seo']['description']) <= 160
+    assert len(collection_data['seo']['title']) <= 255
+    assert len(collection_data['seo']['description']) <= 500

@@ -864,7 +864,7 @@ class RemoveImagesProduct(BaseMutation):
         return RemoveImagesProduct(product=product)
 
 
-class CreateCollection(graphene.Mutation):
+class CreateCollection(BaseMutation):
     """
     GraphQL mutation for creating a new collection.
     
@@ -885,40 +885,6 @@ class CreateCollection(graphene.Mutation):
         collection_inputs = CollectionInputs(required=True)
 
     @classmethod
-    def validate_seo_data(cls, seo_data, title):
-        """
-        Validate and truncate SEO data.
-        
-        Args:
-            seo_data (dict): SEO data to validate.
-            title (str): Title of the collection.
-        
-        Returns:
-            dict: Validated and truncated SEO data.
-        """
-        MAX_TITLE_LENGTH = 70
-        MAX_DESCRIPTION_LENGTH = 160
-
-        # If no SEO data provided, use default from title
-        if not seo_data:
-            return {
-                'title': title[:MAX_TITLE_LENGTH],
-                'description': ''
-            }
-
-        # Ensure seo_data is a dictionary
-        seo_data = seo_data if isinstance(seo_data, dict) else {}
-
-        # Use title as fallback for SEO title
-        seo_title = (seo_data.get('title', '') or title)[:MAX_TITLE_LENGTH]
-        seo_description = (seo_data.get('description', '') or '')[:MAX_DESCRIPTION_LENGTH]
-
-        return {
-            'title': seo_title,
-            'description': seo_description
-        }
-
-    @classmethod
     def mutate(cls, root, info, default_domain, collection_inputs):
         """
         Mutation method to create a new collection.
@@ -935,50 +901,15 @@ class CreateCollection(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        # Authentication check
-        user = info.context.user
-        if not user or not user.is_authenticated:
-            raise GraphQLError(
-                "Authentication required.",
-                extensions={
-                    "code": "UNAUTHENTICATED",
-                    "status": 401
-                }
-            )
+        # Authenticate user
+        user = cls.check_authentication(info)
 
-        # Validate store existence
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store not found",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+        # Get store
+        store = cls.get_store(default_domain)
 
-        # Check staff membership
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "NOT_AUTHORIZED",
-                    "status": 403
-                }
-            )
-
-        # Verify specific permission
-        if not staff_member.has_permission(StorePermissions.COLLECTIONS_CREATE):
-            raise GraphQLError(
-                StorePermissionErrors.PERMISSION_DENIED['message'],
-                extensions={
-                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                }
-            )
+        # Get staff member and check permissions
+        staff_member = cls.get_staff_member(user, store)
+        cls.check_permission(staff_member, StorePermissions.COLLECTIONS_CREATE)
 
         # Validate title length
         title = collection_inputs.title.strip()
@@ -1047,6 +978,33 @@ class CreateCollection(graphene.Mutation):
         collection = Collection.objects.create(**{k: v for k, v in collection_data.items() if v is not None})
 
         return CreateCollection(collection=collection)
+
+    @classmethod
+    def validate_seo_data(cls, seo_data, title):
+        """
+        Validate and truncate SEO data.
+        
+        Args:
+            seo_data (dict): SEO data to validate.
+            title (str): Title of the collection.
+        
+        Returns:
+            dict: Validated and truncated SEO data.
+        """
+        # Default SEO data if not provided
+        if not seo_data:
+            seo_data = {}
+
+        # Use collection title if SEO title is not provided
+        seo_title = (seo_data.get('title') or title)[:255]
+        
+        # Truncate description if provided
+        seo_description = (seo_data.get('description') or '')[:500]
+
+        return {
+            'title': seo_title,
+            'description': seo_description
+        }
 
 
 class UpdateCollection(graphene.Mutation):
