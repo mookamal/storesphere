@@ -6,3 +6,4 @@ from .product.remove_images_product import RemoveImagesProduct
 # product variant
 from .product_variant.create_product_variant import CreateProductVariant
 from .product_variant.update_product_variant import UpdateProductVariant
+from .product_variant.perform_action_on_variants import PerformActionOnVariants
