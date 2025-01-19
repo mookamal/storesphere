@@ -1,9 +1,9 @@
 import graphene
 from core.models import SEO
 from product.models import Collection, Image, Product, ProductVariant
-from product.utils import add_values_to_variant, update_product_options_and_values, update_product_collections
+from product.utils import add_values_to_variant
 from stores.enums import StorePermissions
-from .types import CollectionNode, ProductNode, ProductVariantNode
+from .types import CollectionNode,ProductVariantNode
 from .inputs import CollectionInputs,ProductVariantInput
 from graphql import GraphQLError
 from django.utils.text import slugify
