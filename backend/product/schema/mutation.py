@@ -9,7 +9,7 @@ from graphql import GraphQLError
 from decimal import Decimal
 from django.utils.text import slugify
 from core.mutations import BaseMutation
-from .mutations.product.create_product import CreateProduct
+from .mutations import CreateProduct
 
 
 
