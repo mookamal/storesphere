@@ -1222,26 +1222,26 @@ class DeleteCollections(BaseMutation):
         return DeleteCollections(success=True)
 
 
-class AddProductsToCollection(graphene.Mutation):
+class AddProductsToCollection(BaseMutation):
     """
     GraphQL mutation for adding products to a collection.
     
-    Handles adding multiple products to a collection at once.
-    Performs authentication and authorization checks.
+    Handles the process of adding multiple products to a collection 
+    with authentication and authorization checks.
     
     Attributes:
-        success (graphene.Boolean): Whether the addition was successful.
+        success (graphene.Boolean): Indicates whether the products were added successfully.
     
     Arguments:
         collection_id (graphene.ID): ID of the collection to add products to.
-        product_ids (graphene.List): IDs of the products to add.
-        default_domain (str): Domain of the store where the collection exists.
+        product_ids (list): IDs of the products to add.
+        default_domain (str): Domain of the store.
     """
     success = graphene.Boolean()
 
     class Arguments:
         collection_id = graphene.ID(required=True)
-        product_ids = graphene.List(graphene.ID)
+        product_ids = graphene.List(graphene.ID, required=True)
         default_domain = graphene.String(required=True)
 
     @classmethod
@@ -1262,50 +1262,15 @@ class AddProductsToCollection(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        # Authentication check
-        user = info.context.user
-        if not user or not user.is_authenticated:
-            raise GraphQLError(
-                "Authentication required.",
-                extensions={
-                    "code": "UNAUTHENTICATED",
-                    "status": 401
-                }
-            )
+        # Authenticate user
+        user = cls.check_authentication(info)
 
-        # Validate store existence
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store not found.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+        # Get store
+        store = cls.get_store(default_domain)
 
-        # Check staff membership
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "NOT_AUTHORIZED",
-                    "status": 403
-                }
-            )
-
-        # Verify specific permission
-        if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
-            raise GraphQLError(
-                StorePermissionErrors.PERMISSION_DENIED['message'],
-                extensions={
-                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                }
-            )
+        # Get staff member and check permissions
+        staff_member = cls.get_staff_member(user, store)
+        cls.check_permission(staff_member, StorePermissions.COLLECTIONS_UPDATE)
 
         # Validate collection existence
         try:
