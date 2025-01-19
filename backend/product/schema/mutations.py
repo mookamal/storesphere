@@ -1007,7 +1007,7 @@ class CreateCollection(BaseMutation):
         }
 
 
-class UpdateCollection(graphene.Mutation):
+class UpdateCollection(BaseMutation):
     """
     GraphQL mutation for updating an existing collection.
     
@@ -1020,15 +1020,17 @@ class UpdateCollection(graphene.Mutation):
     Arguments:
         collection_id (graphene.ID): ID of the collection to update.
         collection_inputs (CollectionInputs): Input data for updating the collection.
+        default_domain (str): Domain of the store where the collection exists.
     """
     collection = graphene.Field(CollectionNode)
 
     class Arguments:
         collection_id = graphene.ID(required=True)
         collection_inputs = CollectionInputs(required=True)
+        default_domain = graphene.String(required=True)
 
     @classmethod
-    def mutate(cls, root, info, collection_id, collection_inputs):
+    def mutate(cls, root, info, collection_id, collection_inputs, default_domain):
         """
         Mutation method to update an existing collection.
         
@@ -1037,6 +1039,7 @@ class UpdateCollection(graphene.Mutation):
             info (GraphQLResolveInfo): GraphQL resolver information.
             collection_id (int): Unique identifier of the collection.
             collection_inputs (CollectionInputs): Detailed input for updating the collection.
+            default_domain (str): Domain of the store.
         
         Returns:
             UpdateCollection: A mutation result containing the updated collection.
@@ -1044,21 +1047,15 @@ class UpdateCollection(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        # Authentication check
-        user = info.context.user
-        if not user or not user.is_authenticated:
-            raise GraphQLError(
-                "Authentication required.",
-                extensions={
-                    "code": "UNAUTHENTICATED",
-                    "status": 401
-                }
-            )
+        # Authenticate user
+        user = cls.check_authentication(info)
 
-        # Validate collection existence
+        # Get store
+        store = cls.get_store(default_domain)
+
+        # Validate collection existence within the store
         try:
-            collection = Collection.objects.get(id=collection_id)
-            store = collection.store
+            collection = Collection.objects.get(id=collection_id, store=store)
         except Collection.DoesNotExist:
             raise GraphQLError(
                 "Collection not found.",
@@ -1068,27 +1065,9 @@ class UpdateCollection(graphene.Mutation):
                 }
             )
 
-        # Check staff membership
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "NOT_AUTHORIZED",
-                    "status": 403
-                }
-            )
-
-        # Verify specific permission
-        if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
-            raise GraphQLError(
-                StorePermissionErrors.PERMISSION_DENIED['message'],
-                extensions={
-                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                }
-            )
+        # Get staff member and check permissions
+        staff_member = cls.get_staff_member(user, store)
+        cls.check_permission(staff_member, StorePermissions.COLLECTIONS_UPDATE)
 
         # Validate unique handle within the store
         handle = collection_inputs.handle
@@ -1128,7 +1107,7 @@ class UpdateCollection(graphene.Mutation):
         # Validate and update image if provided
         if collection_inputs.image_id is not None:
             try:
-                image = Image.objects.get(pk=collection_inputs.image_id,store=store)
+                image = Image.objects.get(pk=collection_inputs.image_id, store=store)
                 collection.image = image
             except Image.DoesNotExist:
                 raise GraphQLError(
@@ -1153,9 +1132,9 @@ class UpdateCollection(graphene.Mutation):
         # Handle SEO data
         seo_data = collection_inputs.seo if isinstance(collection_inputs.seo, dict) else {}
 
-        # Truncate SEO data
-        seo_title = (seo_data.get("title", collection.title) or collection.title)[:70]
-        seo_description = (seo_data.get("description", "") or "")[:160]
+        # Validate and truncate SEO data
+        seo_title = (seo_data.get("title", collection.title) or collection.title)[:255]
+        seo_description = (seo_data.get("description", "") or "")[:500]
 
         # Update or create SEO
         if collection.seo:

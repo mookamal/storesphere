@@ -7,10 +7,12 @@ UPDATE_COLLECTION_MUTATION = """
 mutation UpdateCollection(
     $collectionId: ID!
     $collectionInputs: CollectionInputs!
+    $defaultDomain: String!
 ) {
     updateCollection(
         collectionId: $collectionId
         collectionInputs: $collectionInputs
+        defaultDomain: $defaultDomain
     ) {
         collection {
             title
@@ -47,7 +49,8 @@ def test_update_collection_partial_update(
         "collectionInputs": {
             "title": "Updated Collection Title",
             "imageId": product_image.pk
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -81,7 +84,8 @@ def test_update_collection_unauthorized(
         "collectionId": collection.pk,
         "collectionInputs": {
             "title": "Unauthorized Update"
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -109,7 +113,8 @@ def test_update_collection_nonexistent(
         "collectionId": 99999,  # Non-existent collection ID
         "collectionInputs": {
             "title": "Nonexistent Collection"
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -152,7 +157,8 @@ def test_update_collection_full_update(
                 "title": "SEO Title",
                 "description": "SEO Description"
             }
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -204,7 +210,8 @@ def test_update_collection_remove_image(
         "collectionInputs": {
             "title": collection.title,
             "imageId": None
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -241,7 +248,8 @@ def test_update_collection_invalid_image(
         "collectionInputs": {
             "title": collection.title,
             "imageId": 99999  # Use a non-existent image ID
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -280,7 +288,8 @@ def test_update_collection_duplicate_handle(
         "collectionInputs": {
             "title": collection.title,
             "handle": another_collection.handle
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
@@ -312,7 +321,8 @@ def test_update_collection_long_title(
         "collectionInputs": {
             "title": "A" * 300,  # Exceeds 255 characters
             "handle": collection.handle
-        }
+        },
+        "defaultDomain": store.default_domain
     }
 
     # Execute the mutation
