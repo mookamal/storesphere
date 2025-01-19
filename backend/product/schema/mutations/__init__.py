@@ -5,3 +5,4 @@ from .product.add_images_product import AddImagesProduct
 from .product.remove_images_product import RemoveImagesProduct
 # product variant
 from .product_variant.create_product_variant import CreateProductVariant
+from .product_variant.update_product_variant import UpdateProductVariant
