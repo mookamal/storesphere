@@ -10,3 +10,4 @@ from .product_variant.perform_action_on_variants import PerformActionOnVariants
 # collection
 from .collection.create_collection import CreateCollection
 from .collection.update_collection import UpdateCollection
+from .collection.delete_collection import DeleteCollections
