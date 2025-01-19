@@ -1304,7 +1304,7 @@ class AddProductsToCollection(BaseMutation):
         return AddProductsToCollection(success=True)
 
 
-class DeleteProductsFromCollection(graphene.Mutation):
+class DeleteProductsFromCollection(BaseMutation):
     """
     GraphQL mutation for removing products from a collection.
     
@@ -1344,50 +1344,15 @@ class DeleteProductsFromCollection(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        # Authentication check
-        user = info.context.user
-        if not user or not user.is_authenticated:
-            raise GraphQLError(
-                "Authentication required.",
-                extensions={
-                    "code": "UNAUTHENTICATED",
-                    "status": 401
-                }
-            )
+        # Authenticate user
+        user = cls.check_authentication(info)
 
-        # Validate store existence
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store not found.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+        # Get store
+        store = cls.get_store(default_domain)
 
-        # Check staff membership
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "NOT_AUTHORIZED",
-                    "status": 403
-                }
-            )
-
-        # Verify specific permission
-        if not staff_member.has_permission(StorePermissions.COLLECTIONS_UPDATE):
-            raise GraphQLError(
-                StorePermissionErrors.PERMISSION_DENIED['message'],
-                extensions={
-                    "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                    "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                }
-            )
+        # Get staff member and check permissions
+        staff_member = cls.get_staff_member(user, store)
+        cls.check_permission(staff_member, StorePermissions.COLLECTIONS_UPDATE)
 
         # Validate collection existence
         try:
