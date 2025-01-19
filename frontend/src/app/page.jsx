@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <>
       <MainNavbar />
-      <main className="min-h-screen mt-20">
+      <main className="min-h-screen">
         <Hero />
       </main>
       <MainFooter />
