@@ -775,7 +775,7 @@ class AddImagesProduct(BaseMutation):
         return AddImagesProduct(product=product)
 
 
-class RemoveImagesProduct(graphene.Mutation):
+class RemoveImagesProduct(BaseMutation):
     """
     GraphQL mutation for removing images from a product.
     
@@ -797,11 +797,13 @@ class RemoveImagesProduct(graphene.Mutation):
         product_id = graphene.ID(required=True)
         image_ids = graphene.List(graphene.ID, required=True)
 
-    def mutate(self, info, default_domain, product_id, image_ids):
+    @classmethod
+    def mutate(cls, root, info, default_domain, product_id, image_ids):
         """
         Mutation method to remove images from a product.
         
         Args:
+            root: Root resolver.
             info (GraphQLResolveInfo): GraphQL resolver information.
             default_domain (str): Domain of the store.
             product_id (int): Unique identifier of the product.
@@ -813,50 +815,15 @@ class RemoveImagesProduct(graphene.Mutation):
         Raises:
             GraphQLError: If authentication fails or store-related checks do not pass.
         """
-        # Check user authentication
-        user = info.context.user
-        if not user or not user.is_authenticated:
-            raise GraphQLError(
-                "Authentication required.",
-                extensions={
-                    "code": "UNAUTHENTICATED",
-                    "status": 401
-                }
-            )
+        # Authenticate user
+        user = cls.check_authentication(info)
 
-        # Validate store existence
-        try:
-            store = Store.objects.get(default_domain=default_domain)
-        except Store.DoesNotExist:
-            raise GraphQLError(
-                "Store not found.",
-                extensions={
-                    "code": "NOT_FOUND",
-                    "status": 404
-                }
-            )
+        # Get store
+        store = cls.get_store(default_domain)
 
-        # Check staff membership and permissions
-        try:
-            staff_member = StaffMember.objects.get(user=user, store=store)
-            
-            # Check for product update permission
-            if not staff_member.has_permission(StorePermissions.PRODUCTS_UPDATE):
-                raise GraphQLError(
-                    StorePermissionErrors.PERMISSION_DENIED['message'],
-                    extensions={
-                        "code": StorePermissionErrors.PERMISSION_DENIED['code'],
-                        "status": StorePermissionErrors.PERMISSION_DENIED['status']
-                    }
-                )
-        except StaffMember.DoesNotExist:
-            raise GraphQLError(
-                "You are not a staff member of this store.",
-                extensions={
-                    "code": "PERMISSION_DENIED",
-                    "status": 403
-                }
-            )
+        # Get staff member and check permissions
+        staff_member = cls.get_staff_member(user, store)
+        cls.check_permission(staff_member, StorePermissions.PRODUCTS_UPDATE)
 
         # Validate product existence and ownership
         try:
