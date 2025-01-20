@@ -1,7 +1,7 @@
 const DOMAINS = {
   main: 'nour.com',
   accounts: 'accounts.nour.com',
-  dashboard: 'dashboard.nour.com',
+  admin: 'admin.nour.com',
   blog: 'blog.nour.com'
 };
 
@@ -18,8 +18,8 @@ export const ROUTES = {
     url: `http://${DOMAINS.accounts}/signup`,
     path: '/signup'
   },
-  dashboard: {
-    url: `http://${DOMAINS.dashboard}`,
+  admin: {
+    url: `http://${DOMAINS.admin}`,
     path: '/'
   },
   features: {
