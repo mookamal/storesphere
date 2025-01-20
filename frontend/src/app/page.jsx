@@ -1,8 +1,10 @@
 import StructureMetadata from "../helper/structureMetadata";
 import siteInfo from "../data/site.json";
 import Hero from "@/components/main/home/Hero";
+import FeaturesSection from "@/components/main/home/Features";
 import MainFooter from "@/components/main/Footer";
 import MainNavbar from "@/components/main/Nav";
+
 export function generateMetadata() {
   return StructureMetadata({
     title: siteInfo.name,
@@ -17,6 +19,7 @@ export default function Home() {
       <MainNavbar />
       <main className="min-h-screen">
         <Hero />
+        <FeaturesSection />
       </main>
       <MainFooter />
     </>
