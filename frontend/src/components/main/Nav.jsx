@@ -37,7 +37,7 @@ export default function MainNavbar() {
           <div className="hidden md:flex items-center space-x-4">
             <Button 
               variant="outline" 
-              className="border-purple-600 text-purple-600 hover:bg-purple-50"
+              className="border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/50"
             >
               <LogIn className="w-4 h-4 mr-2" />
               Login
