@@ -53,7 +53,7 @@ export default function Hero() {
           className="flex justify-center items-center"
         >
         <Image 
-          src="/assets/images/multi-store-dashboard.jpg" 
+          src="/assets/images/shopping.svg" 
           alt="Multi-Store Management Platform" 
           width={800} 
           height={600} 
