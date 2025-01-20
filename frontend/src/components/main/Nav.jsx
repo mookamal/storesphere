@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LogIn, Star, Moon, Sun } from "lucide-react";
+import { LogIn, Star } from "lucide-react";
 import Logo from "@/components/my/Logo";
 import { ModeToggle } from "../ModeToggle";
 
