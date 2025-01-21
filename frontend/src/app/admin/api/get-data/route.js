@@ -12,21 +12,29 @@ function validateRequest(query, variables) {
 
 // Centralized error handling
 function handleError(error) {
-  if (error.graphQLErrors) {
+  // Handle GraphQL errors
+  if (error.graphQLErrors && error.graphQLErrors.length > 0) {
     const graphQLError = error.graphQLErrors[0];
     console.error('GraphQL Error:', {
-      message: graphQLError.message,
-      extensions: graphQLError.extensions
+      message: graphQLError?.message || 'Unknown GraphQL error',
+      extensions: graphQLError?.extensions || {}
     });
     return NextResponse.json(
-      { error: graphQLError.message },
-      { status: graphQLError.extensions?.status || 500 }
+      { 
+        error: graphQLError?.message || 'Unknown GraphQL error',
+        extensions: graphQLError?.extensions || {}
+      },
+      { status: graphQLError?.extensions?.status || 500 }
     );
   }
 
+  // Handle unexpected errors
   console.error('Unexpected Error:', error);
   return NextResponse.json(
-    { error: "Internal Server Error", details: error.message },
+    { 
+      error: error.message || 'Internal Server Error', 
+      details: error.toString() 
+    },
     { status: 500 }
   );
 }
