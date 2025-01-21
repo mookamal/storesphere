@@ -1,7 +1,20 @@
 "use client";
 
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import {
+import Link from "next/link";
+import { 
+  IoHome, 
+  IoSettings, 
+  IoCart,      
+} from "react-icons/io5";
+import { 
+  FaAward, 
+  FaUserCheck, 
+  FaChartLine    
+} from "react-icons/fa6";
+
+import { 
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -13,18 +26,23 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
-import { IoHome, IoSettings } from "react-icons/io5";
-import { FaAward } from "react-icons/fa6";
-import { FaUserCheck } from "react-icons/fa";
 
-import Link from "next/link";
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const storeDomain = pathname.split("/")[2];
-  const currentPath = pathname.split("/")[3] || "";
+  
+  const storeDomain = useMemo(() => pathname.split("/")[2], [pathname]);
 
-  const adminLinksList = [
-    { title: "Home", url: `/store/${storeDomain}`, icon: IoHome },
+  const adminLinksList = useMemo(() => [
+    { 
+      title: "Home", 
+      url: `/store/${storeDomain}`, 
+      icon: IoHome 
+    },
+    {
+      title: "Analytics",
+      url: `/store/${storeDomain}/analytics`,
+      icon: FaChartLine,
+    },
     {
       title: "Products",
       url: `/store/${storeDomain}/products`,
@@ -34,7 +52,26 @@ export default function AdminSidebar() {
           title: "Collections",
           url: `/store/${storeDomain}/collections`,
         },
+        {
+          title: "Inventory",
+          url: `/store/${storeDomain}/products/inventory`,
+        }
       ],
+    },
+    {
+      title: "Sales",
+      url: `/store/${storeDomain}/sales`,
+      icon: IoCart,
+      subLinks: [
+        {
+          title: "Orders",
+          url: `/store/${storeDomain}/sales/orders`,
+        },
+        {
+          title: "Refunds",
+          url: `/store/${storeDomain}/sales/refunds`,
+        }
+      ]
     },
     {
       title: "Customers",
@@ -54,9 +91,14 @@ export default function AdminSidebar() {
           title: "Plan",
           url: `/store/${storeDomain}/settings/plan`,
         },
+        {
+          title: "Integrations",
+          url: `/store/${storeDomain}/settings/integrations`,
+        }
       ],
     },
-  ];
+  ], [storeDomain]);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
@@ -64,7 +106,10 @@ export default function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {adminLinksList.map((link) => (
-                <SidebarMenuItem key={link.title}>
+                <SidebarMenuItem 
+                  key={link.title} 
+                  active={pathname.includes(link.url) ? "true" : "false"}
+                >
                   <SidebarMenuButton asChild>
                     <Link href={link.url}>
                       <link.icon />
@@ -74,7 +119,10 @@ export default function AdminSidebar() {
                   {link.subLinks && (
                     <SidebarMenuSub>
                       {link.subLinks.map((subLink) => (
-                        <SidebarMenuSubItem key={subLink.title}>
+                        <SidebarMenuSubItem 
+                          key={subLink.title}
+                          active={pathname === subLink.url ? "true" : "false"}
+                        >
                           <SidebarMenuSubButton asChild>
                             <Link href={subLink.url}>
                               <span>{subLink.title}</span>
