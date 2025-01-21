@@ -6,7 +6,7 @@ export async function POST(request) {
     const data = await request.json();
 
     // Validation of data entered
-    if (!data.email || !data.password) {
+    if (!data.email || !data.password1) {
       return NextResponse.json(
         { error: 'Email and password are required' }, 
         { status: 400 }

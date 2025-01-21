@@ -67,7 +67,8 @@ export default function Signup() {
     try {
       const response = await axios.post(SIGNUP_URL, {
         email: values.email,
-        password: values.password1
+        password1: values.password1,
+        password2: values.password2,
       });
 
       if (response.status === 200 || response.status === 201) {
@@ -80,6 +81,7 @@ export default function Signup() {
         }, 2000);
       }
     } catch (error) {
+      console.error(error);
       if (error.response?.data?.error) {
         const errorList = error.response.data.error;
         
