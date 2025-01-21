@@ -141,12 +141,6 @@ class Query(graphene.ObjectType):
         except GraphQLError as gql_error:
             # Handle GraphQL-specific errors
             raise gql_error
-        except Exception as e:
-            raise GraphQLError(f"Authentication failed: {str(e)}",
-                               extensions={
-                "code": "AUTHENTICATION_ERROR",
-                "status": 401
-            })
 
     def resolve_product(self, info, id, **kwargs):
         """
