@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IoReload } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { formatMsgServer } from "@/lib/utilities";
 import axios from "axios";
 import {
   Card,
@@ -32,12 +31,12 @@ const SIGNUP_URL = "/auth/signup";
 
 const formSchema = z
   .object({
-    email: z.string().email({ message: "Please enter a valid email address" }),
+    email: z.string().email({ message: "Invalid email address" }),
     password1: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters long" })
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-        message: "Password must include uppercase, lowercase, number, and special character"
+      .min(8, { message: "Password must be at least 8 characters" })
+      .regex(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {
+        message: "Password must include both letters and numbers"
       }),
     password2: z.string(),
   })
@@ -156,7 +155,7 @@ export default function Signup() {
                       </FormControl>
                       <FormMessage />
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        At least 8 characters, including uppercase, lowercase, number, and special character
+                        At least 8 characters, including both letters and numbers
                       </p>
                     </FormItem>
                   )}
