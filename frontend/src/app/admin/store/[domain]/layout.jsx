@@ -1,7 +1,7 @@
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import "./globals.css";
+import "./page-styles.css";
 
 export const metadata = {
   title: "Store Management",
