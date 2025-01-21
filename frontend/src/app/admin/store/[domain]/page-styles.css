@@ -1,7 +1,7 @@
 .card {
-    @apply bg-default-white dark:bg-slate-900 shadow-md;
-  }
+  @apply bg-white dark:bg-slate-900 shadow-md;
+}
 
 .h1 {
-  @apply scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-3xl flex items-center text-primary;
+  @apply scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-3xl flex items-center text-primary-text dark:text-white;
 }
