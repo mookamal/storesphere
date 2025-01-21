@@ -153,7 +153,7 @@ export default function AddProduct() {
       firstVariant: {
         price: data.price,
         compareAtPrice: data.compare,
-        stock: parseInt(data.stock),
+        stock: data.stock ? parseInt(data.stock) : 0,
       },
       options: cleanOptionsData(data.options),
     };
@@ -167,6 +167,7 @@ export default function AddProduct() {
         query: CREATE_PRODUCT,
         variables: variables,
       });
+      console.log(response);
       if (response.data.data.createProduct.product.productId) {
         await addImages(response.data.data.createProduct.product.productId);
         router.push(
@@ -177,6 +178,7 @@ export default function AddProduct() {
         toast.error("Failed to create product!");
       }
     } catch (error) {
+      console.error("Error creating product", error);
       setLoading(false);
       toast.error("Failed to create product!");
     }
