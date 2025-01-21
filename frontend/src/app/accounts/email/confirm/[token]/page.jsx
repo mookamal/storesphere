@@ -11,7 +11,7 @@ import ROUTES from "@/data/links";
 export default function ConfirmEmail({ params }) {
   const router = useRouter();
   
-  // فكّ الوعد (Promise) باستخدام React.use()
+  // Undo Promise with React.use()
   const { token } = use(params);
 
   const [status, setStatus] = useState('loading');
