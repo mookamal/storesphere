@@ -42,7 +42,7 @@ export const UPDATE_STORE_CURRENCY = `
 
 export const CREATE_PRODUCT = `
   mutation CreateProductMutation($product: ProductInput!, $defaultDomain: String!) {
-    createProduct(input: {product: $product ,defaultDomain: $defaultDomain }) {
+    createProduct(product: $product, defaultDomain: $defaultDomain) {
       product {
         id
         productId
