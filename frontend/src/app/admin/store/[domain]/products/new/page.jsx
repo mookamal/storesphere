@@ -18,7 +18,7 @@ import GeneralInputs from "@/components/admin/product/GeneralInputs";
 import MediaInputs from "@/components/admin/product/MediaInputs";
 import { Button } from "@/components/ui/button";
 import ProductOrganization from "@/components/admin/product/ProductOrganization";
-
+import { processDescription,safeParseNumber,cleanOptionsData } from "@/utils/dataTransformers";
 export default function AddProduct() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -129,20 +129,12 @@ export default function AddProduct() {
     };
   }, [watchedTitle, description]);
 
-  function cleanOptionsData(options) {
-    return options.map((option) => ({
-      name: option.name,
-      values: option.values.map((value) => ({
-        name: value.name,
-      })),
-    }));
-  }
 
   const onSubmit = async (data) => {
     setLoading(true);
     const productData = {
       title: data.title,
-      description: JSON.stringify(data.description),
+      description: processDescription(data.description),
       status: data.status,
       handle: data.handle,
       collectionIds: selectedCollections.map((c) => c.collectionId),
@@ -151,9 +143,9 @@ export default function AddProduct() {
         description: data.seoDescription,
       },
       firstVariant: {
-        price: data.price,
-        compareAtPrice: data.compare,
-        stock: data.stock ? parseInt(data.stock) : 0,
+        price: safeParseNumber(data.price),
+        compareAtPrice: safeParseNumber(data.compare),
+        stock: safeParseNumber(data.stock),
       },
       options: cleanOptionsData(data.options),
     };
