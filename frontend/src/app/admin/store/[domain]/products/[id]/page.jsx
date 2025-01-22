@@ -121,37 +121,36 @@ export default function UpdateProduct() {
   };
 
   useEffect(() => {
-    const hasBasicChanges =
+    // Ensure all comparisons are safe and handle potential undefined values
+    const hasBasicChanges = 
       title !== product?.title ||
-      description !== product?.description ||
+      processDescription(description) !== processDescription(product?.description) ||
       status !== product?.status ||
       handle !== product?.handle ||
-      seoTitle !== product?.seo.title ||
-      seoDescription !== product?.seo.description ||
-      price !== product?.firstVariant.pricing.amount ||
-      compare !== product?.firstVariant.compareAtPrice ||
-      stock !== product?.firstVariant.stock ||
-      JSON.stringify(cleanOptionsData(options)) !==
-        JSON.stringify(cleanOptionsData(product?.options)) ||
-      JSON.stringify(cleanCollections(selectedCollections)) !==
-        JSON.stringify(cleanCollections(product?.collections));
-
-    if (hasBasicChanges) {
-      setHasChanges(true);
-    } else {
-      setHasChanges(false);
-    }
+      seoTitle !== product?.seo?.title ||
+      seoDescription !== product?.seo?.description ||
+      safeParseNumber(price) !== safeParseNumber(product?.firstVariant?.pricing?.amount) ||
+      safeParseNumber(compare) !== safeParseNumber(product?.firstVariant?.compareAtPrice) ||
+      safeParseNumber(stock) !== safeParseNumber(product?.firstVariant?.stock) ||
+      JSON.stringify(cleanOptionsData(options)) !== 
+        JSON.stringify(cleanOptionsData(product?.options || [])) ||
+      JSON.stringify(cleanCollections(selectedCollections)) !== 
+        JSON.stringify(cleanCollections(product?.collections || []));
+  
+    setHasChanges(hasBasicChanges);
   }, [
-    description,
-    title,
-    status,
-    seoTitle,
-    seoDescription,
-    handle,
-    price,
-    compare,
-    stock,
-    controlledFieldOptions,
+    title, 
+    description, 
+    status, 
+    handle, 
+    seoTitle, 
+    seoDescription, 
+    price, 
+    compare, 
+    stock, 
+    options, 
+    selectedCollections,
+    product
   ]);
 
   const addImages = async (productId) => {
