@@ -5,6 +5,11 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { PRODUCTS_ADMIN_PAGE } from '@/graphql/queries';
 import { debounce } from 'lodash';
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Search, Filter } from "lucide-react";
 
 export default function ProductsPage() {
   // Routing hooks
@@ -109,61 +114,106 @@ export default function ProductsPage() {
   // Performance-optimized rendering
   const productList = useMemo(() => 
     products.map(product => (
-      <div key={product.id} className="product-item">
-        <h3>{product.title}</h3>
-        <p>Status: {product.status}</p>
-      </div>
+      <Card key={product.id} className="mb-4 hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">{product.title}</CardTitle>
+          <span className={`px-2 py-1 rounded-full text-xs ${
+            product.status === 'ACTIVE' 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-gray-100 text-gray-800'
+          }`}>
+            {product.status}
+          </span>
+        </CardHeader>
+        <CardContent>
+          {/* Add more product details if needed */}
+        </CardContent>
+      </Card>
     )), 
     [products]
   );
 
-  // Render components
   return (
-    <div className="products-container">
-      {/* Search and Filter Section */}
-      <div className="filter-section">
-        <input 
-          type="text" 
-          placeholder="Search Products" 
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="search-input"
-        />
-        <select 
-          value={status} 
-          onChange={(e) => handleStatusChange(e.target.value)}
-          className="status-select"
-        >
-          <option value="all">All Statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="DRAFT">Draft</option>
-        </select>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">Products Management</h1>
       </div>
 
-      {/* Loading and Error States */}
-      {loading && <div>Loading...</div>}
-      {error && <div className="error-message">Error: {error}</div>}
+      <div className="flex items-center space-x-4 mb-6">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Input 
+            type="text" 
+            placeholder="Search Products" 
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="pl-10 w-full"
+          />
+        </div>
 
-      {/* Products List */}
-      <div className="products-list">
-        {productList}
+        <div className="flex items-center space-x-2">
+          <Filter className="text-gray-500" size={20} />
+          <Select 
+            value={status} 
+            onValueChange={handleStatusChange}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="ACTIVE">Active</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Pagination */}
-      <div className="pagination-section">
-        <button 
-          disabled={pagination.page === 1}
-          onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-        >
-          Previous
-        </button>
-        <button 
-          disabled={!pagination.hasNextPage}
-          onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-        >
-          Next
-        </button>
-      </div>
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="animate-spin text-primary" size={48} />
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative" role="alert">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {productList}
+          </div>
+
+          {products.length === 0 && (
+            <div className="text-center text-gray-500 py-10">
+              No products found
+            </div>
+          )}
+
+          <div className="flex justify-between items-center mt-6">
+            <Button 
+              variant="outline"
+              disabled={pagination.page === 1}
+              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+            >
+              Previous
+            </Button>
+            <div className="text-sm text-gray-500">
+              Page {pagination.page} of {Math.ceil(pagination.totalItems / pagination.pageSize)}
+            </div>
+            <Button 
+              variant="outline"
+              disabled={!pagination.hasNextPage}
+              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+            >
+              Next
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
