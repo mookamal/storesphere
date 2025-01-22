@@ -282,3 +282,37 @@ def test_update_product_without_update_permission(staff_api_client, store, staff
     assert error['message'] == StorePermissionErrors.PERMISSION_DENIED["message"], \
         f"Unexpected error message: {error['message']}"
     assert error['extensions']['code'] == StorePermissionErrors.PERMISSION_DENIED["code"]
+
+def test_update_product_with_empty_description(staff_api_client, store, staff_member, product):
+    """
+    Test updating product with an empty description.
+    """
+    first_variant = product.variants.first()
+    variables = {
+        "id": str(product.id),
+        "product": {
+            "title": product.title,  # Use existing title
+            "description": json.dumps(""),  # Empty description as JSONString
+            "status": "ACTIVE",
+            "seo": {
+                "title": product.seo.title,
+                "description": product.seo.description
+            },
+            "firstVariant": {
+                "price": float(first_variant.price_amount),
+                "compareAtPrice": float(first_variant.compare_at_price) if first_variant.compare_at_price else None,
+                "stock": first_variant.stock
+            }
+        },
+        "defaultDomain": store.default_domain
+    }
+
+    # Perform the mutation
+    response = staff_api_client.post_graphql(UPDATE_PRODUCT_MUTATION, variables)
+    content = get_graphql_content(response)
+
+    # Then
+    product_data = content["data"]["updateProduct"]["product"]
+    # Check if description is either an empty string or an empty JSON object
+    assert product_data["description"] in ["", "{}", "null"], "The description should be empty"
+    assert product_data["status"] == "ACTIVE", "The product status should remain ACTIVE"
