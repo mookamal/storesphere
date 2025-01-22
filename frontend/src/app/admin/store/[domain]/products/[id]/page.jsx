@@ -26,7 +26,7 @@ import MediaInputs from "@/components/admin/product/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
 import ProductOrganization from "@/components/admin/product/ProductOrganization";
-import { processDescription } from "@/utils/dataTransformers";
+import { processDescription,safeParseNumber } from "@/utils/dataTransformers";
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
   const domain = useParams().domain;
@@ -307,9 +307,9 @@ export default function UpdateProduct() {
         description: data.seoDescription,
       },
       firstVariant: {
-        price: data.price,
-        compareAtPrice: data.compare,
-        stock: data.stock ? parseInt(data.stock) : 0,
+        price: safeParseNumber(data.price),
+        compareAtPrice: safeParseNumber(data.compare),
+        stock: safeParseNumber(data.stock),
       },
       options: cleanOptionsData(data.options),
     };
