@@ -27,12 +27,14 @@ import {
 } from "@/components/ui/select";
 import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
+import { safeParseNumber } from "@/utils/dataTransformers";
 export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
   const [variantStock, setVariantStock] = useState(0);
   const productId = useParams().id;
+  const domain = useParams().domain;
   const [error, setError] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState({});
   const options = watch("options");
@@ -47,10 +49,11 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
     const variables = {
       productId: productId,
       variantInputs: {
-        price: variantPrice,
-        stock: parseInt(variantStock),
+        price: safeParseNumber(variantPrice),
+        stock: safeParseNumber(variantStock),
         optionValues: Object.values(selectedOptions),
       },
+      defaultDomain: domain,
     };
     try {
       const response = await axios.post("/api/set-data", {

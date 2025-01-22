@@ -52,8 +52,8 @@ export const CREATE_PRODUCT = `
 `;
 
 export const CREATE_PRODUCT_VARIANT = `
-    mutation CreateProductVariantMutation($productId: ID!,$variantInputs: ProductVariantInput!) {
-      createProductVariant(productId: $productId,variantInputs: $variantInputs ) {
+    mutation CreateProductVariantMutation($productId: ID!,$variantInputs: ProductVariantInput!, $defaultDomain: String!) {
+      createProductVariant(productId: $productId,variantInputs: $variantInputs, defaultDomain: $defaultDomain) {
         productVariant {
           id
         }
