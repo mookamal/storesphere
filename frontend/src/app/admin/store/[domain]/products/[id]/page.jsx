@@ -111,10 +111,6 @@ export default function UpdateProduct() {
     setLoading(false);
   };
 
-  // useEffect(() => {
-  //   removeSelectedImages();
-  // }, [selectedRemoveImages]);
-
   const handleBlur = () => {
     if (!handle) {
       setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
