@@ -20,17 +20,15 @@ import {
 import Link from 'next/link';
 
 export default function ProductsPage() {
-  // Routing hooks
+  // Existing state and logic remain unchanged
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // State management with performance optimizations
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Memoized filtering states
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || ''
   );
@@ -38,7 +36,6 @@ export default function ProductsPage() {
     searchParams.get('status') || 'all'
   );
 
-  // Pagination with performance considerations
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -47,7 +44,61 @@ export default function ProductsPage() {
     lastCursor: ''
   });
 
-  // Debounced search to prevent rapid API calls
+  // Existing debounced fetch and effect logic remains the same
+
+  const productList = useMemo(() => 
+    products.map(product => (
+      <TableRow 
+        key={product.productId} 
+        className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer group"
+      >
+        <TableCell className="dark:text-gray-200">{product.title}</TableCell>
+        <TableCell>
+          <span className={`px-2 py-1 rounded-full text-xs ${
+            product.status === 'ACTIVE' 
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' 
+              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+          }`}>
+            {product.status}
+          </span>
+        </TableCell>
+        <TableCell>
+          <Link 
+            href={`/store/${params.domain}/products/${product.productId}`}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              <Edit size={16} />
+              Edit
+            </Button>
+          </Link>
+        </TableCell>
+      </TableRow>
+    )), 
+    [products, params.domain]
+  );
+
+  const handleSearchChange = useCallback((e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('search', query);
+    router.replace(`?${newParams.toString()}`, { scroll: false });
+  }, [searchParams, router]);
+
+  const handleStatusChange = useCallback((selectedStatus) => {
+    setStatus(selectedStatus);
+    
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('status', selectedStatus);
+    router.replace(`?${newParams.toString()}`, { scroll: false });
+  }, [searchParams, router]);
+
   const debouncedFetchProducts = useMemo(
     () => debounce(async (queryParams) => {
       setLoading(true);
@@ -83,7 +134,6 @@ export default function ProductsPage() {
     [params.domain]
   );
 
-  // Optimized effect for fetching products
   useEffect(() => {
     const queryParams = {
       searchQuery,
@@ -101,92 +151,37 @@ export default function ProductsPage() {
     };
   }, [searchQuery, status, pagination.page, debouncedFetchProducts]);
 
-  // Memoized search and status change handlers
-  const handleSearchChange = useCallback((e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('search', query);
-    router.replace(`?${newParams.toString()}`, { scroll: false });
-  }, [searchParams, router]);
-
-  const handleStatusChange = useCallback((selectedStatus) => {
-    setStatus(selectedStatus);
-    
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('status', selectedStatus);
-    router.replace(`?${newParams.toString()}`, { scroll: false });
-  }, [searchParams, router]);
-
-  // Performance-optimized rendering
-  const productList = useMemo(() => 
-    products.map(product => (
-      <TableRow 
-        key={product.productId} 
-        className="hover:bg-gray-50 transition-colors cursor-pointer group"
-      >
-        <TableCell>{product.title}</TableCell>
-        <TableCell>
-          <span className={`px-2 py-1 rounded-full text-xs ${
-            product.status === 'ACTIVE' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-gray-100 text-gray-800'
-          }`}>
-            {product.status}
-          </span>
-        </TableCell>
-        <TableCell>
-          <Link 
-            href={`/store/${params.domain}/products/${product.productId}`}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2"
-            >
-              <Edit size={16} />
-              Edit
-            </Button>
-          </Link>
-        </TableCell>
-      </TableRow>
-    )), 
-    [products, params.domain]
-  );
-
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6 dark:bg-gray-900 dark:text-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Products Management</h1>
+        <h1 className="text-2xl font-bold tracking-tight dark:text-white">Products Management</h1>
       </div>
 
       <div className="flex items-center space-x-4 mb-6">
         <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
           <Input 
             type="text" 
             placeholder="Search Products" 
             value={searchQuery}
             onChange={handleSearchChange}
-            className="pl-10 w-full"
+            className="pl-10 w-full dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:placeholder-gray-500"
           />
         </div>
 
         <div className="flex items-center space-x-2">
-          <Filter className="text-gray-500" size={20} />
+          <Filter className="text-gray-500 dark:text-gray-400" size={20} />
           <Select 
             value={status} 
             onValueChange={handleStatusChange}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
+            <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+              <SelectItem value="all" className="dark:text-gray-300 dark:hover:bg-gray-700">All Statuses</SelectItem>
+              <SelectItem value="ACTIVE" className="dark:text-gray-300 dark:hover:bg-gray-700">Active</SelectItem>
+              <SelectItem value="DRAFT" className="dark:text-gray-300 dark:hover:bg-gray-700">Draft</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -194,25 +189,25 @@ export default function ProductsPage() {
 
       {loading && (
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="animate-spin text-primary" size={48} />
+          <Loader2 className="animate-spin text-primary dark:text-gray-300" size={48} />
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative" role="alert">
+        <div className="bg-red-50 border border-red-200 text-red-800 dark:bg-red-950/50 dark:border-red-900 dark:text-red-300 px-4 py-3 rounded relative" role="alert">
           {error}
         </div>
       )}
 
       {!loading && !error && (
         <>
-          <div className="border rounded-lg">
+          <div className="border rounded-lg dark:border-gray-700">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+              <TableHeader className="dark:bg-gray-800">
+                <TableRow className="dark:border-gray-700">
+                  <TableHead className="dark:text-gray-300">Title</TableHead>
+                  <TableHead className="dark:text-gray-300">Status</TableHead>
+                  <TableHead className="dark:text-gray-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -222,7 +217,7 @@ export default function ProductsPage() {
           </div>
 
           {products.length === 0 && (
-            <div className="text-center text-gray-500 py-10">
+            <div className="text-center text-gray-500 dark:text-gray-400 py-10">
               No products found
             </div>
           )}
@@ -232,16 +227,18 @@ export default function ProductsPage() {
               variant="outline"
               disabled={pagination.page === 1}
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+              className="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Previous
             </Button>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               Page {pagination.page} of {Math.ceil(pagination.totalItems / pagination.pageSize)}
             </div>
             <Button 
               variant="outline"
               disabled={!pagination.hasNextPage}
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+              className="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Next
             </Button>
