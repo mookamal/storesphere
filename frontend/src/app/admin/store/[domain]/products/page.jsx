@@ -8,8 +8,16 @@ import { debounce } from 'lodash';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Search, Filter } from "lucide-react";
+import { Loader2, Search, Filter, Edit } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import Link from 'next/link';
 
 export default function ProductsPage() {
   // Routing hooks
@@ -114,9 +122,12 @@ export default function ProductsPage() {
   // Performance-optimized rendering
   const productList = useMemo(() => 
     products.map(product => (
-      <Card key={product.id} className="mb-4 hover:shadow-md transition-shadow">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{product.title}</CardTitle>
+      <TableRow 
+        key={product.productId} 
+        className="hover:bg-gray-50 transition-colors cursor-pointer group"
+      >
+        <TableCell>{product.title}</TableCell>
+        <TableCell>
           <span className={`px-2 py-1 rounded-full text-xs ${
             product.status === 'ACTIVE' 
               ? 'bg-green-100 text-green-800' 
@@ -124,13 +135,25 @@ export default function ProductsPage() {
           }`}>
             {product.status}
           </span>
-        </CardHeader>
-        <CardContent>
-          {/* Add more product details if needed */}
-        </CardContent>
-      </Card>
+        </TableCell>
+        <TableCell>
+          <Link 
+            href={`/store/${params.domain}/products/${product.productId}`}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2"
+            >
+              <Edit size={16} />
+              Edit
+            </Button>
+          </Link>
+        </TableCell>
+      </TableRow>
     )), 
-    [products]
+    [products, params.domain]
   );
 
   return (
@@ -183,8 +206,19 @@ export default function ProductsPage() {
 
       {!loading && !error && (
         <>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {productList}
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {productList}
+              </TableBody>
+            </Table>
           </div>
 
           {products.length === 0 && (
