@@ -298,7 +298,7 @@ export default function UpdateProduct() {
     setLoading(true);
     const productData = {
       title: data.title,
-      description: JSON.stringify(data.description),
+      description: data.description ?JSON.stringify(data.description) : {},
       status: data.status,
       handle: data.handle,
       collectionIds: selectedCollections.map((c) => c.collectionId),
@@ -309,7 +309,7 @@ export default function UpdateProduct() {
       firstVariant: {
         price: data.price,
         compareAtPrice: data.compare,
-        stock: parseInt(data.stock),
+        stock: data.stock ? parseInt(data.stock) : 0,
       },
       options: cleanOptionsData(data.options),
     };
@@ -331,6 +331,7 @@ export default function UpdateProduct() {
         setHasChanges(false);
       }
     } catch (error) {
+      console.error(error);
       toast.error("Failed to update product");
       setLoading(false);
     }
