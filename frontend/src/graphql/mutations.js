@@ -71,7 +71,7 @@ export const UPDATE_PRODUCT_VARIANT = `
   `;
 export const UPDATE_PRODUCT = `
   mutation ProductSaveUpdate($id:ID! , $defaultDomain: String! , $product: ProductInput!) {
-  updateProduct(input: {id: $id ,defaultDomain: $defaultDomain , product: $product }) {
+  updateProduct(id: $id ,defaultDomain: $defaultDomain , product: $product) {
     product {
       id
     }
