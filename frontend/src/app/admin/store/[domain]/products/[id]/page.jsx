@@ -26,7 +26,7 @@ import MediaInputs from "@/components/admin/product/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
 import ProductOrganization from "@/components/admin/product/ProductOrganization";
-import { processDescription,safeParseNumber } from "@/utils/dataTransformers";
+import { processDescription,safeParseNumber,cleanOptionsData,cleanCollections } from "@/utils/dataTransformers";
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
   const domain = useParams().domain;
@@ -119,25 +119,6 @@ export default function UpdateProduct() {
       setValue("seoTitle", watchedTitle);
     }
   };
-
-  function cleanOptionsData(options) {
-    if (!options) return [];
-    return options.map((option) => ({
-      name: option.name,
-      id: option.id,
-      values: option.values.map((value) => ({
-        name: value.name,
-        id: value.id,
-      })),
-    }));
-  }
-  function cleanCollections(collections) {
-    if (!collections) return [];
-    return collections.map((collection) => ({
-      collectionId: collection.collectionId,
-      title: collection.title,
-    }));
-  }
 
   useEffect(() => {
     const hasBasicChanges =
