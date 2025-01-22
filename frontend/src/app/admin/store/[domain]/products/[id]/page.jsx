@@ -26,7 +26,7 @@ import MediaInputs from "@/components/admin/product/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
 import ProductOrganization from "@/components/admin/product/ProductOrganization";
-
+import { processDescription } from "@/utils/dataTransformers";
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);
   const domain = useParams().domain;
@@ -298,7 +298,7 @@ export default function UpdateProduct() {
     setLoading(true);
     const productData = {
       title: data.title,
-      description: data.description ? JSON.stringify(data.description) : JSON.stringify(""),
+      description: processDescription(data.description),
       status: data.status,
       handle: data.handle,
       collectionIds: selectedCollections.map((c) => c.collectionId),

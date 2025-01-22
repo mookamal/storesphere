@@ -5,6 +5,8 @@
         "@/*": ["./src/*"],
         "@/components/*": ["src/components/*"],
         "@/lib/*": ["src/lib/*"],
+        "@/hooks/*": ["src/hooks/*"],
+        "@/utils/*": ["src/utils/*"],
         "@/graphql/*": ["src/graphql/*"],
         "@/assets/*": ["public/assets/*"],
       }
