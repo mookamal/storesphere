@@ -75,7 +75,7 @@ export default function AddProduct() {
   }, []);
 
   const addImages = async (productId) => {
-    if (productId || selectedImages.length > 0) {
+    if (productId && selectedImages.length > 0) {
       const dataBody = {
         query: ADD_MEDIA_IMAGES_PRODUCT,
         variables: {
