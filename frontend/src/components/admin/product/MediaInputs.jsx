@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
 import MediaModal from "@/components/admin/product/MediaModal";
+import {cardVariants } from "@/utils/cardVariants"
 export default function MediaInputs({
   selectedImages,
   setSelectedImages,
@@ -40,8 +41,8 @@ export default function MediaInputs({
     setSelectedRemoveImages([]);
   };
   return (
-    <Card className="card">
-      <CardHeader>
+    <Card className={cardVariants.base}>
+      <CardHeader className={cardVariants.header}>
         <div className="mb-2">
           {selectedRemoveImages && selectedRemoveImages.length > 0 ? (
             <div className="flex items-center justify-between">
@@ -52,7 +53,7 @@ export default function MediaInputs({
             </div>
           ) : (
             <div className="flex justify-between items-center">
-              <h2>Media</h2>
+              <h2 className={cardVariants.title}>Media</h2>
               <MediaModal
                 selectedImages={selectedImages}
                 setSelectedImages={setSelectedImages}
@@ -62,7 +63,7 @@ export default function MediaInputs({
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className={cardVariants.content}>
         <div className="flex justify-center">
           <Carousel
             opts={{
