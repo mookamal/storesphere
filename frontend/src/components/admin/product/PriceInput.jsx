@@ -2,16 +2,16 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import {cardVariants } from "@/utils/cardVariants";
 export default function PriceInput({ register, currencyCode, price, compare }) {
   const showWarning = price > 0 && compare > 0 && price >= compare;
 
   return (
-    <Card className="card">
-      <CardHeader>
-        <h2>Pricing</h2>
+    <Card className={cardVariants.base}>
+      <CardHeader className={cardVariants.header}>
+        <h2 className={cardVariants.title}>Pricing</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cardVariants.content}>
         <div className="flex justify-items-start gap-2">
           <div>
             <div className="mb-2">

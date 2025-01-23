@@ -7,7 +7,7 @@ import { ADMIN_COLLECTIONS_FIND } from "@/graphql/queries";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { CiCircleRemove } from "react-icons/ci";
-
+import {cardVariants } from "@/utils/cardVariants";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -69,11 +69,11 @@ export default function ProductOrganization({
   }, [search]);
 
   return (
-    <Card className="card">
-      <CardHeader>
-        <h2>Product organization</h2>
+    <Card className={cardVariants.base}>
+      <CardHeader className={cardVariants.header}>
+        <h2 className={cardVariants.title}>Product organization</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cardVariants.content}>
         <div className="md:w-2/4 mx-auto">
           {" "}
           <Popover open={open} onOpenChange={setOpen}>

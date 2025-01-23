@@ -5,7 +5,7 @@ import { IoAddCircle } from "react-icons/io5";
 import { useFieldArray } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import EditableOption from "./EditableOption";
-
+import {cardVariants } from "@/utils/cardVariants";
 export default function OptionInputs({
   register,
   control,
@@ -36,9 +36,11 @@ export default function OptionInputs({
     }
   };
   return (
-    <Card className="card">
-      <CardHeader>Options</CardHeader>
-      <CardContent>
+    <Card className={cardVariants.base}>
+      <CardHeader className={cardVariants.header}>
+        <h2 className={cardVariants.title}>Options</h2>
+      </CardHeader>
+      <CardContent className={cardVariants.content}>
         {fields.map((field, index) => (
           <div
             key={field.id}
