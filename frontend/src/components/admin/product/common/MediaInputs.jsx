@@ -9,7 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
-import MediaModal from "@/components/admin/product/MediaModal";
+import MediaModal from "@/components/admin/product/common/MediaModal";
 import {cardVariants } from "@/utils/cardVariants";
 export default function MediaInputs({
   selectedImages,

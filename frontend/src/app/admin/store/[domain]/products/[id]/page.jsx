@@ -19,13 +19,13 @@ import {
   UPDATE_PRODUCT,
 } from "@/graphql/mutations";
 import LoadingElement from "@/components/LoadingElement";
-import PriceInput from "@/components/admin/product/PriceInput";
-import SeoInputs from "@/components/admin/product/SeoInputs";
-import GeneralInputs from "@/components/admin/product/GeneralInputs";
-import MediaInputs from "@/components/admin/product/MediaInputs";
+import PriceInput from "@/components/admin/product/common/PriceInput";
+import SeoInputs from "@/components/admin/product/common/SeoInputs";
+import GeneralInputs from "@/components/admin/product/common/GeneralInputs";
+import MediaInputs from "@/components/admin/product/common/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
-import ProductOrganization from "@/components/admin/product/ProductOrganization";
+import ProductOrganization from "@/components/admin/product/common/ProductOrganization";
 import { processDescription,safeParseNumber,cleanOptionsData,cleanCollections } from "@/utils/dataTransformers";
 export default function UpdateProduct() {
   const [storeData, setStoreData] = useState(null);

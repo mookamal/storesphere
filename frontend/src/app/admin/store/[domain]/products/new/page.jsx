@@ -11,13 +11,13 @@ import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
-import PriceInput from "@/components/admin/product/PriceInput";
-import SeoInputs from "@/components/admin/product/SeoInputs";
+import PriceInput from "@/components/admin/product/common/PriceInput";
+import SeoInputs from "@/components/admin/product/common/SeoInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
-import GeneralInputs from "@/components/admin/product/GeneralInputs";
-import MediaInputs from "@/components/admin/product/MediaInputs";
+import GeneralInputs from "@/components/admin/product/common/GeneralInputs";
+import MediaInputs from "@/components/admin/product/common/MediaInputs";
 import { Button } from "@/components/ui/button";
-import ProductOrganization from "@/components/admin/product/ProductOrganization";
+import ProductOrganization from "@/components/admin/product/common/ProductOrganization";
 import { processDescription,safeParseNumber,cleanOptionsData } from "@/utils/dataTransformers";
 export default function AddProduct() {
   const router = useRouter();
