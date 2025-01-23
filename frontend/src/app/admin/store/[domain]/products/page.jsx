@@ -2,9 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import axios from 'axios';
-import { PRODUCTS_ADMIN_PAGE } from '@/graphql/queries';
-import { debounce } from 'lodash';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -18,16 +15,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
+import { ProductsPageProvider, useProductsPageContext } from '@/providers/ProductsPageProvider';
 
 export default function ProductsPage() {
-  // Existing state and logic remain unchanged
+  const params = useParams();
+  
+  return (
+    <ProductsPageProvider domain={params.domain}>
+      <ProductsPageContent />
+    </ProductsPageProvider>
+  );
+}
+
+function ProductsPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { 
+    products, 
+    loading, 
+    error, 
+    pagination, 
+    fetchProducts,
+    updatePagination 
+  } = useProductsPageContext();
 
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || ''
@@ -35,16 +47,6 @@ export default function ProductsPage() {
   const [status, setStatus] = useState(
     searchParams.get('status') || 'all'
   );
-
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 10,
-    totalItems: 0,
-    hasNextPage: false,
-    lastCursor: ''
-  });
-
-  // Existing debounced fetch and effect logic remains the same
 
   const productList = useMemo(() => 
     products.map(product => (
@@ -99,41 +101,6 @@ export default function ProductsPage() {
     router.replace(`?${newParams.toString()}`, { scroll: false });
   }, [searchParams, router]);
 
-  const debouncedFetchProducts = useMemo(
-    () => debounce(async (queryParams) => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await axios.post('/api/get-data', {
-          query: PRODUCTS_ADMIN_PAGE,
-          variables: {
-            domain: params.domain,
-            search: queryParams.searchQuery || '',
-            status: queryParams.status === 'all' ? undefined : queryParams.status,
-            first: queryParams.pageSize,
-            after: queryParams.page > 1 ? queryParams.lastCursor : ''
-          }
-        });
-
-        if (response.data.allProducts) {
-          setProducts(response.data.allProducts.edges.map(edge => edge.node));
-          setPagination(prev => ({
-            ...prev,
-            totalItems: response.data.allProducts.totalCount || 0,
-            hasNextPage: response.data.allProducts.pageInfo.hasNextPage || false,
-            lastCursor: response.data.allProducts.pageInfo.endCursor || ''
-          }));
-        }
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch products');
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
-    [params.domain]
-  );
-
   useEffect(() => {
     const queryParams = {
       searchQuery,
@@ -143,13 +110,8 @@ export default function ProductsPage() {
       lastCursor: pagination.lastCursor
     };
 
-    debouncedFetchProducts(queryParams);
-
-    // Cleanup debounce on unmount
-    return () => {
-      debouncedFetchProducts.cancel();
-    };
-  }, [searchQuery, status, pagination.page, debouncedFetchProducts]);
+    fetchProducts(queryParams);
+  }, [searchQuery, status, pagination.page, fetchProducts]);
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6 dark:bg-gray-900 dark:text-gray-100">
@@ -226,7 +188,7 @@ export default function ProductsPage() {
             <Button 
               variant="outline"
               disabled={pagination.page === 1}
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+              onClick={() => updatePagination({ page: pagination.page - 1 })}
               className="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Previous
@@ -237,7 +199,7 @@ export default function ProductsPage() {
             <Button 
               variant="outline"
               disabled={!pagination.hasNextPage}
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+              onClick={() => updatePagination({ page: pagination.page + 1 })}
               className="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Next
