@@ -1,11 +1,25 @@
 "use client";
 import dynamic from "next/dynamic";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader,CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 const CustomEditor = dynamic(() => import("@/components/custom-editor"), {
   ssr: false,
 });
+const cardVariants = {
+  base: "rounded-lg border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md",
+  header: "px-4 py-3 bg-gray-100 border-b border-gray-200 flex items-center justify-between",
+  content: "p-4 space-y-4",
+  title: "text-sm font-semibold text-gray-700 uppercase tracking-wider",
+  interactive: "cursor-pointer hover:bg-gray-50"
+};
 export default function GeneralInputs({
   register,
   handleBlur,
@@ -16,22 +30,24 @@ export default function GeneralInputs({
     setValue("description", content);
   };
   return (
-    <Card className="card">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          General information
-          <select
-            defaultValue="ACTIVE"
-            {...register("status")}
-            id="status"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-[85px] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          >
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-          </select>
-        </div>
-      </CardHeader>
-      <CardContent>
+    <Card className={cardVariants.base}>
+    <CardHeader className={cardVariants.header}>
+      <div className="flex justify-between items-center w-full">
+        <CardTitle className={cardVariants.title}>
+          General Information
+        </CardTitle>
+        <Select {...register("status")} defaultValue="ACTIVE">
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="DRAFT">Draft</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </CardHeader>
+      <CardContent className={cardVariants.content}>
         <div>
           <div className="mb-2">
             <Label htmlFor="title">Title</Label>
