@@ -21,10 +21,12 @@ import { GET_MEDIA_IMAGES } from "@/graphql/queries";
 import LoadingElement from "@/components/LoadingElement";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+
 export default function MediaModal({
   selectedImages,
   setSelectedImages,
   externalLoading,
+  disabled = false
 }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
@@ -58,7 +60,11 @@ export default function MediaModal({
         const image = response.data;
         setSelectedImages([
           ...selectedImages,
-          { id: image.id, image: image.image },
+          { 
+            id: image.id, 
+            imageId: image.id, 
+            image: image.image 
+          }
         ]);
         toast.success("Image uploaded successfully!");
         getData();
@@ -68,6 +74,7 @@ export default function MediaModal({
     }
     setLoading(false);
   };
+
   const getData = async () => {
     try {
       const response = await axios.post("/api/get-data", {
@@ -87,20 +94,37 @@ export default function MediaModal({
       setData(null);
     }
   };
+
   useEffect(() => {
     getData();
   }, []);
 
   const handleCheckboxChange = (image, isChecked) => {
     if (isChecked) {
-      setSelectedImages((prevSelectedImages) => [
-        ...prevSelectedImages,
-        { id: image.imageId, image: image.image },
-      ]);
+      // Check if image is already selected to prevent duplicates
+      const isAlreadySelected = selectedImages.some(
+        selectedImage => 
+          selectedImage.id === image.imageId || 
+          selectedImage.imageId === image.imageId
+      );
+
+      if (!isAlreadySelected) {
+        setSelectedImages(prevSelectedImages => [
+          ...prevSelectedImages,
+          { 
+            id: image.imageId, 
+            imageId: image.imageId, 
+            image: image.image 
+          }
+        ]);
+      }
     } else {
-      setSelectedImages((prevSelectedImages) =>
+      // Remove the image
+      setSelectedImages(prevSelectedImages => 
         prevSelectedImages.filter(
-          (selectedImage) => selectedImage.id !== image.imageId
+          selectedImage => 
+            selectedImage.id !== image.imageId && 
+            selectedImage.imageId !== image.imageId
         )
       );
     }
@@ -108,7 +132,10 @@ export default function MediaModal({
 
   return (
     <Dialog>
-      <DialogTrigger className={buttonVariants({ variant: "outline" })}>
+      <DialogTrigger 
+        className={buttonVariants({ variant: "outline" })} 
+        disabled={disabled}
+      >
         <IoCloudUploadOutline />
       </DialogTrigger>
       <DialogContent>
@@ -150,22 +177,22 @@ export default function MediaModal({
             {data.map((edge) => {
               const image = edge.node;
               return (
-                <div key={image.id} className="flex items-center space-x-4">
-                  {/* Checkbox for each image */}
+                <div key={image.imageId} className="flex items-center space-x-4">
                   <Checkbox
                     id={image.imageId}
                     onCheckedChange={(checked) =>
                       handleCheckboxChange(image, checked)
                     }
                     checked={selectedImages.some(
-                      (selectedImage) => selectedImage.id === image.imageId
+                      (selectedImage) => 
+                        selectedImage.id === image.imageId || 
+                        selectedImage.imageId === image.imageId
                     )}
                   />
 
-                  {/* Image display */}
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
-                    alt={`image-${image.id}`}
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
+                    alt={`image-${image.imageId}`}
                     className="max-h-16 max-w-20 rounded-lg object-cover"
                   />
                 </div>
