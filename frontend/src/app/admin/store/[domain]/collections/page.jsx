@@ -30,9 +30,11 @@ const queryClient = new QueryClient({
       // Consider data stale after 1 minute
       staleTime: 1000 * 60, 
       // Disable refetching on window focus
-      refetchOnWindowFocus: false, 
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
       // Retry failed requests twice
-      retry: 2 
+      retry: 1
     }
   }
 });
