@@ -1,13 +1,9 @@
 "use client";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
-import axios from "axios";
 import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
-import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import useCollectionSubmit from "@/hooks/collection/useCollectionSubmit";
