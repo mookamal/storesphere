@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 // custom hooks
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import useCollectionSubmit from "@/hooks/collection/useCollectionSubmit";
+import { useProductFetcher } from '@/hooks/collection/productUtils';
 
 export default function UpdateCollection() {
   const router = useRouter();
@@ -33,7 +34,8 @@ export default function UpdateCollection() {
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const renderCountEffect = useRef(0);
-
+  // Fetch products by collection ID
+  const { fetchProducts } = useProductFetcher();
   const { 
     image, 
     register, 
@@ -84,26 +86,6 @@ export default function UpdateCollection() {
       }
     }
   };
-  // Fetch products by collection ID
-  const fetchProducts = async (collectionId) => {
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: ADMIN_PRODUCTS_BY_COLLECTION_ID,
-        variables: { collectionId: collectionId, first: 15, after: "" },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.error);
-      }
-      setSelectedProducts(
-        response.data.productsByCollection.edges.map(({ node }) => node)
-      );
-      if (renderCountEffect.current < 3) {
-        renderCountEffect.current++;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
   // Fetch the collection data using the provided ID and domain.
   const getCollectionById = async () => {
     setLoading(true);
@@ -126,7 +108,8 @@ export default function UpdateCollection() {
           response.data.collectionById.seo.description
         );
         setImage(response.data.collectionById.image);
-        fetchProducts(collectionId);
+        const products = await fetchProducts(collectionId);
+        setSelectedProducts(products);
       }
     } catch (error) {
       const errorDetails = handleGraphQLError(error);
