@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import MediaModal from "./MediaModal";
 import { Button } from "@/components/ui/button";
-
+import { cardVariants } from "@/utils/cardVariants";
 export default function GeneralInputs({
   register,
   handleBlur,
@@ -13,9 +13,11 @@ export default function GeneralInputs({
   image,
 }) {
   return (
-    <Card className="card w-full md:w-[60%]">
-      <CardHeader>General information</CardHeader>
-      <CardContent>
+    <Card className={`${cardVariants.base} w-full md:w-[60%]`}>
+      <CardHeader className={cardVariants.header}>
+        <h2 className={cardVariants.title}>General information</h2>
+      </CardHeader>
+      <CardContent className={cardVariants.content}>
         <div>
           <div>
             <div className="mb">
@@ -48,7 +50,7 @@ export default function GeneralInputs({
           {image ? (
             <>
               <Image
-                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
+                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
                 width={120}
                 height={100}
                 className="shadow-md border rounded"

@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
+import {cardVariants } from "@/utils/cardVariants";
 export default function AddProducts({
   collectionId,
   selectedProducts,
@@ -40,10 +41,10 @@ export default function AddProducts({
     }
   };
   return (
-    <Card className="card w-full md:w-[60%]">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <h2>Products</h2>
+    <Card className={`${cardVariants.base} w-full md:w-[60%]`}>
+      <CardHeader className={cardVariants.header}>
+        <div className="flex justify-between items-center w-full">
+          <h2 className={cardVariants.title}>Products</h2>
           <ProductsList
             collectionId={collectionId}
             refetchProducts={refetchProducts}
@@ -51,7 +52,7 @@ export default function AddProducts({
           />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cardVariants.content}>
         {isLoading ? (
           <div className="flex justify-center items-center">
             <AiOutlineLoading className="animate-spin text-3xl" />

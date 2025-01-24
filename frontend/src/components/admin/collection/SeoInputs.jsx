@@ -3,11 +3,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {cardVariants } from "@/utils/cardVariants";
 export default function SeoInputs({ register, domain, handle }) {
   return (
-    <Card className="card w-full md:w-[60%]">
-      <CardHeader>SEO data</CardHeader>
-      <CardContent>
+    <Card className={`${cardVariants.base} w-full md:w-[60%]`}>
+      <CardHeader className={cardVariants.header}>
+        <h2 className={cardVariants.title}>SEO data</h2>
+      </CardHeader>
+      <CardContent className={cardVariants.content}>
         <div className="my-2">
           <div className="mb-2">
             <Label htmlFor="seoTitle">Page title</Label>

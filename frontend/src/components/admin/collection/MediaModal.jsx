@@ -144,7 +144,7 @@ export default function MediaModal({ setImage }) {
 
                   {/* Image display */}
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${image.image}`}
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
                     alt={`image-${image.id}`}
                     className="max-h-16 max-w-20 rounded-lg object-cover"
                   />
