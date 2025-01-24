@@ -18,6 +18,7 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
+import { Package } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
 
@@ -122,9 +123,23 @@ function CollectionsContent() {
         <p className="text-center mt-8">Loading collections...</p>
       )}
 
-      {/* Empty state */}
+      {/* No collections state */}
       {!isLoading && collections.length === 0 && (
-        <p className="text-center mt-8">No collections found.</p>
+        <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 mt-8">
+          <Package className="w-16 h-16 text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
+            No Collections Yet
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">
+            Start by creating your first collection to organize your products
+          </p>
+          <Button 
+            variant="outline" 
+            onClick={() => router.push(`/admin/store/${domain}/collections/new`)}
+          >
+            Create Collection
+          </Button>
+        </div>
       )}
 
       {/* Collections table */}
