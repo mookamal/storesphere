@@ -9,58 +9,35 @@ import axios from "axios";
 import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
+import useCollectionForm from "@/hooks/collection/useCollectionForm";
+import useCollectionSubmit from "@/hooks/collection/useCollectionSubmit";
+
 export default function CreateCollection() {
   const domain = useParams().domain;
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(null);
-  const { register, handleSubmit, watch, setValue } = useForm();
-  const watchedTitle = watch("title");
+
+
+  const { 
+    image, 
+    register, 
+    handleSubmit, 
+    handleBlur, 
+    watch, 
+    setImage 
+  } = useCollectionForm();
+
   const handle = watch("handle");
-  const seoTitle = watch("seoTitle");
-  const handleBlur = () => {
-    if (watchedTitle) {
-      if (!handle) {
-        setValue("handle", watchedTitle.replace(/\s+/g, "-").toLowerCase());
-      }
-      if (!seoTitle) {
-        setValue("seoTitle", watchedTitle);
-      }
-    }
+  const { submitCollection, loading, setLoading } = useCollectionSubmit(
+    ADMIN_CREATE_COLLECTION, 
+    (data) => {
+      router.push(`/store/${domain}/collections/${data.createCollection.collection.collectionId}`);
+    }, 
+    domain
+  );
+  const onSubmit = (data) => {
+    submitCollection(data, image);
   };
-  const onSubmit = async (data) => {
-    setLoading(true);
-    const variables = {
-      domain: domain,
-      collectionInputs: {
-        title: data.title,
-        description: data.description,
-        handle: data.handle,
-        imageId: image ? image.imageId : null,
-        seo: {
-          title: data.seoTitle,
-          description: data.seoDescription,
-        },
-      },
-    };
-    try {
-      const response = await axios.post("/api/set-data", {
-        query: ADMIN_CREATE_COLLECTION,
-        variables: variables,
-      });
-      if (response.data.data.createCollection.collection.collectionId) {
-        toast.success("Collection created successfully!");
-        router.push(
-          `/store/${domain}/collections/${response.data.data.createCollection.collection.collectionId}`
-        );
-      }
-    } catch (e) {
-      console.error("Error creating collection", e);
-      toast.error("Failed to create collection");
-    } finally {
-      setLoading(false);
-    }
-  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="p-5">
