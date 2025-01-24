@@ -1,7 +1,14 @@
 "use client";
 
+import { 
+  QueryClient, 
+  QueryClientProvider, 
+  useInfiniteQuery 
+} from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -12,68 +19,114 @@ import {
   TableFooter,
 } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
-export default function Collections() {
+
+// Create a query client with optimized configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache data for 5 minutes
+      cacheTime: 1000 * 60 * 5, 
+      // Consider data stale after 1 minute
+      staleTime: 1000 * 60, 
+      // Disable refetching on window focus
+      refetchOnWindowFocus: false, 
+      // Retry failed requests twice
+      retry: 2 
+    }
+  }
+});
+
+// Function to fetch collections with pagination
+const fetchCollections = async ({ 
+  pageParam = '', 
+  queryKey 
+}) => {
+  const [_key, domain] = queryKey;
+  
+  // Prepare GraphQL variables for pagination
+  const variables = {
+    domain: domain,
+    first: 10,
+    after: pageParam,
+  };
+
+  // Send GraphQL request to fetch collections
+  const response = await axios.post("/api/get-data", {
+    query: ADMIN_ALL_COLLECTIONS,
+    variables: variables,
+  });
+
+  // Check for GraphQL errors
+  if (response.data.errors) {
+    throw new Error(response.data.errors[0].message);
+  }
+
+  // Return collections data with pagination info
+  return response.data.allCollections;
+};
+
+function CollectionsContent() {
   const currentPath = usePathname();
-  const [collections, setCollections] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [endCursor, setEndCursor] = useState("");
-  const [hasNextPage, setHasNextPage] = useState(false);
   const domain = useParams().domain;
 
-  const getData = async () => {
-    setIsLoading(true);
-    try {
-      const variables = {
-        domain: domain,
-        first: 10,
-        after: endCursor,
-      };
-      const response = await axios.post("/api/get-data", {
-        query: ADMIN_ALL_COLLECTIONS,
-        variables: variables,
-      });
-      if (response.data.allCollections.edges.length > 0) {
-        setCollections(response.data.allCollections.edges);
-        setHasNextPage(response.data.allCollections.pageInfo.hasNextPage);
-        setEndCursor(response.data.allCollections.pageInfo.endCursor);
-      } else {
-        setCollections([]);
-      }
-    } catch (error) {
-      console.error(error);
-      setCollections([]);
-    } finally {
-      setIsLoading(false);
+  // Use infinite query for pagination and data fetching
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isLoading, 
+    isError, 
+    error 
+  } = useInfiniteQuery(
+    ['collections-by-domain', domain],
+    fetchCollections,
+    {
+      // Configure how to get the next page parameter
+      getNextPageParam: (lastPage) => 
+        lastPage.pageInfo.hasNextPage 
+          ? lastPage.pageInfo.endCursor 
+          : undefined
     }
-  };
-  useEffect(() => {
-    getData();
-  }, []);
+  );
+
+  // Flatten collections from all pages
+  const collections = data?.pages.flatMap(page => page.edges) || [];
+
+  // Render error state
+  if (isError) {
+    return (
+      <div className="p-8 text-red-500">
+        Error: {error.message}
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
-      {/* header page */}
+      {/* Page header */}
       <div className="flex justify-between">
         <h1 className="h1">Collections</h1>
         <Link
           href={`${currentPath}/new`}
-          className={`${buttonVariants({ variant: "outline", size: "sm" })}`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           Create collection
         </Link>
       </div>
 
-      {/* table */}
-      {isLoading ? (
-        <p className="text-center mt-8">Loading...</p>
-      ) : collections === null ? (
-        <div></div>
-      ) : collections.length === 0 ? (
+      {/* Loading state */}
+      {isLoading && (
+        <p className="text-center mt-8">Loading collections...</p>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && collections.length === 0 && (
         <p className="text-center mt-8">No collections found.</p>
-      ) : (
+      )}
+
+      {/* Collections table */}
+      {collections.length > 0 && (
         <div className="border rounded mt-4 shadow">
           <Table>
             <TableHeader>
@@ -106,8 +159,8 @@ export default function Collections() {
               <TableRow className="border-t">
                 <TableCell colSpan="2">
                   <Button
-                    disabled={!hasNextPage}
-                    onClick={getData}
+                    disabled={!hasNextPage || isLoading}
+                    onClick={() => fetchNextPage()}
                     variant="outline"
                     size="sm"
                   >
@@ -119,6 +172,17 @@ export default function Collections() {
           </Table>
         </div>
       )}
+
+      {/* React Query DevTools for debugging */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </div>
+  );
+}
+
+export default function Collections() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CollectionsContent />
+    </QueryClientProvider>
   );
 }
