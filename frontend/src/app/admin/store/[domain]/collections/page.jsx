@@ -19,6 +19,7 @@ import {
   TableFooter,
 } from "@/components/ui/table";
 import { Package } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
 
@@ -120,7 +121,12 @@ function CollectionsContent() {
 
       {/* Loading state */}
       {isLoading && (
-        <p className="text-center mt-8">Loading collections...</p>
+        <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse mt-8">
+          <Loader2 className="w-12 h-12 text-gray-400 animate-spin" />
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+            Loading collections...
+          </p>
+        </div>
       )}
 
       {/* No collections state */}
