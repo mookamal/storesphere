@@ -12,6 +12,8 @@ import { useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 import {cardVariants } from "@/utils/cardVariants";
 import { useParams } from "next/navigation";
+import DataTable from "@/components/common/CustomDataTable";
+import { productColumns } from '@/utils/tableColumns/productColumns';
 export default function AddProducts({
   collectionId,
   selectedProducts,
@@ -61,28 +63,7 @@ export default function AddProducts({
             <AiOutlineLoading className="animate-spin text-3xl" />
           </div>
         ) : selectedProducts.length > 0 ? (
-          selectedProducts.map((product) => (
-            <Card key={product.id} className="p-2">
-              <div className="flex justify-between items-center">
-                <h2>{product.title}</h2>
-                <Badge
-                  variant={
-                    product.status === "ACTIVE" ? "default" : "destructive"
-                  }
-                >
-                  {product.status}
-                </Badge>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleRemoveProduct(product.productId)}
-                >
-                  <MdCancel />
-                </Button>
-              </div>
-            </Card>
-          ))
+          <DataTable columns={productColumns} data={selectedProducts} />
         ) : (
           <div className="flex flex-col items-center justify-center">
             <TbDatabaseExclamation className="text-[50px]" />
