@@ -153,8 +153,8 @@ mutation DeleteProductsFromCollection($collectionId : ID! $productIds: [ID]!) {
 }`;
 
 export const DELETE_COLLECTIONS = `
-  mutation AdminDeleteCollections($collectionIds: [ID]!) {
-    deleteCollections(collectionIds:$collectionIds) {
+  mutation AdminDeleteCollections($collectionIds: [ID]! $defaultDomain: String!) {
+    deleteCollections(collectionIds:$collectionIds defaultDomain:$defaultDomain) {
       success
     }
   }

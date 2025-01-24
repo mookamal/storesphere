@@ -60,7 +60,7 @@ export default function UpdateCollection() {
         setLoading(true);
         const response = await axios.post("/api/set-data", {
           query: DELETE_COLLECTIONS,
-          variables: { collectionIds: [collectionId] },
+          variables: { collectionIds: [collectionId], defaultDomain: domain },
         });
         if (response.data.data.deleteCollections.success) {
           toast.success("Collection deleted successfully.");
