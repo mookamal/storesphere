@@ -144,6 +144,7 @@ export default function UpdateCollection() {
         query: ADMIN_UPDATE_COLLECTION,
         variables: {
           collectionId: collectionId,
+          domain: domain,
           collectionInputs: {
             title: data.title,
             handle: data.handle,

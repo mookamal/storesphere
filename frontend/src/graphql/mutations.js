@@ -119,8 +119,8 @@ export const ADMIN_CREATE_COLLECTION = `
 `;
 
 export const ADMIN_UPDATE_COLLECTION = `
-  mutation UpdateCollection($collectionId: ID!$collectionInputs:CollectionInputs!) {
-    updateCollection(collectionId: $collectionId,collectionInputs:$collectionInputs) {
+  mutation UpdateCollection($collectionId: ID!$collectionInputs:CollectionInputs!, $domain: String!) {
+    updateCollection(collectionId: $collectionId,collectionInputs:$collectionInputs ,defaultDomain:$domain) {
       collection {
         title
         description
