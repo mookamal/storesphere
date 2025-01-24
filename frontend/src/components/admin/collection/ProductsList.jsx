@@ -20,6 +20,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
 
 export default function ProductsList({
   collectionId,
@@ -33,6 +34,7 @@ export default function ProductsList({
   const [searchQuery, setSearchQuery] = useState("");
   const [toRemove, setToRemove] = useState([]);
   const [toAdd, setToAdd] = useState([]);
+  const domain = useParams().domain;
   const handleSelectProduct = (node, isChecked) => {
     const nodeProductId = node.productId;
 
@@ -69,6 +71,7 @@ export default function ProductsList({
           variables: {
             collectionId: collectionId,
             productIds: toAdd,
+            domain: domain,
           },
         });
         if (response.data.data.addProductsToCollection.success) {

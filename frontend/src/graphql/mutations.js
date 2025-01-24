@@ -138,16 +138,16 @@ export const ADMIN_UPDATE_COLLECTION = `
 `;
 
 export const ADD_PRODUCTS_TO_COLLECTION = `
-  mutation AddProductsToCollection($collectionId : ID! $productIds: [ID]!) {
-    addProductsToCollection(collectionId:$collectionId productIds:$productIds) {
+  mutation AddProductsToCollection($collectionId : ID! $productIds: [ID]! $domain: String!) {
+    addProductsToCollection(collectionId:$collectionId productIds:$productIds defaultDomain:$domain) {
       success
     }
   }
 `;
 
 export const DELETE_PRODUCTS_FROM_COLLECTION = `
-mutation DeleteProductsFromCollection($collectionId : ID! $productIds: [ID]!) {
-  deleteProductsFromCollection(collectionId:$collectionId productIds:$productIds) {
+mutation DeleteProductsFromCollection($collectionId : ID! $productIds: [ID]! $domain: String!) {
+  deleteProductsFromCollection(collectionId:$collectionId productIds:$productIds defaultDomain:$domain) {
     success
   }
 }`;

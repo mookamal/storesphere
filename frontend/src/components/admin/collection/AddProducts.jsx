@@ -11,12 +11,14 @@ import axios from "axios";
 import { useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
 import {cardVariants } from "@/utils/cardVariants";
+import { useParams } from "next/navigation";
 export default function AddProducts({
   collectionId,
   selectedProducts,
   refetchProducts,
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const domain = useParams().domain;
   const handleRemoveProduct = async (productId) => {
     await deleteProductFromCollection(productId);
   };
@@ -28,6 +30,7 @@ export default function AddProducts({
         variables: {
           collectionId: collectionId,
           productIds: [productId],
+          domain: domain,
         },
       });
       if (response.data.data.deleteProductsFromCollection.success) {
