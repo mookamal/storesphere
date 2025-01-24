@@ -63,7 +63,7 @@ export default function AddProducts({
             <AiOutlineLoading className="animate-spin text-3xl" />
           </div>
         ) : selectedProducts.length > 0 ? (
-          <DataTable columns={productColumns} data={selectedProducts} />
+          <DataTable columns={productColumns} data={selectedProducts} actions={[{label: "Remove",type: "delete", onClick: (product) => handleRemoveProduct(product.productId)}]} />
         ) : (
           <div className="flex flex-col items-center justify-center">
             <TbDatabaseExclamation className="text-[50px]" />

@@ -15,10 +15,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-function DataTable({ columns, data }) {
+function DataTable({ columns, data, actions }) {
   const table = useReactTable({
     data,
-    columns,
+    columns: [
+      ...columns,
+      ...(actions
+        ? [
+            {
+              id: "actions",
+              header: "Actions",
+              cell: ({ row }) =>
+                actions.map((action, index) => (
+                  <button
+                    key={index}
+                    className={`px-2 py-1 text-sm rounded-md ${
+                      action.type === "edit"
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                        : "bg-red-500 text-white hover:bg-red-600"
+                    }`}
+                    onClick={() => action.onClick(row.original)}
+                  >
+                    {action.label}
+                  </button>
+                )),
+            },
+          ]
+        : []),
+    ],
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -57,7 +81,7 @@ function DataTable({ columns, data }) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                 No results.
               </TableCell>
             </TableRow>
