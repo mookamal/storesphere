@@ -56,6 +56,12 @@ export default function UpdateCollection() {
     collectionId
   );
 
+  // create function to refetch products
+  const refetchProducts = async () => {
+    const products = await fetchProducts(collectionId);
+    setSelectedProducts(products);
+  };
+
   const watchedTitle = watch("title");
   const description = watch("description");
   const handle = watch("handle");
@@ -108,8 +114,7 @@ export default function UpdateCollection() {
           response.data.collectionById.seo.description
         );
         setImage(response.data.collectionById.image);
-        const products = await fetchProducts(collectionId);
-        setSelectedProducts(products);
+        refetchProducts();
       }
     } catch (error) {
       const errorDetails = handleGraphQLError(error);
@@ -191,7 +196,7 @@ export default function UpdateCollection() {
           <AddProducts
             collectionId={collectionId}
             selectedProducts={selectedProducts}
-            refetchProducts={fetchProducts}
+            refetchProducts={refetchProducts}
           />
           <SeoInputs register={register} domain={domain} handle={handle} />
         </div>
