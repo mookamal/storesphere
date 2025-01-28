@@ -1,13 +1,7 @@
 "use client";
 
-import { 
-  QueryClient, 
-  QueryClientProvider, 
-  useInfiniteQuery 
-} from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import axios from 'axios';
 import {
   Table,
@@ -22,93 +16,69 @@ import { Package } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
-
-// Create a query client with optimized configuration
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Cache data for 5 minutes
-      cacheTime: 1000 * 60 * 5, 
-      // Consider data stale after 1 minute
-      staleTime: 1000 * 60, 
-      // Disable refetching on window focus
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      // Retry failed requests twice
-      retry: 1
-    }
-  }
-});
-
-// Function to fetch collections with pagination
-const fetchCollections = async ({ 
-  pageParam = '', 
-  queryKey 
-}) => {
-  const [_key, domain] = queryKey;
-  
-  // Prepare GraphQL variables for pagination
-  const variables = {
-    domain: domain,
-    first: 10,
-    after: pageParam,
-  };
-
-  // Send GraphQL request to fetch collections
-  const response = await axios.post("/api/get-data", {
-    query: ADMIN_ALL_COLLECTIONS,
-    variables: variables,
-  });
-
-  // Check for GraphQL errors
-  if (response.data.errors) {
-    throw new Error(response.data.errors[0].message);
-  }
-
-  // Return collections data with pagination info
-  return response.data.allCollections;
-};
+import { useEffect, useState } from "react";
 
 function CollectionsContent() {
+  const router = useRouter();
   const currentPath = usePathname();
   const domain = useParams().domain;
+  
+  const [collections, setCollections] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [endCursor, setEndCursor] = useState('');
 
-  // Use infinite query for pagination and data fetching
-  const { 
-    data, 
-    fetchNextPage, 
-    hasNextPage, 
-    isLoading, 
-    isError, 
-    error 
-  } = useInfiniteQuery(
-    ['collections-by-domain', domain],
-    fetchCollections,
-    {
-      // Configure how to get the next page parameter
-      getNextPageParam: (lastPage) => 
-        lastPage.pageInfo.hasNextPage 
-          ? lastPage.pageInfo.endCursor 
-          : undefined
+  const fetchCollections = async (cursor = '') => {
+    try {
+      const variables = {
+        domain: domain,
+        first: 10,
+        after: cursor,
+      };
+
+      const response = await axios.post("/api/get-data", {
+        query: ADMIN_ALL_COLLECTIONS,
+        variables: variables,
+      });
+
+      if (response.data.errors) {
+        throw new Error(response.data.errors[0].message);
+      }
+
+      const newData = response.data.allCollections;
+      
+      if (cursor) {
+        // Append new data when loading more
+        setCollections(prev => [...prev, ...newData.edges]);
+      } else {
+        // Initial load
+        setCollections(newData.edges);
+      }
+
+      setHasNextPage(newData.pageInfo.hasNextPage);
+      setEndCursor(newData.pageInfo.endCursor);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-  );
+  };
 
-  // Flatten collections from all pages
-  const collections = data?.pages.flatMap(page => page.edges) || [];
+  const handleLoadMore = () => {
+    if (hasNextPage && !isLoading) {
+      setIsLoading(true);
+      fetchCollections(endCursor);
+    }
+  };
 
-  // Render error state
-  if (isError) {
-    return (
-      <div className="p-8 text-red-500">
-        Error: {error.message}
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchCollections();
+  }, []);
 
   return (
     <div className="p-8">
-      {/* Page header */}
       <div className="flex justify-between">
         <h1 className="h1">Collections</h1>
         <Link
@@ -119,7 +89,6 @@ function CollectionsContent() {
         </Link>
       </div>
 
-      {/* Loading state */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse mt-8">
           <Loader2 className="w-12 h-12 text-gray-400 animate-spin" />
@@ -129,8 +98,13 @@ function CollectionsContent() {
         </div>
       )}
 
-      {/* No collections state */}
-      {!isLoading && collections.length === 0 && (
+      {error && (
+        <div className="p-8 text-red-500">
+          Error: {error}
+        </div>
+      )}
+
+      {!isLoading && collections.length === 0 && !error && (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 mt-8">
           <Package className="w-16 h-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
@@ -148,7 +122,6 @@ function CollectionsContent() {
         </div>
       )}
 
-      {/* Collections table */}
       {collections.length > 0 && (
         <div className="border rounded mt-4 shadow">
           <Table>
@@ -183,11 +156,15 @@ function CollectionsContent() {
                 <TableCell colSpan="2">
                   <Button
                     disabled={!hasNextPage || isLoading}
-                    onClick={() => fetchNextPage()}
+                    onClick={handleLoadMore}
                     variant="outline"
                     size="sm"
                   >
-                    Load more
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Load more'
+                    )}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -195,17 +172,10 @@ function CollectionsContent() {
           </Table>
         </div>
       )}
-
-      {/* React Query DevTools for debugging */}
-      <ReactQueryDevtools initialIsOpen={false} />
     </div>
   );
 }
 
 export default function Collections() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <CollectionsContent />
-    </QueryClientProvider>
-  );
+  return <CollectionsContent />;
 }
