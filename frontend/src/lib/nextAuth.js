@@ -96,7 +96,7 @@ export const authOptions = {
         NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
       }next-auth.session-token`,
       options: {
-        domain: "." + process.env.ROOT_DOMAIN,
+        domain: process.env.COOKIE_DOMAIN,
         httpOnly: true,
         sameSite: "Lax",
         path: "/",
