@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import AuthNextProvider from "@/providers/AuthNextProvider";
 import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({ children }) {
@@ -7,7 +8,7 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body className="dark:bg-coal-500">
         <ThemeProvider attribute="class" defaultTheme="light">
-          {children}
+          <AuthNextProvider>{children}</AuthNextProvider>
         </ThemeProvider>
         <ToastContainer
           position="top-right"

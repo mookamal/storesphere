@@ -103,5 +103,29 @@ export const authOptions = {
         secure: NEXTAUTH_URL.startsWith("https://"),
       },
     },
+    refreshToken: {
+      name: `${
+        NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
+      }next-auth.refresh-token`,
+      options: {
+        domain: process.env.COOKIE_DOMAIN,
+        httpOnly: true,
+        sameSite: "Lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
+    accessToken: {
+      name: `${
+        NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
+      }next-auth.access-token`,
+      options: {
+        domain: process.env.COOKIE_DOMAIN,
+        httpOnly: true,
+        sameSite: "Lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
   },
 };

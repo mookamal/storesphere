@@ -47,10 +47,14 @@ export async function middleware(request) {
   
   
     // Handling auth routes on accounts subdomain
-    if (url.pathname.startsWith("/api/auth") && subdomain !== "accounts") {
-      const newUrl = new URL(url);
-      newUrl.hostname = "accounts.nour.com";
-      return NextResponse.redirect(newUrl);
+    if (url.pathname.startsWith("/api/auth")) {
+      if (subdomain === "accounts") {
+        return NextResponse.next();
+      } else {
+        const newUrl = new URL(url);
+        newUrl.hostname = "accounts.nour.com";
+        return NextResponse.rewrite(newUrl);
+      }
     }
   
     if (subdomain === "accounts" && url.pathname.startsWith("/api/auth")) {
