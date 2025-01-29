@@ -67,24 +67,45 @@ export const authOptions = {
         return token;
       }
       if (getCurrentEpochTime() > token["ref"]) {
-        const response = await axios({
-          method: "post",
-          url: process.env.NEXTAUTH_BACKEND_URL + "/token/refresh/",
-          data: {
-            refresh: token["refresh_token"],
-          },
-        });
-        token["access_token"] = response.data.access;
-        token["refresh_token"] = response.data.refresh;
-        token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        try {
+          const response = await axios({
+            method: "post",
+            url: process.env.NEXTAUTH_BACKEND_URL + "/token/refresh/",
+            data: {
+              refresh: token["refresh_token"],
+            },
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          token["access_token"] = response.data.access;
+          token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        } catch (error) {
+          console.error("Token refresh failed:", error);
+          return {
+            ...token,
+            error: "RefreshAccessTokenError",
+          };
+        }
       }
       return token;
     },
     async session({ token }) {
-      if (token.has_store === false) {
-        token.has_store = await checkHasStore(token);
+      if (token.error) {
+        return null;
       }
-      return token;
+      if (token.has_store === false) {
+        try {
+          token.has_store = await checkHasStore(token);
+        } catch (error) {
+          console.error("Error checking store:", error);
+        }
+      }
+    
+      return {
+        ...token,
+        error: token.error,
+      };
     },
   },
   pages: {
