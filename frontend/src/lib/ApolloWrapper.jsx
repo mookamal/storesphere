@@ -1,6 +1,6 @@
 "use client";
 
-import { HttpLink, ApolloLink } from "@apollo/client";
+import { HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import {
   ApolloNextAppProvider,
