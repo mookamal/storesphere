@@ -1,12 +1,19 @@
 "use client";
-import { useSession } from "next-auth/react";
-
+import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
+import { useSuspenseQuery } from "@apollo/client";
+import { useParams } from "next/navigation";
 
 export default function StoreAdmin() {
-  const { data: session, status } = useSession();
+  const { domain } = useParams();
+
+  const { data } = useSuspenseQuery(GET_SETTINGS_GENERAL, {
+    variables: { domain },
+  });
+
+
   return (
     <div>
-    <div>Home</div>
+
     </div>
   );
 }
