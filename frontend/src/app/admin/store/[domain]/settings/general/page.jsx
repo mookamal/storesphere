@@ -1,55 +1,27 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
-import axios from "axios";
 import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
-import animation from "@/assets/animation/loading.json";
-import Lottie from "lottie-react";
 import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
 import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
+import { useQuery } from '@apollo/client';
 let cc = require("currency-codes");
 
 // shadcn
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useParams } from "next/navigation";
+import LoadingElement from "@/components/LoadingElement";
 
 export default function General() {
-  const [error, setError] = useState(false);
-  const [data, setData] = useState(null);
-  const [openStoreCurrencyModel, setOpenStoreCurrencyModel] = useState(null);
   const domain = useParams().domain;
-
-  const getData = async () => {
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: GET_SETTINGS_GENERAL,
-        variables: { domain: domain },
-      });
-
-      if (response.data.error) {
-        throw new Error(response.data.error);
-      }
-      setData(response.data.store);
-    } catch (error) {
-      console.error("Error fetching store details:", error.message);
-      setData(null);
-      setError(true);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
+  const { data, loading, error, refetch } = useQuery(GET_SETTINGS_GENERAL, {
+    variables: { domain: domain },
+  });
+  if (loading) return <LoadingElement />;
 
   if (error) {
     return <Error />;
-  }
-
-  if (!data) {
-    return <Lottie animationData={animation} loop={true} />;
   }
 
   return (
@@ -60,11 +32,11 @@ export default function General() {
           <CardTitle>Store details</CardTitle>
           <hr className="border" />
 
-          <ProfileStoreModal data={data} refreshData={getData} />
+          <ProfileStoreModal data={data.store} refreshData={refetch} />
         </CardHeader>
         <CardContent>
           <h2 className="text-sm text-muted-foreground text-center">
-            {data.name}
+            {data.store.name}
           </h2>
         </CardContent>
       </Card>
@@ -75,14 +47,14 @@ export default function General() {
           <hr className="border" />
 
           <BillingAddressModal
-            data={data.billingAddress}
-            refreshData={getData}
+            data={data.store.billingAddress}
+            refreshData={refetch}
           />
         </CardHeader>
         <CardContent>
           <div className="text-center text-sm text-muted-foreground">
             <h2>Billing address</h2>
-            <h2>{data.billingAddress.phone}</h2>
+            <h2>{data.store.billingAddress.phone}</h2>
           </div>
         </CardContent>
       </Card>
@@ -93,14 +65,14 @@ export default function General() {
           <hr className="border" />
 
           <StoreCurrencyModel
-            currencyCode={data.currencyCode}
-            refreshData={getData}
+            currencyCode={data.store.currencyCode}
+            refreshData={refetch}
           />
         </CardHeader>
         <CardContent>
-          {data.currencyCode && (
+          {data.store.currencyCode && (
             <div className="flex justify-center">
-              <Badge>{cc.code(data.currencyCode).currency}</Badge>
+              <Badge>{cc.code(data.store.currencyCode).currency}</Badge>
             </div>
           )}
         </CardContent>
