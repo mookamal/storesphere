@@ -1,6 +1,5 @@
 "use client";
 
-import { MdEditNote } from "react-icons/md";
 import { useEffect, useState } from "react";
 import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
 import axios from "axios";
@@ -14,7 +13,6 @@ let cc = require("currency-codes");
 
 // shadcn
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useParams } from "next/navigation";
 
