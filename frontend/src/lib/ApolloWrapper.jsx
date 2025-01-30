@@ -32,7 +32,7 @@ function makeDynamicClient(session) {
 function AuthAwareApolloProvider({ children }) {
   const { data: session, status } = useSession();
 
-  if (status === "loading") return <div>
+  if (status === "loading") return <div className="mx-auto my-auto w-screen h-screen flex justify-center items-center">
     loading...
   </div>;
 
