@@ -16,7 +16,6 @@ export default function StoreAdmin() {
 
   return (
     <div>
-      {error.extensions}
     </div>
   );
 }
