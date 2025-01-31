@@ -11,186 +11,199 @@ import {
 import { MdEditNote } from "react-icons/md";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { IoReload } from "react-icons/io5";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import Select from "react-select";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { UPDATE_STORE_ADDRESS } from "@/graphql/mutations";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useMutation } from '@apollo/client';
+
 countries.registerLocale(enLocale);
 
-export default function BillingAddressModal({ data, refreshData }) {
-  const [isChanged, setIsChanged] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [company, setCompany] = useState(data.company || "");
-  const [address1, setAddress1] = useState(data.address1 || "");
-  const [address2, setAddress2] = useState(data.address2 || "");
-  const [city, setCity] = useState(data.city || "");
-  const [zip, setZip] = useState(data.zip || "");
-  const [country, setCountry] = useState(
-    { name: data.country.name, code: data.country.code } || {}
-  );
-  const countryObj = countries.getNames("en", { select: "official" });
-  const countryList = Object.entries(countryObj);
-  const domain = useParams().domain;
-  const optionCountries = [];
+const initialFormState = {
+  company: '',
+  address1: '',
+  address2: '',
+  city: '',
+  zip: '',
+  country: { name: '', code: '' }
+};
 
-  for (let i = 0; i < countryList.length; i++) {
-    optionCountries.push({
-      value: countryList[i][0],
-      label: countryList[i][1],
-    });
+const sanitizeData = (data) => ({
+  company: data?.company || '',
+  address1: data?.address1 || '',
+  address2: data?.address2 || '',
+  city: data?.city || '',
+  zip: data?.zip || '',
+  country: {
+    name: data?.country?.name || '',
+    code: data?.country?.code || ''
   }
+});
 
-  useEffect(() => {
-    if (
-      company !== data.company ||
-      country.code !== data.country.code ||
-      address1 !== data.address1 ||
-      address2 !== data.address2 ||
-      city !== data.city ||
-      zip !== data.zip
-    ) {
-      setIsChanged(true);
-    } else {
-      setIsChanged(false);
-    }
-  }, [company, country, address1, address2, city, zip, data]);
+export default function BillingAddressModal({ data, refreshData }) {
+  const { domain } = useParams();
+  const [isOpen, setIsOpen] = useState(false);
+  const [formState, setFormState] = useState(() => ({
+    ...initialFormState,
+    ...sanitizeData(data)
+  }));
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    const variables = {
-      input: {
-        company: company,
-        country: country,
-        address1: address1,
-        address2: address2,
-        city: city,
-        zip: zip,
-      },
-      defaultDomain: domain,
-    };
-
-    try {
-      const response = await axios.post("/api/set-data", {
-        query: UPDATE_STORE_ADDRESS,
-        variables: variables,
-      });
-
+  const [updateStoreAddress, { loading }] = useMutation(UPDATE_STORE_ADDRESS, {
+    onCompleted: () => {
       refreshData();
-      toast.success("Store profile updated successfully!");
-    } catch (error) {
-      if (error.response.data.error) {
-        console.error(error.response.data.error);
-      }
-      console.error("Error updating store profile:", error.message);
-      toast.error("Failed to update store profile!");
+      toast.success("Billing details updated successfully!");
+      setIsOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Update failed: ${error.message}`);
+      console.error("Update error:", error);
     }
+  });
 
-    // save data to API
-    setIsLoading(false);
+  const countryOptions = useMemo(() => {
+    const countryNames = countries.getNames("en", { select: "official" });
+    return Object.entries(countryNames).map(([code, name]) => ({
+      value: code,
+      label: name
+    }));
+  }, []);
+
+  const hasChanges = useMemo(() => {
+    const originalData = sanitizeData(data);
+    return (
+      formState.company !== originalData.company ||
+      formState.address1 !== originalData.address1 ||
+      formState.address2 !== originalData.address2 ||
+      formState.city !== originalData.city ||
+      formState.zip !== originalData.zip ||
+      formState.country.code !== originalData.country.code
+    );
+  }, [formState, data]);
+
+  const handleFieldChange = (field) => (value) => {
+    setFormState(prev => ({
+      ...prev,
+      [field]: field === 'country' 
+        ? { name: value?.label || '', code: value?.value || '' }
+        : value || ''
+    }));
+  };
+
+  const handleSubmit = () => {
+    updateStoreAddress({
+      variables: {
+        input: {
+          ...formState,
+          country: {
+            name: formState.country.name || '',
+            code: formState.country.code || ''
+          }
+        },
+        defaultDomain: domain
+      }
+    });
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="bg-slate-100 dark:bg-black dark:text-white p-2 rounded-md shadow flex justify-center">
         <MdEditNote size={20} />
       </DialogTrigger>
-      <DialogContent>
+      
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Billing information</DialogTitle>
-          <hr />
+          <DialogTitle>Billing Information</DialogTitle>
           <VisuallyHidden>
-            <DialogDescription>Billing information</DialogDescription>
+            <DialogDescription>
+              Update your store's billing address and contact information
+            </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <div className="grid gap-4 mb-4 grid-cols-1">
-          {/* company */}
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="company">Legal business name</Label>
-            </div>
-            <Input
-              id="company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-            />
-          </div>
-          {/* Country */}
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="country">Country</Label>
-            </div>
-            <Select
-              options={optionCountries}
-              onChange={(e) => setCountry({ name: e.label, code: e.value })}
-              value={{ value: country.code, label: country.name }}
-              id="country"
-              classNames={{
-                option: ({ isFocused, isSelected }) =>
-                  `${isFocused ? "dark:bg-blue-100" : ""} ${
-                    isSelected ? "dark:bg-blue-500 dark:text-white" : ""
-                  } dark:text-gray-800`,
-              }}
-            />
-          </div>
-          {/* city */}
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="city">City</Label>
-            </div>
-            <Input
-              id="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-          </div>
-          {/* address1 */}
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="address1">Address</Label>
-            </div>
-            <Input
-              id="address1"
-              value={address1}
-              onChange={(e) => setAddress1(e.target.value)}
-            />
-          </div>
-          {/* address2 */}
 
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="address2">Apartment, suite, etc</Label>
-            </div>
-            <Input
-              id="address2"
-              value={address2}
-              onChange={(e) => setAddress2(e.target.value)}
+        <div className="grid gap-4 mb-4 grid-cols-1">
+          <FormField
+            label="Legal business name"
+            id="company"
+            value={formState.company}
+            onChange={handleFieldChange('company')}
+          />
+
+          <div className="w-full">
+            <Label htmlFor="country">Country</Label>
+            <Select
+              id="country"
+              options={countryOptions}
+              value={{
+                value: formState.country.code || '',
+                label: formState.country.name || 'Select a country'
+              }}
+              onChange={handleFieldChange('country')}
+              className="react-select-container mt-2"
+              classNamePrefix="react-select"
+              isSearchable
+              placeholder="Select country..."
             />
           </div>
-          {/* postalCode */}
-          <div>
-            <div className="mb-2">
-              <Label htmlFor="zip">Postal code</Label>
-            </div>
-            <Input
-              id="zip"
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-            />
-          </div>
+
+          <FormField
+            label="City"
+            id="city"
+            value={formState.city}
+            onChange={handleFieldChange('city')}
+          />
+
+          <FormField
+            label="Street address"
+            id="address1"
+            value={formState.address1}
+            onChange={handleFieldChange('address1')}
+          />
+
+          <FormField
+            label="Apartment, suite, etc"
+            id="address2"
+            value={formState.address2}
+            onChange={handleFieldChange('address2')}
+          />
+
+          <FormField
+            label="Postal code"
+            id="zip"
+            value={formState.zip}
+            onChange={handleFieldChange('zip')}
+          />
         </div>
-        <Button onClick={handleSave} disabled={!isChanged}>
-          {isLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
-          Save
+
+        <Button 
+          onClick={handleSubmit}
+          disabled={!hasChanges || loading}
+          className="w-full mt-4"
+        >
+          {loading ? (
+            <IoReload className="animate-spin mr-2 h-4 w-4" />
+          ) : null}
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogContent>
     </Dialog>
   );
 }
+
+const FormField = ({ label, id, value, onChange, ...props }) => (
+  <div className="w-full">
+    <Label htmlFor={id}>{label}</Label>
+    <Input
+      id={id}
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      className="mt-2"
+      {...props}
+    />
+  </div>
+);
