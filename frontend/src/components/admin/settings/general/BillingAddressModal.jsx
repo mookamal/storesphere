@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { MdEditNote } from "react-icons/md";
-import { Input } from "@/components/ui/input";
+import FormField from '@/components/common/FormField';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
@@ -194,16 +194,3 @@ export default function BillingAddressModal({ data, refreshData }) {
     </Dialog>
   );
 }
-
-const FormField = ({ label, id, value, onChange, ...props }) => (
-  <div className="w-full">
-    <Label htmlFor={id}>{label}</Label>
-    <Input
-      id={id}
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className="mt-2"
-      {...props}
-    />
-  </div>
-);
