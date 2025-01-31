@@ -44,27 +44,23 @@ export default function General() {
         </CardContent>
       </Card>
       {/* Billing address */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Billing address</CardTitle>
+      <Card className={cardVariants.base}>
+        <CardHeader className={cardVariants.header}>
+          <CardTitle className={cardVariants.title}>Billing address</CardTitle>
           <hr className="border" />
 
-          <BillingAddressModal
-            data={data.store.billingAddress}
-            refreshData={refetch}
-          />
+          <BillingAddressModal data={data.store.billingAddress} refreshData={refetch} />
         </CardHeader>
-        <CardContent>
-          <div className="text-center text-sm text-muted-foreground">
-            <h2>Billing address</h2>
-            <h2>{data.store.billingAddress.phone}</h2>
-          </div>
+        <CardContent className={cardVariants.content}>
+          <h2 className="text-sm text-muted-foreground text-center">
+            {data.store?.billingAddress?.phone || ""}
+          </h2>
         </CardContent>
       </Card>
       {/* store defaults */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Store defaults</CardTitle>
+      <Card className={cardVariants.base}>
+        <CardHeader className={cardVariants.header}>
+          <CardTitle className={cardVariants.title}>Store defaults</CardTitle>
           <hr className="border" />
 
           <StoreCurrencyModel
@@ -72,7 +68,7 @@ export default function General() {
             refreshData={refetch}
           />
         </CardHeader>
-        <CardContent>
+        <CardContent className={cardVariants.content}>
           {data.store.currencyCode && (
             <div className="flex justify-center">
               <Badge>{cc.code(data.store.currencyCode).currency}</Badge>
