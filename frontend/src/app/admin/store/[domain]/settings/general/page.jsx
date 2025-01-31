@@ -5,6 +5,7 @@ import Error from "@/components/admin/Error";
 import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
 import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
 import { useQuery } from '@apollo/client';
+import { cardVariants } from "@/utils/cardVariants";
 let cc = require("currency-codes");
 
 // shadcn
@@ -27,14 +28,16 @@ export default function General() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 my-10">
       {/* Store details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Store details</CardTitle>
+      <Card className={cardVariants.base}>
+        <CardHeader className={cardVariants.header}>
+          <CardTitle className={cardVariants.title}>
+            Store details
+          </CardTitle>
           <hr className="border" />
 
           <ProfileStoreModal data={data.store} refreshData={refetch} />
         </CardHeader>
-        <CardContent>
+        <CardContent className={cardVariants.content}>
           <h2 className="text-sm text-muted-foreground text-center">
             {data.store.name}
           </h2>
