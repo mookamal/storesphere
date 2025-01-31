@@ -12,119 +12,116 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { MdEditNote } from "react-icons/md";
-export default function ProfileStoreModal({ data, refreshData }) {
-  const [storeName, setStoreName] = useState(data.name || "");
-  const [storePhone, setStorePhone] = useState(data.billingAddress.phone || "");
-  const [storeEmail, setStoreEmail] = useState(data.email || "");
-  const [isChanged, setIsChanged] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const domain = useParams().domain;
-  useEffect(() => {
-    if (
-      storeName !== data.name ||
-      storePhone !== data.billingAddress.phone ||
-      storeEmail !== data.email
-    ) {
-      setIsChanged(true);
-    } else {
-      setIsChanged(false);
-    }
-  }, [storeName, storePhone, storeEmail, data]);
+import { useMutation } from '@apollo/client';
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    const variables = {
-      input: {
-        name: storeName,
-        email: storeEmail,
-        billingAddress: {
-          phone: storePhone,
-        },
-      },
-      defaultDomain: domain,
-    };
+export default function ProfileStoreModal({ data, refreshData }) {
+  const { domain } = useParams();
+  const [isOpen, setIsOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    name: data?.name || "",
+    email: data?.email || "",
+    phone: data?.billingAddress?.phone || ""
+  });
+
+  const [updateStoreProfile, { loading }] = useMutation(UPDATE_STORE_PROFILE);
+
+  const hasChanges = 
+    formState.name !== data?.name ||
+    formState.email !== data?.email ||
+    formState.phone !== data?.billingAddress?.phone;
+
+  const handleSubmit = async () => {
     try {
-      const response = await axios.post("/api/set-data", {
-        query: UPDATE_STORE_PROFILE,
-        variables: variables,
+      await updateStoreProfile({
+        variables: {
+          input: {
+            name: formState.name,
+            email: formState.email,
+            billingAddress: {
+              phone: formState.phone
+            }
+          },
+          defaultDomain: domain
+        }
       });
 
+      toast.success("Profile updated successfully!");
       refreshData();
-      toast.success("Store profile updated successfully!");
+      setIsOpen(false);
     } catch (error) {
-      if (error.response.data.error) {
-        console.error(error.response.data.error);
-      }
-      console.error("Error updating store profile:", error.message);
-      toast.error("Failed to update store profile!");
+      toast.error("Failed to update profile. Please try again.");
+      console.error("Update error:", error);
     }
-    setIsLoading(false);
+  };
+
+  const handleFieldChange = (field) => (e) => {
+    setFormState(prev => ({ ...prev, [field]: e.target.value }));
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="bg-slate-100 dark:bg-black dark:text-white p-2 rounded-md shadow flex justify-center">
         <MdEditNote size={20} />
       </DialogTrigger>
+      
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Edit Store Profile</DialogTitle>
           <hr />
           <DialogDescription>
-            Please be aware that these details might be accessible to the
-            public. Avoid using personal information.
+            Please be aware that these details might be accessible to the public.
+            Avoid using personal information.
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-3">
+
+        <div className="mt-3 space-y-6">
           <div className="grid md:grid-cols-2 md:gap-6">
             <div className="w-full mb-5">
-              <div className="mb-2">
-                <Label htmlFor="name">Store Name</Label>
-              </div>
+              <Label htmlFor="name">Store Name</Label>
               <Input
                 id="name"
-                name="name"
-                type="text"
-                value={storeName}
-                onChange={(e) => setStoreName(e.target.value)}
+                value={formState.name}
+                onChange={handleFieldChange('name')}
+                className="mt-2"
               />
             </div>
 
             <div className="w-full mb-5">
-              <div className="mb-2">
-                <Label htmlFor="phone">Store Phone</Label>
-              </div>
+              <Label htmlFor="phone">Store Phone</Label>
               <Input
                 id="phone"
-                name="phone"
-                type="text"
-                value={storePhone}
-                onChange={(e) => setStorePhone(e.target.value)}
+                value={formState.phone}
+                onChange={handleFieldChange('phone')}
+                className="mt-2"
               />
             </div>
           </div>
+
           <div className="w-full mb-5">
-            <div className="mb-2">
-              <Label htmlFor="email">Store Email</Label>
-            </div>
+            <Label htmlFor="email">Store Email</Label>
             <Input
               id="email"
-              name="email"
               type="email"
-              value={storeEmail}
-              onChange={(e) => setStoreEmail(e.target.value)}
+              value={formState.email}
+              onChange={handleFieldChange('email')}
+              className="mt-2"
             />
           </div>
         </div>
-        <Button onClick={handleSave} disabled={!isChanged}>
-          {isLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
-          Save
+
+        <Button 
+          onClick={handleSubmit} 
+          disabled={!hasChanges || loading}
+          className="w-full"
+        >
+          {loading ? (
+            <IoReload className="mr-2 h-4 w-4 animate-spin" />
+          ) : 'Save Changes'}
         </Button>
       </DialogContent>
     </Dialog>
