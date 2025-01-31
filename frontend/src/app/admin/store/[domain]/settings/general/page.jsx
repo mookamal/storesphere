@@ -29,13 +29,12 @@ export default function General() {
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 my-10">
       {/* Store details */}
       <Card className={cardVariants.base}>
-        <CardHeader className={cardVariants.header}>
-          <CardTitle className={cardVariants.title}>
-            Store details
-          </CardTitle>
+        <CardHeader className={`${cardVariants.header} flex items-center justify-between`}>
+          <div className="flex items-center space-x-3">
+            <CardTitle className={cardVariants.title}>Store details</CardTitle>
+            <ProfileStoreModal data={data.store} refreshData={refetch} />
+          </div>
           <hr className="border" />
-
-          <ProfileStoreModal data={data.store} refreshData={refetch} />
         </CardHeader>
         <CardContent className={cardVariants.content}>
           <h2 className="text-sm text-muted-foreground text-center">
@@ -45,11 +44,12 @@ export default function General() {
       </Card>
       {/* Billing address */}
       <Card className={cardVariants.base}>
-        <CardHeader className={cardVariants.header}>
-          <CardTitle className={cardVariants.title}>Billing address</CardTitle>
+        <CardHeader className={`${cardVariants.header} flex items-center justify-between`}>
+          <div className="flex items-center space-x-3">
+            <CardTitle className={cardVariants.title}>Billing address</CardTitle>
+            <BillingAddressModal data={data.store.billingAddress} refreshData={refetch} />
+          </div>
           <hr className="border" />
-
-          <BillingAddressModal data={data.store.billingAddress} refreshData={refetch} />
         </CardHeader>
         <CardContent className={cardVariants.content}>
           <h2 className="text-sm text-muted-foreground text-center">
@@ -59,14 +59,15 @@ export default function General() {
       </Card>
       {/* store defaults */}
       <Card className={cardVariants.base}>
-        <CardHeader className={cardVariants.header}>
-          <CardTitle className={cardVariants.title}>Store defaults</CardTitle>
+        <CardHeader className={`${cardVariants.header} flex items-center justify-between`}>
+          <div className="flex items-center space-x-3">
+            <CardTitle className={cardVariants.title}>Store defaults</CardTitle>
+            <StoreCurrencyModel
+              currencyCode={data.store.currencyCode}
+              refreshData={refetch}
+            />
+          </div>
           <hr className="border" />
-
-          <StoreCurrencyModel
-            currencyCode={data.store.currencyCode}
-            refreshData={refetch}
-          />
         </CardHeader>
         <CardContent className={cardVariants.content}>
           {data.store.currencyCode && (
