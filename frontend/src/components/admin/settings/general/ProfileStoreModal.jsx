@@ -8,8 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
 import { useState } from "react";
@@ -18,6 +16,7 @@ import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { MdEditNote } from "react-icons/md";
 import { useMutation } from '@apollo/client';
+import FormField from "@/components/common/FormField";
 
 export default function ProfileStoreModal({ data, refreshData }) {
   const { domain } = useParams();
@@ -59,8 +58,8 @@ export default function ProfileStoreModal({ data, refreshData }) {
     }
   };
 
-  const handleFieldChange = (field) => (e) => {
-    setFormState(prev => ({ ...prev, [field]: e.target.value }));
+  const handleFieldChange = (field) => (value) => {
+    setFormState(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -81,37 +80,28 @@ export default function ProfileStoreModal({ data, refreshData }) {
 
         <div className="mt-3 space-y-6">
           <div className="grid md:grid-cols-2 md:gap-6">
-            <div className="w-full mb-5">
-              <Label htmlFor="name">Store Name</Label>
-              <Input
-                id="name"
-                value={formState.name}
-                onChange={handleFieldChange('name')}
-                className="mt-2"
-              />
-            </div>
+            <FormField
+              label="Store Name"
+              id="name"
+              value={formState.name}
+              onChange={handleFieldChange('name')}
+            />
 
-            <div className="w-full mb-5">
-              <Label htmlFor="phone">Store Phone</Label>
-              <Input
-                id="phone"
-                value={formState.phone}
-                onChange={handleFieldChange('phone')}
-                className="mt-2"
-              />
-            </div>
-          </div>
-
-          <div className="w-full mb-5">
-            <Label htmlFor="email">Store Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formState.email}
-              onChange={handleFieldChange('email')}
-              className="mt-2"
+            <FormField
+              label="Store Phone"
+              id="phone"
+              value={formState.phone}
+              onChange={handleFieldChange('phone')}
             />
           </div>
+
+          <FormField
+            label="Store Email"
+            id="email"
+            type="email"
+            value={formState.email}
+            onChange={handleFieldChange('email')}
+          />
         </div>
 
         <Button 
