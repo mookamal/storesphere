@@ -53,7 +53,7 @@ export default function General() {
         </CardHeader>
         <CardContent className={cardVariants.content}>
           <h2 className="text-sm text-muted-foreground text-center">
-            {data.store?.billingAddress?.phone || ""}
+            {data.store.billingAddress.company}
           </h2>
         </CardContent>
       </Card>

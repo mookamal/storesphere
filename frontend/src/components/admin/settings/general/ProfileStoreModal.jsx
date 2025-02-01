@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { MdEditNote } from "react-icons/md";
 import { useMutation } from '@apollo/client';
 import FormField from "@/components/common/FormField";
+import ButtonIcon from '@/components/common/ButtonIcon';
 
 export default function ProfileStoreModal({ data, refreshData }) {
   const { domain } = useParams();
@@ -64,8 +65,12 @@ export default function ProfileStoreModal({ data, refreshData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="bg-slate-100 dark:bg-black dark:text-white p-2 rounded-md shadow flex justify-center">
-        <MdEditNote size={20} />
+      <DialogTrigger asChild>
+        <ButtonIcon
+          icon={MdEditNote}
+          label="Edit settings"
+          variant="default"
+        />
       </DialogTrigger>
       
       <DialogContent>

@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 import { UPDATE_STORE_ADDRESS } from "@/graphql/mutations";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMutation } from '@apollo/client';
-
+import ButtonIcon from '@/components/common/ButtonIcon';
 countries.registerLocale(enLocale);
 
 const initialFormState = {
@@ -112,8 +112,12 @@ export default function BillingAddressModal({ data, refreshData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="bg-slate-100 dark:bg-black dark:text-white p-2 rounded-md shadow flex justify-center">
-        <MdEditNote size={20} />
+      <DialogTrigger asChild>
+        <ButtonIcon
+          icon={MdEditNote}
+          label="Edit settings"
+          variant="default"
+        />
       </DialogTrigger>
       
       <DialogContent className="max-h-[90vh] overflow-y-auto">
