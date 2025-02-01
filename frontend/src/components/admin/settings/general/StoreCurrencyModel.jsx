@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import ButtonIcon from '@/components/common/ButtonIcon';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
@@ -70,8 +71,12 @@ export default function StoreCurrencyModel({ currencyCode, refreshData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="dialog-trigger">
-        <MdEditNote size={20} />
+      <DialogTrigger asChild>
+        <ButtonIcon
+          icon={MdEditNote}
+          label="Edit settings"
+          variant="default"
+        />
       </DialogTrigger>
       
       <DialogContent>

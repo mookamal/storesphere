@@ -11,6 +11,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      transitionProperty: {
+        'transform-colors': 'transform, colors',
+      },
       backgroundColor: {
         "screen-primary": "#f1f3f9",
         "default-white": "#FFFFFF",
