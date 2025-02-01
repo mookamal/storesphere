@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { cardVariants } from "@/utils/cardVariants";
 import LoadingElement from "@/components/LoadingElement";
 import Error from "@/components/admin/Error";
-import ProfileStoreModal from "@/components/admin/settings/general/ProfileStoreModal";
-import BillingAddressModal from "@/components/admin/settings/general/BillingAddressModal";
-import StoreCurrencyModel from "@/components/admin/settings/general/StoreCurrencyModel";
+import dynamic from 'next/dynamic';
+
+const ProfileStoreModal = dynamic(() => import("@/components/admin/settings/general/ProfileStoreModal"));
+const BillingAddressModal = dynamic(() => import("@/components/admin/settings/general/BillingAddressModal"));
+const StoreCurrencyModel = dynamic(() => import("@/components/admin/settings/general/StoreCurrencyModel"));
 import cc from "currency-codes";
 
 const CustomCard = ({ title, actionComponent, children }) => (
