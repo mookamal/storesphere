@@ -22,7 +22,7 @@ export default function CreateCollection() {
 
   const { createCollection, loading } = useCreateCollection(
     domain,
-    (collectionId) => router.push(`/admin/store/${domain}/collections/${collectionId}`)
+    (collectionId) => router.push(`/store/${domain}/collections/${collectionId}`)
   );
 
   const onSubmit = useCallback((data) => {
