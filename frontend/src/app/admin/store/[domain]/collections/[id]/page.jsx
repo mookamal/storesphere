@@ -56,7 +56,7 @@ export default function UpdateCollection() {
     handleSubmit,
     errors,
     handleBlur,
-    setImage,
+    handleSetImage,
     watch,
     reset,
     formState: { isDirty, dirtyFields },
@@ -139,7 +139,7 @@ export default function UpdateCollection() {
           <GeneralInputs
             register={register}
             handleBlur={handleBlur}
-            setImage={setImage}
+            setImage={handleSetImage}
             image={image}
           />
           <AddProducts
