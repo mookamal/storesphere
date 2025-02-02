@@ -32,6 +32,7 @@ export default function UpdateCollection() {
       toast.error(`Failed to update collection: ${error.message}`);
     }
   });
+  const [deleteCollection] = useMutation(DELETE_COLLECTIONS);
   const router = useRouter();
   const collectionId = useParams().id;
   const domain = useParams().domain;
@@ -74,7 +75,28 @@ export default function UpdateCollection() {
   };
 
   const handleDeleteCollection = async () => {
-
+    const confirmation = await swal({
+      title:"Are you sure?" ,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    });
+  
+    if (confirmation) {
+      try {
+        await deleteCollection({
+          variables: { collectionIds: [collectionId], domain: domain },
+          update: (cache) => {
+            cache.evict({ id: `Collection:${collectionId}` });
+          }
+        });
+        router.push(`/store/${domain}/collections`);
+        toast.success("Collection deleted successfully!");
+      } catch (error) {
+        toast.error(`Failed to delete collection: ${error.message}`);
+      }
+    }
   };
 
   const onSubmit = async (formData) => {

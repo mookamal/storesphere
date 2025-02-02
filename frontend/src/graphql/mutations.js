@@ -158,8 +158,8 @@ export const DELETE_PRODUCTS_FROM_COLLECTION = gql`
 `;
 
 export const DELETE_COLLECTIONS = gql`
-  mutation AdminDeleteCollections($collectionIds: [ID]! $defaultDomain: String!) {
-    deleteCollections(collectionIds:$collectionIds defaultDomain:$defaultDomain) {
+  mutation AdminDeleteCollections($collectionIds: [ID]! $domain: String!) {
+    deleteCollections(collectionIds:$collectionIds defaultDomain:$domain) {
       success
     }
   }
