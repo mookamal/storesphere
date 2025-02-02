@@ -1,38 +1,46 @@
 "use client";
-import GeneralInputs from "@/components/admin/collection/GeneralInputs";
-import { IoReload } from "react-icons/io5";
-import { Button } from "@/components/ui/button";
-import SeoInputs from "@/components/admin/collection/SeoInputs";
-import { ADMIN_CREATE_COLLECTION } from "@/graphql/mutations";
 import { useParams, useRouter } from "next/navigation";
+import { useCallback } from 'react';
+import GeneralInputs from "@/components/admin/collection/GeneralInputs";
+import SeoInputs from "@/components/admin/collection/SeoInputs";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
-import useCollectionSubmit from "@/hooks/collection/useCollectionSubmit";
-
+import { useCreateCollection } from "@/hooks/collection/useCreateCollection";
+import SubmitButton from "@/components/common/SubmitButton";
 export default function CreateCollection() {
   const domain = useParams().domain;
   const router = useRouter();
-
-
+  
   const { 
     image, 
     register, 
     handleSubmit, 
     handleBlur, 
     watch, 
-    setImage 
+    setImage,
+    errors 
   } = useCollectionForm();
 
-  const handle = watch("handle");
-  const { submitCollection, loading, setLoading } = useCollectionSubmit(
-    ADMIN_CREATE_COLLECTION, 
-    (data) => {
-      router.push(`/store/${domain}/collections/${data.createCollection.collection.collectionId}`);
-    }, 
-    domain
+  const { createCollection, loading } = useCreateCollection(
+    domain,
+    (collectionId) => router.push(`/admin/store/${domain}/collections/${collectionId}`)
   );
-  const onSubmit = (data) => {
-    submitCollection(data, image);
-  };
+
+  const onSubmit = useCallback((data) => {
+    const payload = {
+      domain,
+      collectionInputs: {
+        title: data.title,
+        handle: data.handle || generateHandle(data.title),
+        imageId: image?.imageId,
+        seo: {
+          title: data.seoTitle,
+          description: data.seoDescription
+        }
+      }
+    };
+    
+    createCollection(payload);
+  }, [image, domain, createCollection]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,24 +52,25 @@ export default function CreateCollection() {
             handleBlur={handleBlur}
             setImage={setImage}
             image={image}
+            errors={errors}
           />
 
           <h2 className="font-bold text-orange-400 my-3">
-            You need to save the collection before adding products to it.
+            You need to save before adding products
           </h2>
 
-          <SeoInputs register={register} domain={domain} handle={handle} />
+          <SeoInputs 
+            register={register} 
+            domain={domain} 
+            handle={watch('handle')} 
+            errors={errors}
+          />
         </div>
       </div>
-      <Button
-        size="lg"
-        type="submit"
-        className="fixed bottom-5 right-5 rounded-full shadow-md"
-        disabled={loading}
-      >
-        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
-        Add
-      </Button>
+      <SubmitButton loading={loading} />
     </form>
   );
 }
+
+const generateHandle = (title) => 
+  title?.replace(/\s+/g, '-').toLowerCase() || '';
