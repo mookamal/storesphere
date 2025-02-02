@@ -92,7 +92,11 @@ export const authOptions = {
     },
     async session({ token }) {
       if (token.error) {
-        return null;
+        console.warn('Session token error:', token.error);
+        return { 
+          user: token.user, 
+          error: token.error 
+        };
       }
       if (token.has_store === false) {
         try {
