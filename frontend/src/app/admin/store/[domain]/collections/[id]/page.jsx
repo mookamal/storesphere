@@ -23,6 +23,15 @@ import { useProductFetcher } from '@/hooks/collection/productUtils';
 import { useQuery, useMutation } from '@apollo/client';
 import { removeTypename } from "@/lib/utils";
 export default function UpdateCollection() {
+  const [updateCollection, { loading: updateLoading }] = useMutation(ADMIN_UPDATE_COLLECTION, {
+    onCompleted: () => {
+      toast.success("Collection updated successfully!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`Failed to update collection: ${error.message}`);
+    }
+  });
   const router = useRouter();
   const collectionId = useParams().id;
   const domain = useParams().domain;
@@ -68,7 +77,25 @@ export default function UpdateCollection() {
 
   };
 
-  const onSubmit = (data) => {};
+  const onSubmit = async (formData) => {
+    try {
+      const input = {
+        ...removeTypename(formData),
+        imageId: image?.imageId  || null,
+      };
+  
+      await updateCollection({
+        variables: {
+          collectionId: collectionId,
+          collectionInputs: input,
+          domain: domain
+        }
+      });
+      
+    } catch (error) {
+      console.error("Submission error:", error);
+    }
+  };
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
   }
@@ -105,7 +132,7 @@ export default function UpdateCollection() {
         size="lg"
         type="submit"
         className="fixed bottom-5 right-5 rounded-full shadow-md"
-        disabled={!isDirty}
+        disabled={!isDirty || updateLoading}
       >
         {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
         Update
