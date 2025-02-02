@@ -19,19 +19,22 @@ import swal from "sweetalert";
 import { useRouter } from "next/navigation";
 // custom hooks
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
-import { useProductFetcher } from '@/hooks/collection/productUtils';
-import { useQuery, useMutation } from '@apollo/client';
+import { useProductFetcher } from "@/hooks/collection/productUtils";
+import { useQuery, useMutation } from "@apollo/client";
 import { removeTypename } from "@/lib/utils";
 export default function UpdateCollection() {
-  const [updateCollection, { loading: updateLoading }] = useMutation(ADMIN_UPDATE_COLLECTION, {
-    onCompleted: () => {
-      toast.success("Collection updated successfully!");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Failed to update collection: ${error.message}`);
+  const [updateCollection, { loading: updateLoading }] = useMutation(
+    ADMIN_UPDATE_COLLECTION,
+    {
+      onCompleted: () => {
+        toast.success("Collection updated successfully!");
+        refetch();
+      },
+      onError: (error) => {
+        toast.error(`Failed to update collection: ${error.message}`);
+      },
     }
-  });
+  );
   const [deleteCollection] = useMutation(DELETE_COLLECTIONS);
   const router = useRouter();
   const collectionId = useParams().id;
@@ -40,23 +43,23 @@ export default function UpdateCollection() {
   // GraphQL Operations
   const { data, loading, error, refetch } = useQuery(ADMIN_COLLECTION_BY_ID, {
     variables: { id: collectionId },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
   });
 
   // Fetch products by collection ID
   const { fetchProducts } = useProductFetcher();
   const initialFormValuesRef = useRef(removeTypename(data?.collectionById));
 
-  const { 
-    image, 
-    register, 
-    handleSubmit, 
-    errors, 
-    handleBlur, 
+  const {
+    image,
+    register,
+    handleSubmit,
+    errors,
+    handleBlur,
     setImage,
     watch,
     reset,
-    formState: { isDirty, dirtyFields }
+    formState: { isDirty, dirtyFields },
   } = useCollectionForm(initialFormValuesRef.current);
 
   useEffect(() => {
@@ -66,30 +69,28 @@ export default function UpdateCollection() {
       initialFormValuesRef.current = cleanedData;
     }
   }, [data, reset]);
-  
-  // watch handle
-  const handle = watch('handle');
-  // create function to refetch products
-  const refetchProducts = async () => {
 
-  };
+  // watch handle
+  const handle = watch("handle");
+  // create function to refetch products
+  const refetchProducts = async () => {};
 
   const handleDeleteCollection = async () => {
     const confirmation = await swal({
-      title:"Are you sure?" ,
+      title: "Are you sure?",
       text: "This action cannot be undone.",
       icon: "warning",
       buttons: true,
       dangerMode: true,
     });
-  
+
     if (confirmation) {
       try {
         await deleteCollection({
           variables: { collectionIds: [collectionId], domain: domain },
           update: (cache) => {
             cache.evict({ id: `Collection:${collectionId}` });
-          }
+          },
         });
         router.push(`/store/${domain}/collections`);
         toast.success("Collection deleted successfully!");
@@ -103,17 +104,16 @@ export default function UpdateCollection() {
     try {
       const input = {
         ...removeTypename(formData),
-        imageId: image?.imageId  || null,
+        imageId: image?.imageId || null,
       };
-  
+
       await updateCollection({
         variables: {
           collectionId: collectionId,
           collectionInputs: input,
-          domain: domain
-        }
+          domain: domain,
+        },
       });
-      
     } catch (error) {
       console.error("Submission error:", error);
     }
