@@ -38,7 +38,6 @@ export default function UpdateCollection() {
   const router = useRouter();
   const collectionId = useParams().id;
   const domain = useParams().domain;
-  const [selectedProducts, setSelectedProducts] = useState([]);
   const [pagination, setPagination] = useState({ first: 10, after: "" });
   // Queries
   const { data: productsData, refetch: refetchProducts } = useQuery(
@@ -149,7 +148,7 @@ export default function UpdateCollection() {
           />
           <AddProducts
             collectionId={collectionId}
-            selectedProducts={selectedProducts}
+            selectedProducts={productsData?.productsByCollectionId?.edges || []}
             refetchProducts={refetchProducts}
           />
           <SeoInputs register={register} domain={domain} handle={handle} />
