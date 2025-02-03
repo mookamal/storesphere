@@ -208,7 +208,7 @@ export const ADMIN_COLLECTION_BY_ID = gql`
 `;
 
 export const ADMIN_PRODUCTS_BY_COLLECTION_ID = gql`
-  query Admin_products_by_collection(
+  query AdminProductsByCollection(
     $collectionId: ID!
     $first: Int
     $after: String!

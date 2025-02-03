@@ -19,7 +19,6 @@ import swal from "sweetalert";
 import { useRouter } from "next/navigation";
 // custom hooks
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
-import { useProductFetcher } from "@/hooks/collection/productUtils";
 import { useQuery, useMutation } from "@apollo/client";
 import { removeTypename } from "@/lib/utils";
 export default function UpdateCollection() {
@@ -40,14 +39,22 @@ export default function UpdateCollection() {
   const collectionId = useParams().id;
   const domain = useParams().domain;
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [pagination, setPagination] = useState({ first: 10, after: "" });
+  // Queries
+  const { data: productsData, refetch: refetchProducts } = useQuery(
+    ADMIN_PRODUCTS_BY_COLLECTION_ID,
+    {
+      variables: { collectionId, ...pagination },
+      skip: !collectionId,
+    }
+  );
+
   // GraphQL Operations
   const { data, loading, error, refetch } = useQuery(ADMIN_COLLECTION_BY_ID, {
     variables: { id: collectionId },
     fetchPolicy: "cache-and-network",
   });
 
-  // Fetch products by collection ID
-  const { fetchProducts } = useProductFetcher();
   const initialFormValuesRef = useRef(removeTypename(data?.collectionById));
 
   const {
@@ -72,8 +79,6 @@ export default function UpdateCollection() {
 
   // watch handle
   const handle = watch("handle");
-  // create function to refetch products
-  const refetchProducts = async () => {};
 
   const handleDeleteCollection = async () => {
     const confirmation = await swal({
