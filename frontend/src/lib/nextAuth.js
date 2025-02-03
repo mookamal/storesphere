@@ -1,7 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { checkHasStore } from "../lib/utilities";
-const BACKEND_ACCESS_TOKEN_LIFETIME = 45 * 60; // 45 minutes
+const BACKEND_ACCESS_TOKEN_LIFETIME = 7 * 24 * 60 * 60; // 7 days
 const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60; // 6 days
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 const getCurrentEpochTime = () => {
@@ -62,11 +62,11 @@ export const authOptions = {
         token["user"] = backendResponse.user;
         token["access_token"] = backendResponse.access;
         token["refresh_token"] = backendResponse.refresh;
-        token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        token.exp = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
         token["has_store"] = false;
         return token;
       }
-      if (getCurrentEpochTime() > token["ref"]) {
+      if (getCurrentEpochTime() > token.exp) {
         try {
           const response = await axios({
             method: "post",
@@ -75,11 +75,11 @@ export const authOptions = {
               refresh: token["refresh_token"],
             },
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           });
           token["access_token"] = response.data.access;
-          token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+          token.exp = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
         } catch (error) {
           console.error("Token refresh failed:", error);
           return {
@@ -92,10 +92,10 @@ export const authOptions = {
     },
     async session({ token }) {
       if (token.error) {
-        console.warn('Session token error:', token.error);
-        return { 
-          user: token.user, 
-          error: token.error 
+        console.warn("Session token error:", token.error);
+        return {
+          user: token.user,
+          error: token.error,
         };
       }
       if (token.has_store === false) {
@@ -105,7 +105,7 @@ export const authOptions = {
           console.error("Error checking store:", error);
         }
       }
-    
+
       return {
         ...token,
         error: token.error,
