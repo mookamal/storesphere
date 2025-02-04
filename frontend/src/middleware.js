@@ -32,9 +32,8 @@ const handleProtectedSubdomains = (subdomain, session, url, pathname) => {
       url.pathname = "/";
       return NextResponse.redirect(url);
     }
-
-    return NextResponse.next();
   }
+  return NextResponse.next();
 };
 
 const handleAdminRootRedirect = async (session, url) => {
