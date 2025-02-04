@@ -24,9 +24,7 @@ const handleProtectedSubdomains = (subdomain, session, url, pathname) => {
   if (!session) return redirectToLogin(url);
 
   if (subdomain === "admin") {
-    if (pathname === "/") return handleAdminRootRedirect(session, url);
-    url.pathname = `/admin${pathname}`;
-    return NextResponse.rewrite(url);
+    return NextResponse.next();
   }
 
   if (subdomain === AUTH_SUBDOMAIN) {
@@ -35,13 +33,7 @@ const handleProtectedSubdomains = (subdomain, session, url, pathname) => {
       return NextResponse.redirect(url);
     }
 
-    if (!session && pathname.startsWith("/store-create")) {
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
-
-    url.pathname = `/accounts${pathname}`;
-    return NextResponse.rewrite(url);
+    return NextResponse.next();
   }
 };
 
