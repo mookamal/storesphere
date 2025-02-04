@@ -70,6 +70,11 @@ const nextConfig = {
         ],
         destination: "/admin/:path*",
       },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "nour.com" }],
+        destination: "/main/:path*",
+      },
     ];
   },
 };
