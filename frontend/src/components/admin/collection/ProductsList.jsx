@@ -1,201 +1,167 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { ADMIN_PRODUCT_RESOURCE_COLLECTION } from "@/graphql/queries";
 import {
   ADD_PRODUCTS_TO_COLLECTION,
   DELETE_PRODUCTS_FROM_COLLECTION,
 } from "@/graphql/mutations";
-import { ADMIN_PRODUCT_RESOURCE_COLLECTION } from "@/graphql/queries";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { AiOutlineLoading } from "react-icons/ai";
-import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
+
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 
 export default function ProductsList({
   collectionId,
-  refetchProducts,
+  onUpdate,
   selectedProducts,
 }) {
   const [open, setOpen] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [toRemove, setToRemove] = useState([]);
-  const [toAdd, setToAdd] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const domain = useParams().domain;
-  const handleSelectProduct = (node, isChecked) => {
-    const nodeProductId = node.productId;
 
-    if (isChecked) {
-      if (node.inCollection) {
-        setToRemove((prev) =>
-          prev.filter((productId) => productId !== nodeProductId)
-        );
-      } else {
-        setToAdd((prev) => [...prev, nodeProductId]);
-      }
-    } else {
-      if (node.inCollection) {
-        setToRemove((prev) => [...prev, nodeProductId]);
-      } else {
-        setToAdd((prev) =>
-          prev.filter((productId) => productId !== nodeProductId)
-        );
-      }
+  // Get initial selected product IDs
+  const initialSelectedIds = useMemo(
+    () => new Set(selectedProducts.map((p) => Number(p.productId))),
+    [selectedProducts]
+  );
+
+  // Local selection state
+  const [selectedProductIds, setSelectedProductIds] =
+    useState(initialSelectedIds);
+
+  // Query products
+  const { data, loading, refetch } = useQuery(
+    ADMIN_PRODUCT_RESOURCE_COLLECTION,
+    {
+      variables: {
+        collectionId,
+        search: debouncedSearchTerm,
+        first: 20,
+        after: "",
+      },
     }
-  };
+  );
 
-  const isChecked = (node) => {
-    if (toAdd.includes(node.productId)) return true;
-    if (toRemove.includes(node.productId)) return false;
-    return node.inCollection;
-  };
+  // Mutations
+  const [addProducts] = useMutation(ADD_PRODUCTS_TO_COLLECTION);
+  const [removeProducts] = useMutation(DELETE_PRODUCTS_FROM_COLLECTION);
 
-  const addProductsToCollection = async () => {
-    if (toAdd.length > 0) {
-      try {
-        const response = await axios.post("/api/set-data", {
-          query: ADD_PRODUCTS_TO_COLLECTION,
-          variables: {
-            collectionId: collectionId,
-            productIds: toAdd,
-            domain: domain,
-          },
-        });
-        if (response.data.data.addProductsToCollection.success) {
-          return true;
-        }
-      } catch (error) {
-        console.error(error);
-        return false;
-      } finally {
-        setToAdd([]);
-      }
-    }
-  };
-  const deleteProductsFromCollection = async () => {
-    if (toRemove.length > 0) {
-      try {
-        const response = await axios.post("/api/set-data", {
-          query: DELETE_PRODUCTS_FROM_COLLECTION,
-          variables: {
-            collectionId: collectionId,
-            productIds: toRemove,
-          },
-        });
-        if (response.data.data.deleteProductsFromCollection.success) {
-          return true;
-        }
-      } catch (error) {
-        console.error(error);
-        return false;
-      } finally {
-        setToRemove([]);
-      }
-    }
-  };
-
-  const handleAddOrRemoveProductsToCollection = async () => {
-    setIsLoading(true);
-    const success = await addProductsToCollection();
-    const delSuccess = await deleteProductsFromCollection();
-    if (success || delSuccess) {
-      toast.success("Collection updated successfully!");
-      await refetchProducts(collectionId);
-      await getProducts();
-      setOpen(false);
-    }
-    setIsLoading(false);
-  };
-
-  const getProducts = async () => {
-    setLoadingData(true);
+  const handleBulkUpdate = async (productsToAdd, productsToRemove) => {
     try {
-      const response = await axios.post("/api/get-data", {
-        query: ADMIN_PRODUCT_RESOURCE_COLLECTION,
-        variables: {
-          search: searchQuery,
-          first: 10,
-          after: "",
-          collectionId: collectionId,
-        },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.error);
+      const promises = [];
+      if (productsToAdd.length > 0) {
+        promises.push(
+          addProducts({
+            variables: {
+              collectionId,
+              productIds: productsToAdd,
+              domain: domain,
+            },
+          })
+        );
       }
-      setProducts(response.data.productResourceCollection.edges);
+      if (productsToRemove.length > 0) {
+        promises.push(
+          removeProducts({
+            variables: { collectionId, productIds: productsToRemove },
+          })
+        );
+      }
+      await Promise.all(promises);
+      onUpdate();
+      toast.success("Collection updated successfully");
+      setOpen(false);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingData(false);
+      toast.error(`Update failed: ${error.message}`);
     }
   };
-  useEffect(() => {
-    getProducts();
-  }, [searchQuery, selectedProducts]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" size="sm">
-          Browse
-        </Button>
+        <Button variant="outline">Manage Products</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Products list</DialogTitle>
-          <DialogDescription>
-            This dialog displays a list of products.
-          </DialogDescription>
+          <DialogTitle>Manage Collection Products</DialogTitle>
         </DialogHeader>
-        <hr />
-        <div className="flex justify-center flex-col items-center">
-          <Input
-            type="text"
-            placeholder="Search products"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="h-[400px] overflow-y-scroll p-2 flex flex-col gap-2 ">
-          {loadingData ? (
-            <div className="text-center">Loading...</div>
-          ) : products.length > 0 ? (
-            products.map(({ node }) => (
-              <div key={node.id} className="border p-2 rounded">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    onCheckedChange={(isChecked) =>
-                      handleSelectProduct(node, isChecked)
-                    }
-                    checked={isChecked(node)}
-                  />
 
-                  <h2>{node.title}</h2>
-                </div>
-              </div>
-            ))
+        <Input
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <div className="flex-1 overflow-y-auto space-y-2">
+          {loading ? (
+            <div className="text-center">Loading products...</div>
           ) : (
-            <div className="text-center">No products found.</div>
+            data?.productResourceCollection?.edges?.map(({ node }) => (
+              <ProductItem
+                key={node.productId}
+                product={node}
+                isSelected={selectedProductIds.has(node.productId)}
+                onToggle={(productId, isSelected) => {
+                  setSelectedProductIds((prev) => {
+                    const next = new Set(prev);
+                    isSelected ? next.add(productId) : next.delete(productId);
+                    return next;
+                  });
+                }}
+              />
+            ))
           )}
         </div>
+
         <DialogFooter>
-          <Button size="sm" onClick={handleAddOrRemoveProductsToCollection}>
-            {isLoading && <AiOutlineLoading className="animate-spin" />}
-            Save
+          <Button
+            onClick={() => {
+              const currentIds = Array.from(selectedProductIds);
+              const initialIds = Array.from(initialSelectedIds);
+              const toAdd = currentIds.filter((id) => !initialIds.includes(id));
+              const toRemove = initialIds.filter(
+                (id) => !currentIds.includes(id)
+              );
+              handleBulkUpdate(toAdd, toRemove);
+            }}
+          >
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
+const ProductItem = ({ product, isSelected, onToggle }) => (
+  <div className="flex items-center gap-3 p-2 border rounded">
+    <Checkbox
+      checked={isSelected}
+      onCheckedChange={(checked) => onToggle(product.productId, checked)}
+    />
+    <div className="flex-1">
+      <p className="font-medium">{product.title}</p>
+      <p className="text-sm text-gray-500">{product.status}</p>
+    </div>
+  </div>
+);

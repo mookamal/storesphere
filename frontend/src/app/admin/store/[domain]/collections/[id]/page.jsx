@@ -148,7 +148,11 @@ export default function UpdateCollection() {
           />
           <AddProducts
             collectionId={collectionId}
-            selectedProducts={productsData?.productsByCollectionId?.edges || []}
+            selectedProducts={
+              productsData?.productsByCollection?.edges?.map(
+                (edge) => edge.node
+              ) || []
+            }
             refetchProducts={refetchProducts}
           />
           <SeoInputs register={register} domain={domain} handle={handle} />
