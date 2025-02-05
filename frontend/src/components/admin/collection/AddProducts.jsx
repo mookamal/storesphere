@@ -9,38 +9,7 @@ import { DELETE_PRODUCTS_FROM_COLLECTION } from "@/graphql/mutations";
 import ProductsList from "@/components/admin/collection/ProductsList";
 import { useOptimisticMutation } from "@/hooks/useOptimisticMutation";
 import { useParams } from "next/navigation";
-// Temporary helper components (Move to separate files later)
-// ----------------------------
-const DataTable = ({ columns, data, emptyState }) => (
-  <div className="space-y-2">
-    {data.length > 0 ? (
-      <table className="w-full">
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.id} className="text-left p-2">
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
-              {columns.map((col) => (
-                <td key={col.id} className="p-2">
-                  {col.cell({ row: { original: item } })}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      emptyState
-    )}
-  </div>
-);
+import DataTable from "@/components/common/CustomDataTable";
 
 // Move to src/utils/tableColumns/productColumns.js
 const productColumns = [
