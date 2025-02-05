@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TbDatabaseExclamation } from "react-icons/tb";
 import { AiOutlineLoading } from "react-icons/ai";
-import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { DELETE_PRODUCTS_FROM_COLLECTION } from "@/graphql/mutations";
 import ProductsList from "@/components/admin/collection/ProductsList";
+import { useOptimisticMutation } from "@/hooks/useOptimisticMutation";
 import { useParams } from "next/navigation";
 // Temporary helper components (Move to separate files later)
 // ----------------------------
@@ -41,44 +41,6 @@ const DataTable = ({ columns, data, emptyState }) => (
     )}
   </div>
 );
-
-// Move this hook to src/hooks/useOptimisticMutation.js
-export const useOptimisticMutation = (mutation, config = {}) => {
-  const [mutate, { loading, error }] = useMutation(mutation, {
-    onCompleted: (data) => {
-      if (config.onSuccess) {
-        config.onSuccess(data);
-      }
-    },
-    onError: (error) => {
-      if (config.onError) {
-        config.onError(error);
-      }
-    },
-    update: (cache, { data }) => {
-      if (config.optimisticUpdate) {
-        config.optimisticUpdate(cache, data);
-      }
-    },
-  });
-
-  const execute = async (variables) => {
-    try {
-      if (config.optimisticResponse) {
-        // Apply optimistic response
-        config.optimisticResponse(variables);
-      }
-
-      const result = await mutate({ variables });
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  return [execute, { loading, error }]; // Return an array for consistency
-};
-// ----------------------------
 
 // Move to src/utils/tableColumns/productColumns.js
 const productColumns = [
