@@ -24,6 +24,9 @@ const handleProtectedSubdomains = (subdomain, session, url, pathname) => {
   if (!session) return redirectToLogin(url);
 
   if (subdomain === "admin") {
+    if (pathname === "/") {
+      return handleAdminRootRedirect(session, url);
+    }
     return NextResponse.next();
   }
 
