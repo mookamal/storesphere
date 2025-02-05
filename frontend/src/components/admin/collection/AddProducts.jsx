@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TbDatabaseExclamation } from "react-icons/tb";
@@ -8,6 +8,7 @@ import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { DELETE_PRODUCTS_FROM_COLLECTION } from "@/graphql/mutations";
 import ProductsList from "@/components/admin/collection/ProductsList";
+import { useParams } from "next/navigation";
 // Temporary helper components (Move to separate files later)
 // ----------------------------
 const DataTable = ({ columns, data, emptyState }) => (
@@ -99,7 +100,7 @@ export default function AddProducts({
   refetchProducts,
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const domain = useParams().domain;
   // Mutation handling with optimistic updates
   const [deleteProduct] = useOptimisticMutation(
     DELETE_PRODUCTS_FROM_COLLECTION,
@@ -110,6 +111,10 @@ export default function AddProducts({
       onError: (error) => {
         toast.error(`Operation failed: ${error.message}`);
       },
+      onSuccess: () => {
+        toast.success("Product removed successfully!");
+        refetchProducts();
+      },
     }
   );
 
@@ -119,9 +124,8 @@ export default function AddProducts({
       await deleteProduct({
         collectionId,
         productIds: [productId],
+        domain: domain,
       });
-      await refetchProducts();
-      toast.success("Product removed successfully");
     } finally {
       setIsProcessing(false);
     }
