@@ -11,6 +11,7 @@ export interface StoreAddressInput {
   zip?: string;
 }
 
+export type StoreAddressType = StoreAddressInput;
 
 export interface StoreInput {
   name?: string;
@@ -18,3 +19,5 @@ export interface StoreInput {
   currencyCode?: string;
   billingAddress?: StoreAddressInput;
 }
+
+export type StoreType = StoreInput;
