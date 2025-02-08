@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-
+import { CustomJWT } from "@/lib/nextAuth";
 // Interfaces for type safety
 interface FormattedMessages {
   [key: string]: string;
@@ -11,9 +11,6 @@ interface ErrorResponse {
   status: number | null;
 }
 
-interface Session {
-  access_token: string;
-}
 
 export const formatMsgServer = (msgs: Record<string, string | string[]>): FormattedMessages => {
   const formattedMessages: FormattedMessages = {};
@@ -40,7 +37,7 @@ export function getShortInitials(name: string): string {
   return initials.join("");
 }
 
-export async function checkHasStore(session: Session): Promise<boolean> {
+export async function checkHasStore(session: CustomJWT): Promise<boolean> {
   try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`,
@@ -63,7 +60,7 @@ export async function checkHasStore(session: Session): Promise<boolean> {
   }
 }
 
-export async function firstStoreRedirect(session: Session): Promise<string | null> {
+export async function firstStoreRedirect(session: CustomJWT): Promise<string | null> {
   try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/first-store/`,

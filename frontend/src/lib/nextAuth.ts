@@ -3,7 +3,7 @@ import axios from "axios";
 import { checkHasStore } from "../lib/utilities";
 import { NextAuthOptions, Session, DefaultSession, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { AdapterUser } from "next-auth/adapters";
+
 
 // Token lifetime constants
 const BACKEND_ACCESS_TOKEN_LIFETIME = 7 * 24 * 60 * 60; // 7 days
@@ -45,7 +45,7 @@ const SIGN_IN_HANDLERS: SignInHandlers = {
 const SIGN_IN_PROVIDERS = Object.keys(SIGN_IN_HANDLERS);
 
 // Extended JWT type
-interface CustomJWT extends JWT {
+export interface CustomJWT extends JWT {
   user?: User;
   access_token?: string;
   refresh_token?: string;
