@@ -1,7 +1,22 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
-export const formatMsgServer = (msgs) => {
-  const formattedMessages = {};
+// Interfaces for type safety
+interface FormattedMessages {
+  [key: string]: string;
+}
+
+interface ErrorResponse {
+  type: string;
+  message: string;
+  status: number | null;
+}
+
+interface Session {
+  access_token: string;
+}
+
+export const formatMsgServer = (msgs: Record<string, string | string[]>): FormattedMessages => {
+  const formattedMessages: FormattedMessages = {};
 
   for (const [field, messages] of Object.entries(msgs)) {
     if (Array.isArray(messages)) {
@@ -14,18 +29,18 @@ export const formatMsgServer = (msgs) => {
   return formattedMessages;
 };
 
-export const isEmail = (input) => {
+export const isEmail = (input: string): boolean => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(input);
 };
 
-export function getShortInitials(name) {
+export function getShortInitials(name: string): string {
   const names = name.split(" ");
   const initials = names.map((name) => name.charAt(0).toUpperCase());
   return initials.join("");
 }
 
-export async function checkHasStore(session) {
+export async function checkHasStore(session: Session): Promise<boolean> {
   try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/`,
@@ -36,21 +51,19 @@ export async function checkHasStore(session) {
       }
     );
 
-    if (response.data.length > 0) {
-      return true;
-    }
-    return false;
-  } catch (e) {
-    if (e.response && e.response.status === 404) {
+    return response.data.length > 0;
+  } catch (e: unknown) {
+    const error = e as AxiosError;
+    if (error.response && (error.response as AxiosResponse).status === 404) {
       return false;
     } else {
-      console.error("Error fetching stores:", e.message);
+      console.error("Error fetching stores:", error.message);
       throw new Error("Failed to check stores");
     }
   }
 }
 
-export async function firstStoreRedirect(session) {
+export async function firstStoreRedirect(session: Session): Promise<string | null> {
   try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/s/stores/first-store/`,
@@ -60,22 +73,21 @@ export async function firstStoreRedirect(session) {
         },
       }
     );
-    if (response.data) {
-      return response.data.default_domain;
-    } else {
-      return null;
-    }
-  } catch (e) {
-    console.error("Error fetching first store:", e.message);
+    return response.data ? response.data.default_domain : null;
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.error("Error fetching first store:", error.message);
     throw new Error("Failed to fetch first store");
   }
 }
 
-export function handleGraphQLError(error) {
+export function handleGraphQLError(error: unknown): ErrorResponse {
   try {
-    if (error.response) {
-      const status = error.response.status;
-      const message = error.response.data.message || error.message;
+    const axiosError = error as AxiosError;
+
+    if (axiosError.response) {
+      const status = axiosError.response.status;
+      const message = (axiosError.response.data as any)?.message || axiosError.message;
 
       switch (status) {
         case 404:
@@ -101,7 +113,7 @@ export function handleGraphQLError(error) {
             status,
           };
       }
-    } else if (error.request) {
+    } else if (axiosError.request) {
       return {
         type: "NO_RESPONSE",
         message: "No response received from the server. Check your network.",
@@ -110,7 +122,7 @@ export function handleGraphQLError(error) {
     } else {
       return {
         type: "CLIENT_ERROR",
-        message: error.message || "An unknown client-side error occurred.",
+        message: axiosError.message || "An unknown client-side error occurred.",
         status: null,
       };
     }
