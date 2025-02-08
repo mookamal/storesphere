@@ -28,6 +28,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "checkJs": false,
     "plugins": [
       {
         "name": "next"
