@@ -11,25 +11,24 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
-import { Package } from 'lucide-react'
-import { Loader2 } from 'lucide-react'
+import { Package, Loader2 } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
+import { CollectionsData, Collection, CollectionEdge } from "./types";
+import { ApolloError } from '@apollo/client';
 
 function CollectionsContent() {
   const router = useRouter();
   const currentPath = usePathname();
-  const domain = useParams().domain;
-  const { data, loading, error, fetchMore } = useQuery(ADMIN_ALL_COLLECTIONS, {
-    variables: { domain: domain, first: 10, after: "" },
+  const domain = useParams().domain as string;
+  
+  const { data, loading, error, fetchMore } = useQuery<CollectionsData>(ADMIN_ALL_COLLECTIONS, {
+    variables: { domain, first: 10, after: "" },
   });
 
-
-  const collections = data?.allCollections?.edges || [];
-  const pageInfo = data?.allCollections?.pageInfo || {};
+  const collections: CollectionEdge[] = data?.allCollections?.edges || [];
+  const pageInfo = data?.allCollections?.pageInfo || { hasNextPage: false, endCursor: '' };
   const { hasNextPage, endCursor } = pageInfo;
-
-
   const handleLoadMore = () => {
     if (hasNextPage) {
       fetchMore({
@@ -38,7 +37,7 @@ function CollectionsContent() {
           if (!fetchMoreResult) return prevResult;
           return {
             allCollections: {
-              __typename: prevResult.allCollections.__typename,
+              __typename: prevResult.allCollections.__typename || 'CollectionConnection',
               edges: [
                 ...prevResult.allCollections.edges,
                 ...fetchMoreResult.allCollections.edges,
@@ -50,8 +49,6 @@ function CollectionsContent() {
       });
     }
   };
-
-
 
   return (
     <div className="p-8">
@@ -76,7 +73,7 @@ function CollectionsContent() {
 
       {error && (
         <div className="p-8 text-red-500">
-          Error: {error}
+          Error: {(error as ApolloError).message}
         </div>
       )}
 
@@ -108,7 +105,7 @@ function CollectionsContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {collections.map(({ node }) => (
+              {collections.map(({ node }: { node: Collection }) => (
                 <TableRow
                   key={node.id}
                   className="hover:bg-gray-100 dark:hover:bg-black dark:hover:text-white"
@@ -129,7 +126,7 @@ function CollectionsContent() {
             </TableBody>
             <TableFooter>
               <TableRow className="border-t">
-                <TableCell colSpan="2">
+                <TableCell colSpan={2}>
                   <Button
                     disabled={!hasNextPage || loading}
                     onClick={handleLoadMore}
