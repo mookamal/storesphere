@@ -1,15 +1,34 @@
-import { forwardRef } from 'react';
+import { forwardRef, ReactElement, ForwardRefRenderFunction } from 'react';
+import { IconType } from 'react-icons';
 
-const ButtonIcon = forwardRef(({
-  icon: Icon,
-  label,
-  onClick,
-  className = '',
-  iconSize = 20,
-  variant = 'default', // 'default' | 'primary' | 'danger'
-  ...props
-}, ref) => {
-  const variantStyles = {
+// Define the variant types
+type ButtonVariant = 'default' | 'primary' | 'danger';
+
+// Define the props interface for type safety
+interface ButtonIconProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: IconType;
+  label?: string;
+  onClick?: () => void;
+  className?: string;
+  iconSize?: number;
+  variant?: ButtonVariant;
+}
+
+// Create the ButtonIcon component with proper TypeScript typing
+const ButtonIcon: ForwardRefRenderFunction<HTMLButtonElement, ButtonIconProps> = (
+  {
+    icon: Icon,
+    label,
+    onClick,
+    className = '',
+    iconSize = 20,
+    variant = 'default',
+    ...props
+  },
+  ref
+) => {
+  // Define variant styles with type safety
+  const variantStyles: Record<ButtonVariant, string> = {
     default: `
       bg-white 
       text-gray-600 
@@ -75,8 +94,10 @@ const ButtonIcon = forwardRef(({
       {label && <span className="sr-only">{label}</span>}
     </button>
   );
-});
+};
 
-ButtonIcon.displayName = 'ButtonIcon';
+// Add display name and forward ref
+const ForwardRefButtonIcon = forwardRef<HTMLButtonElement, ButtonIconProps>(ButtonIcon);
+ForwardRefButtonIcon.displayName = 'ButtonIcon';
 
-export default ButtonIcon;
+export default ForwardRefButtonIcon;
