@@ -2,20 +2,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image } from "@/types"
-
-
-const seoSchema = z.object({
-  title: z
-    .string()
-    .max(60, { message: "SEO title cannot exceed 60 characters" })
-    .optional(),
-  description: z
-    .string()
-    .max(160, { message: "SEO description cannot exceed 160 characters" })
-    .optional(),
-});
-
-
+import { seoSchema } from "@/schemas";
 const collectionSchema = z.object({
   title: z
     .string()

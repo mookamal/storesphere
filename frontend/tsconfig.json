@@ -10,6 +10,7 @@
       "@/graphql/*": ["src/graphql/*"],
       "@/assets/*": ["public/assets/*"],
       "@/types/*": ["src/types/*"],
+      "@/schemas/*": ["src/schemas/*"],
     },
     "target": "es5",
     "lib": [
