@@ -1,5 +1,6 @@
 export interface Image {
-    imageId: string;
-    image: string;
-    [key: string]: any;
-}
+    id?: string;
+    imageId?: string;
+    image: string | File;
+    altText?: string;
+  }
