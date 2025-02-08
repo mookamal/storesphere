@@ -1,7 +1,14 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+
+
+type ImageType = {
+  imageId?: string;
+  image?: string;
+  [key: string]: any;
+};
+
 
 const seoSchema = z.object({
   title: z
@@ -13,6 +20,7 @@ const seoSchema = z.object({
     .max(160, { message: "SEO description cannot exceed 160 characters" })
     .optional(),
 });
+
 
 const collectionSchema = z.object({
   title: z
@@ -33,17 +41,25 @@ const collectionSchema = z.object({
     .optional(),
 
   seo: seoSchema,
+  image: z.union([z.object({
+    imageId: z.string().optional(),
+    url: z.string().optional(),
+  }).optional(), z.null()]),
 });
 
-export function useCollectionForm(initialValues = {}) {
-  console.log("form component");
 
-  const handleSetImage = (newImage) => {
+type InitialValuesType = Partial<z.infer<typeof collectionSchema>>;
+
+export function useCollectionForm(initialValues: InitialValuesType = {}) {
+
+
+  const handleSetImage = (newImage: ImageType | null) => {
     setValue("image", newImage, {
       shouldValidate: true,
       shouldDirty: true,
     });
   };
+
 
   const {
     register,
@@ -57,6 +73,8 @@ export function useCollectionForm(initialValues = {}) {
     resolver: zodResolver(collectionSchema),
     defaultValues: initialValues,
   });
+
+
   const image = watch("image");
 
   const handleBlur = () => {
@@ -73,6 +91,7 @@ export function useCollectionForm(initialValues = {}) {
       }
     }
   };
+
 
   return {
     image,
