@@ -1,13 +1,7 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-
-type ImageType = {
-  imageId?: string;
-  image?: string;
-  [key: string]: any;
-};
+import { Image } from "@/types"
 
 
 const seoSchema = z.object({
@@ -53,7 +47,7 @@ type InitialValuesType = Partial<z.infer<typeof collectionSchema>>;
 export function useCollectionForm(initialValues: InitialValuesType = {}) {
 
 
-  const handleSetImage = (newImage: ImageType | null) => {
+  const handleSetImage = (newImage: Image | null) => {
     setValue("image", newImage, {
       shouldValidate: true,
       shouldDirty: true,
