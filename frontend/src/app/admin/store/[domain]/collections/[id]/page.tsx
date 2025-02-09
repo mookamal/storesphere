@@ -1,4 +1,6 @@
 "use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
@@ -11,36 +13,58 @@ import {
   ADMIN_COLLECTION_BY_ID,
   ADMIN_PRODUCTS_BY_COLLECTION_ID,
 } from "@/graphql/queries";
-import { useParams, notFound } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { IoReload } from "react-icons/io5";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
-import { useRouter } from "next/navigation";
-// custom hooks
-import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { useQuery, useMutation } from "@apollo/client";
+import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-export default function UpdateCollection() {
-  const [updateCollection, { loading: updateLoading }] = useMutation(
+import type { Collection } from "@/types";
+
+interface Pagination {
+  first: number;
+  after: string;
+}
+
+interface ProductsByCollectionData {
+  productsByCollection: {
+    edges: {
+      node: any;
+    }[];
+  };
+}
+
+interface CollectionByIdData {
+  collectionById: Collection;
+}
+
+export default function UpdateCollection(): JSX.Element {
+  const router = useRouter();
+
+  const { id: collectionId, domain } = useParams() as {
+    id: string;
+    domain: string;
+  };
+
+  const [updateCollection, { loading: updateLoading }] = useMutation<any>(
     ADMIN_UPDATE_COLLECTION,
     {
       onCompleted: () => {
         toast.success("Collection updated successfully!");
         refetch();
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast.error(`Failed to update collection: ${error.message}`);
       },
     }
   );
-  const [deleteCollection] = useMutation(DELETE_COLLECTIONS);
-  const router = useRouter();
-  const collectionId = useParams().id;
-  const domain = useParams().domain;
-  const [pagination, setPagination] = useState({ first: 10, after: "" });
-  // Queries
-  const { data: productsData, refetch: refetchProducts } = useQuery(
+
+  const [deleteCollection] = useMutation<any>(DELETE_COLLECTIONS);
+
+  const [pagination, setPagination] = useState<Pagination>({ first: 10, after: "" });
+
+  const { data: productsData, refetch: refetchProducts } = useQuery<ProductsByCollectionData>(
     ADMIN_PRODUCTS_BY_COLLECTION_ID,
     {
       variables: { collectionId, ...pagination },
@@ -48,13 +72,15 @@ export default function UpdateCollection() {
     }
   );
 
-  // GraphQL Operations
-  const { data, loading, error, refetch } = useQuery(ADMIN_COLLECTION_BY_ID, {
+  const { data, loading, error, refetch } = useQuery<CollectionByIdData>(ADMIN_COLLECTION_BY_ID, {
     variables: { id: collectionId },
     fetchPolicy: "cache-and-network",
   });
 
-  const initialFormValuesRef = useRef(removeTypename(data?.collectionById));
+
+  const initialFormValuesRef = useRef<Partial<Collection> | undefined>(
+    data ? removeTypename(data.collectionById) : undefined
+  );
 
   const {
     image,
@@ -62,7 +88,7 @@ export default function UpdateCollection() {
     handleSubmit,
     errors,
     handleBlur,
-    handleSetImage,
+    setImage,
     watch,
     reset,
     formState: { isDirty, dirtyFields },
@@ -76,52 +102,51 @@ export default function UpdateCollection() {
     }
   }, [data, reset]);
 
-  // watch handle
   const handle = watch("handle");
 
-  const handleDeleteCollection = async () => {
-    const confirmation = await swal({
+  const handleDeleteCollection = async (): Promise<void> => {
+    const confirmation: boolean = await swal({
       title: "Are you sure?",
       text: "This action cannot be undone.",
       icon: "warning",
-      buttons: true,
       dangerMode: true,
     });
-
     if (confirmation) {
       try {
         await deleteCollection({
-          variables: { collectionIds: [collectionId], domain: domain },
-          update: (cache) => {
+          variables: { collectionIds: [collectionId], domain },
+          update: (cache: any) => {
             cache.evict({ id: `Collection:${collectionId}` });
           },
         });
         router.push(`/store/${domain}/collections`);
         toast.success("Collection deleted successfully!");
-      } catch (error) {
+      } catch (error: any) {
         toast.error(`Failed to delete collection: ${error.message}`);
       }
     }
   };
 
-  const onSubmit = async (formData) => {
+  const onSubmit = async (formData: Partial<Collection>): Promise<void> => {
     try {
       const input = {
         ...removeTypename(formData),
-        imageId: image?.imageId || null,
+        imageId: formData.image?.imageId || null,
       };
-
+      // remove image from input
+      delete input.image;
       await updateCollection({
         variables: {
-          collectionId: collectionId,
+          collectionId,
           collectionInputs: input,
-          domain: domain,
+          domain,
         },
       });
     } catch (error) {
       console.error("Submission error:", error);
     }
   };
+
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
   }
@@ -131,11 +156,7 @@ export default function UpdateCollection() {
       <div className="p-5">
         <div className="flex justify-between">
           <h1 className="h1">Update Collection</h1>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleDeleteCollection}
-          >
+          <Button type="button" variant="destructive" onClick={handleDeleteCollection}>
             Delete
           </Button>
         </div>
@@ -143,15 +164,13 @@ export default function UpdateCollection() {
           <GeneralInputs
             register={register}
             handleBlur={handleBlur}
-            setImage={handleSetImage}
+            setImage={setImage}
             image={image}
           />
           <AddProducts
             collectionId={collectionId}
             selectedProducts={
-              productsData?.productsByCollection?.edges?.map(
-                (edge) => edge.node
-              ) || []
+              productsData?.productsByCollection?.edges?.map((edge) => edge.node) || []
             }
             refetchProducts={refetchProducts}
           />
