@@ -5,11 +5,11 @@ import { FC, useCallback } from "react";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
-import { useCreateCollection } from "@/hooks/collection/useCreateCollection";
 import SubmitButton from "@/components/common/SubmitButton";
 import { Collection } from "@/types";
-
-
+import { useMutation } from '@apollo/client';
+import { ADMIN_CREATE_COLLECTION } from '@/graphql/mutations';
+import { toast } from 'react-toastify';
 
 interface CreateCollectionPayload {
   domain: string;
@@ -28,6 +28,16 @@ const CreateCollection: FC = () => {
   const { domain } = useParams() as { domain: string };
   const router = useRouter();
 
+  const [createCollection, { loading }] = useMutation(ADMIN_CREATE_COLLECTION, {
+    onCompleted: (data) => {
+      toast.success('Collection created successfully');
+      router.push(`/store/${domain}/collections/${data.createCollection.collection.collectionId}`);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    }
+  });
+
   const { 
     image, 
     register, 
@@ -38,17 +48,15 @@ const CreateCollection: FC = () => {
     errors 
   } = useCollectionForm();
 
-  const { createCollection, loading } = useCreateCollection(
-    domain,
-    (collectionId: string) => router.push(`/store/${domain}/collections/${collectionId}`)
-  );
-
+  const generateHandle = (title: string): string =>
+    title.replace(/\s+/g, '-').toLowerCase() || '';
 
   const onSubmit = useCallback((data: Partial<Collection>) => {
     if (!data.title) {
-        console.error("Title is required");
-        return;
-      }
+      console.error("Title is required");
+      return;
+    }
+
     const payload: CreateCollectionPayload = {
       domain,
       collectionInputs: {
@@ -62,7 +70,7 @@ const CreateCollection: FC = () => {
       },
     };
 
-    createCollection(payload);
+    createCollection({ variables: payload });
   }, [image, domain, createCollection]);
 
   return (
@@ -92,9 +100,5 @@ const CreateCollection: FC = () => {
     </form>
   );
 };
-
-
-const generateHandle = (title: string): string =>
-  title.replace(/\s+/g, '-').toLowerCase() || '';
 
 export default CreateCollection;
