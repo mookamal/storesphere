@@ -1,35 +1,11 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image } from "@/types"
-import { seoSchema } from "@/schemas";
-const collectionSchema = z.object({
-  title: z
-    .string()
-    .min(2, { message: "Title must be at least 2 characters" })
-    .max(50, { message: "Title cannot exceed 50 characters" }),
-
-  handle: z
-    .string()
-    .optional()
-    .refine((val) => val === undefined || /^[a-z0-9-]+$/.test(val), {
-      message: "Handle must contain lowercase letters, numbers, and hyphens",
-    }),
-
-  description: z
-    .string()
-    .max(500, { message: "Description cannot exceed 500 characters" })
-    .optional(),
-
-  seo: seoSchema,
-  image: z.union([z.object({
-    imageId: z.string().optional(),
-    url: z.string().optional(),
-  }).optional(), z.null()]),
-});
+import { Collection, Image } from "@/types"
+import { collectionSchema } from "@/schemas";
 
 
-type InitialValuesType = Partial<z.infer<typeof collectionSchema>>;
+type InitialValuesType = Partial<Collection>;
 
 export function useCollectionForm(initialValues: InitialValuesType = {}) {
 
@@ -81,7 +57,7 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
     errors,
     handleBlur,
     setValue,
-    handleSetImage,
+    setImage: handleSetImage,
     watch,
     reset,
     control,
