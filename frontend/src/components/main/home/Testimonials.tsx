@@ -1,8 +1,20 @@
 "use client";
+
 import Image from "next/image";
 import { Quote } from "lucide-react";
+import { FC } from "react";
 
-const testimonials = [
+// Define an interface for a testimonial item
+interface Testimonial {
+  name: string;
+  role: string;
+  quote: string;
+  avatar: string;
+  company: string;
+}
+
+// Testimonial data array
+const testimonials: Testimonial[] = [
   {
     name: "Sarah Johnson",
     role: "E-commerce Entrepreneur",
@@ -26,7 +38,7 @@ const testimonials = [
   }
 ];
 
-export default function TestimonialsSection() {
+const TestimonialsSection: FC = () => {
   return (
     <section className="bg-gray-50 dark:bg-gray-900 py-16 px-4">
       <div className="container mx-auto">
@@ -45,6 +57,7 @@ export default function TestimonialsSection() {
               key={index}
               className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
+              {/* Quote icon */}
               <Quote className="text-purple-600 mb-4 w-12 h-12 opacity-20" />
               <p className="text-gray-700 dark:text-gray-300 mb-6 italic">
                 "{testimonial.quote}"
@@ -74,4 +87,6 @@ export default function TestimonialsSection() {
       </div>
     </section>
   );
-}
+};
+
+export default TestimonialsSection;

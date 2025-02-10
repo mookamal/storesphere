@@ -1,4 +1,5 @@
 "use client";
+
 import { 
   ShoppingCart, 
   BarChart, 
@@ -7,8 +8,17 @@ import {
   CreditCard, 
   Zap 
 } from "lucide-react";
+import { FC } from "react";
 
-const features = [
+// Define an interface for feature items
+interface Feature {
+  icon: FC<{ className?: string }>; // Icon component accepting a className prop
+  title: string;
+  description: string;
+}
+
+// Feature data array
+const features: Feature[] = [
   {
     icon: ShoppingCart,
     title: "Easy Store Setup",
@@ -41,7 +51,7 @@ const features = [
   }
 ];
 
-export default function FeaturesSection() {
+const FeaturesSection: FC = () => {
   return (
     <section className="bg-white dark:bg-gray-900 py-16 px-4">
       <div className="container mx-auto">
@@ -77,4 +87,6 @@ export default function FeaturesSection() {
       </div>
     </section>
   );
-}
+};
+
+export default FeaturesSection;

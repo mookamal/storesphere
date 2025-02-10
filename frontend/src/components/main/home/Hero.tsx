@@ -1,10 +1,12 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Store, ShoppingCart } from "lucide-react";
+import { FC } from "react";
 
-export default function Hero() {
+const Hero: FC = () => {
   return (
     <section className="relative bg-gradient-to-br from-purple-50 to-white dark:from-gray-900 dark:to-black">
       <div className="container mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
@@ -21,7 +23,9 @@ export default function Hero() {
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
             Create Your Online Store 
-            <span className="block text-purple-600 mt-2">Easily and Professionally</span>
+            <span className="block text-purple-600 mt-2">
+              Easily and Professionally
+            </span>
           </h1>
 
           <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
@@ -52,22 +56,24 @@ export default function Hero() {
           transition={{ duration: 0.7 }}
           className="flex justify-center items-center"
         >
-        <Image 
-          src="/assets/images/shopping.svg" 
-          alt="Multi-Store Management Platform" 
-          width={800} 
-          height={600} 
-          priority
-          className="rounded-xl shadow-2xl border dark:border-gray-800"
-        />
+          <Image 
+            src="/assets/images/shopping.svg" 
+            alt="Multi-Store Management Platform" 
+            width={800} 
+            height={600} 
+            priority
+            className="rounded-xl shadow-2xl border dark:border-gray-800"
+          />
         </motion.div>
       </div>
 
-      {/* Light animated background */}
+      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -right-20 w-96 h-96 bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-200/30 dark:bg-blue-900/20 rounded-full blur-3xl animate-pulse"></div>
       </div>
     </section>
   );
-}
+};
+
+export default Hero;
