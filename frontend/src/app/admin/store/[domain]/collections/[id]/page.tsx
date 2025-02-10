@@ -129,7 +129,6 @@ export default function UpdateCollection(): JSX.Element {
   };
 
   const onSubmit = async (formData: Partial<Collection>): Promise<void> => {
-    console.log("formData",formData);
     try {
       const input = {
         ...removeTypename(formData),
