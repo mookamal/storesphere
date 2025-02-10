@@ -1,8 +1,31 @@
 "use client";
+
 import Link from "next/link";
 import Logo from "@/components/my/Logo";
+import { FC, memo } from "react";
 
-export default function MainFooter() {
+
+interface FooterLinkItem {
+  name: string;
+  href: string;
+}
+
+
+const productLinks: FooterLinkItem[] = [
+  { name: "Features", href: "/features" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Integrations", href: "/integrations" },
+  { name: "Demo", href: "/demo" },
+];
+
+const companyLinks: FooterLinkItem[] = [
+  { name: "About", href: "/about" },
+  { name: "Careers", href: "/careers" },
+  { name: "Contact", href: "/contact" },
+  { name: "Blog", href: "/blog" },
+];
+
+const MainFooter: FC = () => {
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
       <div className="container mx-auto px-4 py-12 md:py-16">
@@ -21,12 +44,7 @@ export default function MainFooter() {
                 Product
               </h4>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                {[
-                  { name: "Features", href: "/features" },
-                  { name: "Pricing", href: "/pricing" },
-                  { name: "Integrations", href: "/integrations" },
-                  { name: "Demo", href: "/demo" }
-                ].map(({ name, href }) => (
+                {productLinks.map(({ name, href }) => (
                   <li key={name}>
                     <Link 
                       href={href} 
@@ -44,12 +62,7 @@ export default function MainFooter() {
                 Company
               </h4>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                {[
-                  { name: "About", href: "/about" },
-                  { name: "Careers", href: "/careers" },
-                  { name: "Contact", href: "/contact" },
-                  { name: "Blog", href: "/blog" }
-                ].map(({ name, href }) => (
+                {companyLinks.map(({ name, href }) => (
                   <li key={name}>
                     <Link 
                       href={href} 
@@ -93,4 +106,7 @@ export default function MainFooter() {
       </div>
     </footer>
   );
-}
+};
+
+
+export default memo(MainFooter);
