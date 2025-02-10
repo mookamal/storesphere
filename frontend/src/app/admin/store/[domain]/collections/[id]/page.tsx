@@ -90,13 +90,13 @@ export default function UpdateCollection(): JSX.Element {
             },
           },
         });
-        
+
         cache.gc();
       }
     }
-    
-    
-    
+
+
+
   });
 
   const [pagination, setPagination] = useState<Pagination>({ first: 10, after: "" });
@@ -130,7 +130,6 @@ export default function UpdateCollection(): JSX.Element {
     reset,
     formState: { isDirty, dirtyFields },
   } = useCollectionForm(initialFormValuesRef.current);
-  
 
   useEffect(() => {
     if (data && data.collectionById) {
@@ -177,9 +176,9 @@ export default function UpdateCollection(): JSX.Element {
     }
   };
   if (error) {
-    return <Admin404/>;
+    return <Admin404 />;
   }
-  
+
 
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
@@ -218,9 +217,10 @@ export default function UpdateCollection(): JSX.Element {
         className="fixed bottom-5 right-5 rounded-full shadow-md"
         disabled={!isDirty || updateLoading}
       >
-        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        {updateLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
         Update
       </Button>
+
     </form>
   );
 }
