@@ -14,7 +14,8 @@ import {
 import { Package, Loader2 } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ADMIN_ALL_COLLECTIONS } from "@/graphql/queries";
-import { CollectionsData, Collection, CollectionEdge } from "./types";
+import { CollectionsData,CollectionEdge } from "./types";
+import { Collection } from "@/types";
 import { ApolloError } from '@apollo/client';
 
 function CollectionsContent() {
