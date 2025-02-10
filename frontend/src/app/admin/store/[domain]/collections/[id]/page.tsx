@@ -21,6 +21,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
 import type { Collection } from "@/types";
+import Admin404 from "@/components/admin/404";
 
 interface Pagination {
   first: number;
@@ -175,6 +176,11 @@ export default function UpdateCollection(): JSX.Element {
       console.error("Submission error:", error);
     }
   };
+  if (error) {
+    // here
+    return <Admin404/>;
+  }
+  
 
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
