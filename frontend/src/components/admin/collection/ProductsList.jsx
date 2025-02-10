@@ -83,7 +83,7 @@ export default function ProductsList({
       if (productsToRemove.length > 0) {
         promises.push(
           removeProducts({
-            variables: { collectionId, productIds: productsToRemove },
+            variables: { collectionId, productIds: productsToRemove, domain },
           })
         );
       }
