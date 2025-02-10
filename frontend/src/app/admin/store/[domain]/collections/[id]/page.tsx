@@ -20,14 +20,9 @@ import swal from "sweetalert";
 import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-import type { Collection } from "@/types";
+import type { Collection, PageInfo } from "@/types";
 import Admin404 from "@/components/admin/404";
 import usePreventNavigation from "@/hooks/usePreventNavigation";
-
-interface Pagination {
-  first: number;
-  after: string;
-}
 
 interface ProductsByCollectionData {
   productsByCollection: {
@@ -101,7 +96,7 @@ export default function UpdateCollection(): JSX.Element {
 
   });
 
-  const [pagination, setPagination] = useState<Pagination>({ first: 10, after: "" });
+  const [pagination, setPagination] = useState<Partial<PageInfo>>({ first: 10, after: "" });
 
   const { data: productsData, refetch: refetchProducts } = useQuery<ProductsByCollectionData>(
     ADMIN_PRODUCTS_BY_COLLECTION_ID,
