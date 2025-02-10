@@ -8,4 +8,9 @@ export interface Collection  {
   imageId?: number | null;
   handle?: string | null;
   seo: SEO | null;
+  productsCount?: number;
+};
+
+export interface CollectionEdge {
+  node: Collection;
 };
