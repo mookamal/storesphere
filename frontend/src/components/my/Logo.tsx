@@ -1,6 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-function Logo() {
+import type { FC } from "react";
+import React, { memo } from "react";
+
+const Logo: FC = () => {
   return (
     <Link href="/">
       <Image
@@ -9,9 +12,10 @@ function Logo() {
         className="w-8 h-8 mr-2"
         width={30}
         height={24}
+        priority
       />
     </Link>
   );
-}
+};
 
-export default Logo;
+export default memo(Logo);
