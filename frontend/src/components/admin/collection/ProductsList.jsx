@@ -144,6 +144,14 @@ export default function ProductsList({
               );
               handleBulkUpdate(toAdd, toRemove);
             }}
+            disabled={(() => {
+              const currentIds = Array.from(selectedProductIds);
+              const initialIds = Array.from(initialSelectedIds);
+              return (
+                currentIds.filter((id) => !initialIds.includes(id)).length === 0 &&
+                initialIds.filter((id) => !currentIds.includes(id)).length === 0
+              );
+            })()}
           >
             Save Changes
           </Button>
