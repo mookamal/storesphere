@@ -11,6 +11,7 @@ export default function GeneralInputs({
   handleBlur,
   setImage,
   image,
+  errors = {},
 }) {
   return (
     <Card className={`${cardVariants.base} w-full md:w-[60%]`}>
@@ -29,9 +30,11 @@ export default function GeneralInputs({
               type="text"
               {...register("title")}
               onBlur={handleBlur}
-              required
               placeholder="Collection title (e.g., Men's Clothing)"
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm">{errors.title.message}</p>
+            )}
           </div>
           <div>
             <div className="mb">
@@ -43,6 +46,9 @@ export default function GeneralInputs({
               {...register("description")}
               placeholder="Description"
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.description.message}</p>
+            )}
           </div>
         </div>
 
@@ -69,6 +75,9 @@ export default function GeneralInputs({
             <MediaModal setImage={setImage} />
           )}
         </div>
+        {errors.image && (
+          <p className="text-red-500 text-sm">{errors.image.message}</p>
+        )}
       </CardContent>
     </Card>
   );

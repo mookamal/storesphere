@@ -83,6 +83,7 @@ const CreateCollection: FC = () => {
             handleBlur={handleBlur}
             setImage={setImage}
             image={image}
+            errors={errors}
           />
 
           <h2 className="font-bold text-orange-400 my-3">

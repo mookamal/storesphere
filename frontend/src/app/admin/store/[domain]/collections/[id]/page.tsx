@@ -168,6 +168,7 @@ export default function UpdateCollection(): JSX.Element {
             handleBlur={handleBlur}
             setImage={setImage}
             image={image}
+            errors={errors}
           />
           <AddProducts
             collectionId={collectionId}
