@@ -1,5 +1,5 @@
 import StructureMetadata from "../../helper/structureMetadata";
-import siteInfo from "../../data/site.json";
+import siteInfo from "@/data/siteInfo";
 import Hero from "@/components/main/home/Hero";
 import FeaturesSection from "@/components/main/home/Features";
 import TestimonialsSection from "@/components/main/home/Testimonials";

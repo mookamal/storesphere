@@ -7,6 +7,7 @@
       "@/lib/*": ["src/lib/*"],
       "@/hooks/*": ["src/hooks/*"],
       "@/utils/*": ["src/utils/*"],
+      "@/data/*": ["src/data/*"],
       "@/graphql/*": ["src/graphql/*"],
       "@/assets/*": ["public/assets/*"],
       "@/types/*": ["src/types/*"],
