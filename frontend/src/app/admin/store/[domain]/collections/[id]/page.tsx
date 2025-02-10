@@ -177,7 +177,6 @@ export default function UpdateCollection(): JSX.Element {
     }
   };
   if (error) {
-    // here
     return <Admin404/>;
   }
   
