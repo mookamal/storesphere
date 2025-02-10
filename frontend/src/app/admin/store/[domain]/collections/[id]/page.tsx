@@ -111,6 +111,7 @@ export default function UpdateCollection(): JSX.Element {
       text: "This action cannot be undone.",
       icon: "warning",
       dangerMode: true,
+      buttons: ["Cancel", "OK"],
     });
     if (confirmation) {
       try {
