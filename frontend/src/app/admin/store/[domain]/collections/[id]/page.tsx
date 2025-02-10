@@ -57,6 +57,7 @@ export default function UpdateCollection(): JSX.Element {
         refetch();
       },
       onError: (error: Error) => {
+        console.error("Update Collection Error:", error);
         toast.error(`Failed to update collection: ${error.message}`);
       },
     }
