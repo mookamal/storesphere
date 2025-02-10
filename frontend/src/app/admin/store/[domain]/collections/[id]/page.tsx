@@ -73,10 +73,29 @@ export default function UpdateCollection(): JSX.Element {
     },
     update: (cache, { data }) => {
       if (data?.deleteCollections?.success) {
-        cache.evict({ id: `Collection:${collectionId}` });
+        cache.evict({ id: `CollectionNode:${collectionId}` });
+        cache.modify({
+          fields: {
+            [`allCollections({"after":"","defaultDomain":"${domain}","first":10})`](
+              existingData: any = {},
+              { readField }
+            ) {
+              if (!existingData.edges) return existingData;
+              const newEdges = existingData.edges.filter((edge: any) => {
+                const id = readField("collectionId", edge.node);
+                return id !== parseInt(collectionId, 10);
+              });
+              return { ...existingData, edges: newEdges };
+            },
+          },
+        });
+        
         cache.gc();
       }
     }
+    
+    
+    
   });
 
   const [pagination, setPagination] = useState<Pagination>({ first: 10, after: "" });
