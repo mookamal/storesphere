@@ -22,6 +22,7 @@ import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
 import type { Collection } from "@/types";
 import Admin404 from "@/components/admin/404";
+import usePreventNavigation from "@/hooks/usePreventNavigation";
 
 interface Pagination {
   first: number;
@@ -130,6 +131,8 @@ export default function UpdateCollection(): JSX.Element {
     reset,
     formState: { isDirty, dirtyFields },
   } = useCollectionForm(initialFormValuesRef.current);
+
+  usePreventNavigation(isDirty);
 
   useEffect(() => {
     if (data && data.collectionById) {
