@@ -93,6 +93,8 @@ export default function UpdateCollection(): JSX.Element {
     reset,
     formState: { isDirty, dirtyFields },
   } = useCollectionForm(initialFormValuesRef.current);
+  
+
 
   useEffect(() => {
     if (data && data.collectionById) {
@@ -128,6 +130,7 @@ export default function UpdateCollection(): JSX.Element {
   };
 
   const onSubmit = async (formData: Partial<Collection>): Promise<void> => {
+    console.log("formData",formData);
     try {
       const input = {
         ...removeTypename(formData),
