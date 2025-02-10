@@ -1,6 +1,6 @@
 import PostCard from "../../components/main/blog/PostCard";
 import { fetchPosts } from "../api/main/blog/post";
-import StructureMetadata from '../../helper/structureMetadata';
+import StructureMetadata from "@/lib/structureMetadata";
 import siteInfo from "../../data/site.json";
 export  function generateMetadata() {
 

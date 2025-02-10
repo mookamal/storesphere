@@ -1,4 +1,4 @@
-import StructureMetadata from "../../helper/structureMetadata";
+import StructureMetadata from "@/lib/structureMetadata";
 import siteInfo from "@/data/siteInfo";
 import Hero from "@/components/main/home/Hero";
 import FeaturesSection from "@/components/main/home/Features";
