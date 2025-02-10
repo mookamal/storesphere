@@ -60,7 +60,24 @@ export default function UpdateCollection(): JSX.Element {
     }
   );
 
-  const [deleteCollection] = useMutation<any>(DELETE_COLLECTIONS);
+  const [deleteCollection] = useMutation<any>(DELETE_COLLECTIONS, {
+    onCompleted: (data) => {
+      if (data?.deleteCollections?.success) {
+        toast.success("Collection deleted successfully");
+        router.push(`/store/${domain}/collections`);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to delete collection");
+      console.error("Delete Collection Error:", error);
+    },
+    update: (cache, { data }) => {
+      if (data?.deleteCollections?.success) {
+        cache.evict({ id: `Collection:${collectionId}` });
+        cache.gc();
+      }
+    }
+  });
 
   const [pagination, setPagination] = useState<Pagination>({ first: 10, after: "" });
 
@@ -114,18 +131,9 @@ export default function UpdateCollection(): JSX.Element {
       buttons: ["Cancel", "OK"],
     });
     if (confirmation) {
-      try {
-        await deleteCollection({
-          variables: { collectionIds: [collectionId], domain },
-          update: (cache: any) => {
-            cache.evict({ id: `Collection:${collectionId}` });
-          },
-        });
-        router.push(`/store/${domain}/collections`);
-        toast.success("Collection deleted successfully!");
-      } catch (error: any) {
-        toast.error(`Failed to delete collection: ${error.message}`);
-      }
+      await deleteCollection({
+        variables: { collectionIds: [collectionId], domain },
+      });
     }
   };
 
