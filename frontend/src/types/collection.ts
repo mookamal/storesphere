@@ -5,7 +5,7 @@ export interface Collection  {
   title: string; 
   description?: string | null;
   image? : Image | null;
-  imageId?: string | null;
+  imageId?: number | null;
   handle?: string | null;
   seo: SEO | null;
 };

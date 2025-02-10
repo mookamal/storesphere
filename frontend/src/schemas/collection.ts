@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { seoSchema } from "@/schemas";
+
 export const collectionSchema = z.object({
     title: z
       .string()
@@ -19,8 +20,16 @@ export const collectionSchema = z.object({
       .optional(),
   
     seo: seoSchema,
+    
+
+    imageId: z.union([
+      z.number().optional(), 
+      z.string().optional(), 
+      z.null()
+    ]),
+    
     image: z.union([z.object({
-      imageId: z.string().optional(),
+      imageId: z.union([z.number(), z.string()]).optional(),
       url: z.string().optional(),
     }).optional(), z.null()]),
-  });
+});

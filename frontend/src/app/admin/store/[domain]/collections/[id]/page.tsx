@@ -95,7 +95,6 @@ export default function UpdateCollection(): JSX.Element {
   } = useCollectionForm(initialFormValuesRef.current);
   
 
-
   useEffect(() => {
     if (data && data.collectionById) {
       const cleanedData = removeTypename(data.collectionById);
