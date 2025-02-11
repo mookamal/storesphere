@@ -21,10 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Logo from "@/components/my/Logo";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import ROUTES from "@/data/links";
 
 const SIGNUP_URL = "/auth/signup";
@@ -36,7 +37,7 @@ const formSchema = z
       .string()
       .min(8, { message: "Password must be at least 8 characters" })
       .regex(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {
-        message: "Password must include both letters and numbers"
+        message: "Password must include both letters and numbers",
       }),
     password2: z.string(),
   })
@@ -45,12 +46,17 @@ const formSchema = z
     path: ["password2"],
   });
 
-export default function Signup() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const form = useForm({
+type SignupFormValues = z.infer<typeof formSchema>;
+
+export default function Signup(): JSX.Element {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const router = useRouter();
+
+
+  const form = useForm<SignupFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -59,7 +65,8 @@ export default function Signup() {
     },
   });
 
-  async function onSubmit(values) {
+
+  const onSubmit = useCallback(async (values: SignupFormValues): Promise<void> => {
     setIsLoading(true);
     setError("");
     setSuccessMessage("");
@@ -75,15 +82,14 @@ export default function Signup() {
         setSuccessMessage("Account created successfully. Redirecting...");
         form.reset();
         
-        // Redirect to login after a short delay
         setTimeout(() => {
-          window.location.href = ROUTES.login.url;
+          router.push(ROUTES.login.url);
         }, 2000);
       }
-    } catch (error) {
-      console.error(error);
-      if (error.response?.data?.error) {
-        const errorList = error.response.data.error;
+    } catch (err: any) {
+      console.error(err);
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        const errorList = err.response.data.error;
         
         if (errorList.email) {
           form.setError("email", { message: errorList.email[0] });
@@ -99,7 +105,7 @@ export default function Signup() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [form, router]);
 
   return (
     <motion.section 
