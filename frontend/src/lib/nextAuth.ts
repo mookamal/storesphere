@@ -1,7 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { checkHasStore } from "../lib/utilities";
-import { NextAuthOptions, Session, DefaultSession, User } from "next-auth";
+import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
 
@@ -30,10 +30,10 @@ interface BackendResponse {
 // Sign-in handlers interface
 interface SignInHandlers {
   [key: string]: (
-    user: any, 
-    account: any, 
-    profile: any, 
-    email: any, 
+    user: any,
+    account: any,
+    profile: any,
+    email: any,
     credentials: any
   ) => Promise<boolean>;
 }
@@ -154,8 +154,8 @@ export const authOptions: NextAuthOptions = {
     async session({ token }) {
       const customToken = token as CustomJWT;
       const session: CustomSession = {
-        expires: customToken.exp 
-          ? new Date(customToken.exp * 1000).toISOString() 
+        expires: customToken.exp
+          ? new Date(customToken.exp * 1000).toISOString()
           : new Date(Date.now() + BACKEND_REFRESH_TOKEN_LIFETIME * 1000).toISOString(),
         user: customToken.user!,
         access_token: customToken.access_token,
@@ -185,9 +185,8 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: `${
-        NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
-      }next-auth.session-token`,
+      name: `${NEXTAUTH_URL.startsWith("https://") ? "__secure-" : ""
+        }next-auth.session-token`,
       options: {
         domain: process.env.COOKIE_DOMAIN,
         httpOnly: true,
