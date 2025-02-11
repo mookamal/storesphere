@@ -26,18 +26,23 @@ import Link from "next/link";
 import Logo from "@/components/my/Logo";
 import ROUTES from "@/data/links";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
 });
 
-export default function Login() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const form = useForm({
+
+type LoginFormValues = z.infer<typeof formSchema>;
+
+export default function Login(): JSX.Element {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const router = useRouter();
+
+
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -45,7 +50,8 @@ export default function Login() {
     },
   });
 
-  async function onSubmit(values) {
+
+  async function onSubmit(values: LoginFormValues): Promise<void> {
     setIsLoading(true);
     setError("");
 
@@ -59,7 +65,7 @@ export default function Login() {
       if (result?.error) {
         setError(result.error);
       } else {
-        window.location.href = ROUTES.admin.url;
+        router.push(ROUTES.admin.url);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -69,7 +75,7 @@ export default function Login() {
   }
 
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -98,9 +104,9 @@ export default function Login() {
                     <FormItem>
                       <FormLabel className="dark:text-gray-300">Email</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="you@example.com" 
-                          {...field} 
+                        <Input
+                          placeholder="you@example.com"
+                          {...field}
                           className="dark:bg-gray-800 dark:border-gray-700"
                         />
                       </FormControl>
@@ -115,8 +121,8 @@ export default function Login() {
                     <FormItem>
                       <div className="flex justify-between items-center">
                         <FormLabel className="dark:text-gray-300">Password</FormLabel>
-                        <Link 
-                          href="/forgot-password" 
+                        <Link
+                          href="/forgot-password"
                           className="text-sm text-purple-600 hover:underline"
                         >
                           Forgot password?
@@ -134,7 +140,7 @@ export default function Login() {
                     </FormItem>
                   )}
                 />
-                
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-md text-sm">
                     {error}
@@ -158,8 +164,8 @@ export default function Login() {
           <CardFooter className="text-center justify-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don't have an account?{" "}
-              <Link 
-                href={ROUTES.signup.path} 
+              <Link
+                href={ROUTES.signup.path}
                 className="text-purple-600 hover:underline"
               >
                 Sign up
