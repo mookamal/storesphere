@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
@@ -22,47 +22,79 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLazyQuery } from "@apollo/client";
 
-export default function MediaModal({ setImage }) {
-  const domain = useParams().domain;
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
-  const [endCursor, setEndCursor] = useState("");
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [open, setOpen] = useState(false);
 
-  const [fetchMediaImages, { loading: queryLoading }] = useLazyQuery(GET_MEDIA_IMAGES, {
-    onCompleted: (result) => {
-      const allMediaImages = result.allMediaImages;
-      setData(allMediaImages.edges);
-      setEndCursor(allMediaImages.pageInfo.endCursor);
-      setHasNextPage(allMediaImages.pageInfo.hasNextPage);
-    },
-    onError: (error) => {
-      console.error("Error fetching media images:", error);
-      toast.error("Failed to fetch media images");
-    },
-    fetchPolicy: 'network-only'
-  });
-  const uploadImage = async (selectedFile) => {
+interface MediaImage {
+  id: string;
+  imageId: string;
+  image: string;
+}
+
+interface MediaEdge {
+  node: MediaImage;
+}
+
+interface PageInfo {
+  endCursor: string;
+  hasNextPage: boolean;
+}
+
+interface MediaImagesData {
+  allMediaImages: {
+    edges: MediaEdge[];
+    pageInfo: PageInfo;
+  };
+}
+
+interface MediaModalProps {
+  setImage: (image: MediaImage) => void;
+}
+
+export default function MediaModal({ setImage }: MediaModalProps): JSX.Element {
+  const { domain } = useParams() as { domain: string };
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [data, setData] = useState<MediaEdge[] | null>(null);
+  const [endCursor, setEndCursor] = useState<string>("");
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+
+  const [fetchMediaImages, { loading: queryLoading }] = useLazyQuery<MediaImagesData>(
+    GET_MEDIA_IMAGES,
+    {
+      onCompleted: (result) => {
+        const allMediaImages = result.allMediaImages;
+        setData(allMediaImages.edges);
+        setEndCursor(allMediaImages.pageInfo.endCursor || "");
+        setHasNextPage(allMediaImages.pageInfo.hasNextPage);
+      },
+      onError: (error) => {
+        console.error("Error fetching media images:", error);
+        toast.error("Failed to fetch media images");
+      },
+      fetchPolicy: "network-only",
+    }
+  );
+
+
+  const uploadImage = async (selectedFile: File): Promise<void> => {
     const allowedExtensions = [
       "image/jpeg",
       "image/png",
       "image/svg+xml",
       "image/gif",
     ];
-    if (!selectedFile) {
-      return;
-    }
+    if (!selectedFile) return;
+
     if (!allowedExtensions.includes(selectedFile.type)) {
-      toast.error(
-        "Invalid file type. Only JPEG, PNG, SVG, and GIF are allowed."
-      );
+      toast.error("Invalid file type. Only JPEG, PNG, SVG, and GIF are allowed.");
       return;
     }
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("domain", domain);
+
     try {
       const response = await axios.post(`/api/product/upload-image`, formData);
       if (response.statusText === "OK") {
@@ -74,25 +106,34 @@ export default function MediaModal({ setImage }) {
     }
     setLoading(false);
   };
-  const getData = () => {
+
+
+  const getData = useCallback((): void => {
     fetchMediaImages({
-      variables: { 
-        domain: domain, 
-        first: 10, 
-        after: endCursor 
-      }
+      variables: {
+        domain: domain,
+        first: 10,
+        after: endCursor,
+      },
     });
-  };
+  }, [domain, endCursor, fetchMediaImages]);
+
   useEffect(() => {
     if (open) {
       getData();
     }
   }, [open]);
 
-  const handleCheckboxChange = (image) => {
-    if (image) {
-      setImage(image);
-      setOpen(false);
+
+  const handleCheckboxChange = (image: MediaImage): void => {
+    setImage(image);
+    setOpen(false);
+  };
+
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files && e.target.files[0]) {
+      uploadImage(e.target.files[0]);
     }
   };
 
@@ -111,7 +152,7 @@ export default function MediaModal({ setImage }) {
             <DialogDescription>Select file</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        {loading || queryLoading && <LoadingElement />}
+        {(loading || queryLoading) && <LoadingElement />}
         <div className="flex flex-col">
           <div className="flex w-full items-center justify-center">
             <Label
@@ -120,8 +161,7 @@ export default function MediaModal({ setImage }) {
             >
               <div className="flex flex-col items-center justify-center pb-4 pt-3">
                 <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
+                  <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   SVG, PNG, JPG or GIF
@@ -131,7 +171,7 @@ export default function MediaModal({ setImage }) {
                 id="dropzone-file"
                 type="file"
                 className="hidden"
-                onChange={(e) => uploadImage(e.target.files[0])}
+                onChange={handleFileChange}
               />
             </Label>
           </div>
@@ -143,13 +183,12 @@ export default function MediaModal({ setImage }) {
               const image = edge.node;
               return (
                 <div key={image.id} className="flex items-center space-x-4">
-                  {/* Checkbox for each image */}
+
                   <Checkbox
                     id={image.imageId}
-                    onCheckedChange={(checked) => handleCheckboxChange(image)}
+                    onCheckedChange={(checked: boolean) => handleCheckboxChange(image)}
                   />
 
-                  {/* Image display */}
                   <img
                     src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
                     alt={`image-${image.id}`}
@@ -160,12 +199,7 @@ export default function MediaModal({ setImage }) {
             })}
           </div>
         )}
-        <Button
-          size="sm"
-          className="my-2"
-          disabled={!hasNextPage}
-          onClick={getData}
-        >
+        <Button size="sm" className="my-2" disabled={!hasNextPage} onClick={getData}>
           Load more
         </Button>
       </DialogContent>
