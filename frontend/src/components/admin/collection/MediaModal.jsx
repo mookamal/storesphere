@@ -20,6 +20,8 @@ import { GET_MEDIA_IMAGES } from "@/graphql/queries";
 import LoadingElement from "@/components/LoadingElement";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLazyQuery } from "@apollo/client";
+
 export default function MediaModal({ setImage }) {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,19 @@ export default function MediaModal({ setImage }) {
   const [hasNextPage, setHasNextPage] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const [fetchMediaImages, { loading: queryLoading }] = useLazyQuery(GET_MEDIA_IMAGES, {
+    onCompleted: (result) => {
+      const allMediaImages = result.allMediaImages;
+      setData(allMediaImages.edges);
+      setEndCursor(allMediaImages.pageInfo.endCursor);
+      setHasNextPage(allMediaImages.pageInfo.hasNextPage);
+    },
+    onError: (error) => {
+      console.error("Error fetching media images:", error);
+      toast.error("Failed to fetch media images");
+    },
+    fetchPolicy: 'network-only'
+  });
   const uploadImage = async (selectedFile) => {
     const allowedExtensions = [
       "image/jpeg",
@@ -59,28 +74,20 @@ export default function MediaModal({ setImage }) {
     }
     setLoading(false);
   };
-  const getData = async () => {
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: GET_MEDIA_IMAGES,
-        variables: { domain: domain, first: 10, after: endCursor },
-      });
-
-      if (response.data.error) {
-        throw new Error(response.data.error);
+  const getData = () => {
+    fetchMediaImages({
+      variables: { 
+        domain: domain, 
+        first: 10, 
+        after: endCursor 
       }
-
-      setData(response.data.allMediaImages.edges);
-      setEndCursor(response.data.allMediaImages.pageInfo.endCursor);
-      setHasNextPage(response.data.allMediaImages.pageInfo.hasNextPage);
-    } catch (error) {
-      console.error("Error fetching store details:", error.message);
-      setData(null);
-    }
+    });
   };
   useEffect(() => {
-    getData();
-  }, []);
+    if (open) {
+      getData();
+    }
+  }, [open]);
 
   const handleCheckboxChange = (image) => {
     if (image) {
@@ -104,7 +111,7 @@ export default function MediaModal({ setImage }) {
             <DialogDescription>Select file</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        {loading && <LoadingElement />}
+        {loading || queryLoading && <LoadingElement />}
         <div className="flex flex-col">
           <div className="flex w-full items-center justify-center">
             <Label
