@@ -2,26 +2,41 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TbDatabaseExclamation } from "react-icons/tb";
 import { AiOutlineLoading } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { DELETE_PRODUCTS_FROM_COLLECTION } from "@/graphql/mutations";
 import ProductsList from "@/components/admin/collection/ProductsList";
-import { useOptimisticMutation } from "@/hooks/useOptimisticMutation";
+import { useMutation } from "@apollo/client";
 import { useParams } from "next/navigation";
 import DataTable from "@/components/common/CustomDataTable";
+import { ColumnDef } from "@tanstack/react-table";
 
-// Move to src/utils/tableColumns/productColumns.js
-const productColumns = [
+// Define the Product interface
+interface Product {
+  title: string;
+  status: string;
+  productId: string;
+}
+
+// Define the props for AddProducts component
+interface AddProductsProps {
+  collectionId: string;
+  selectedProducts: Product[];
+  refetchProducts: () => void;
+}
+
+// Define product columns for the DataTable
+const productColumns: ColumnDef<Product, any>[] = [
   {
     id: "title",
     header: "Product Name",
-    cell: ({ row }) => row.original.title,
+    // Using Record<string, any> for a generic row object
+    cell: ({ row }: { row: Record<string, any> }) => row.original.title,
   },
   {
     id: "status",
     header: "Status",
-    cell: ({ row }) => row.original.status,
+    cell: ({ row }: { row: Record<string, any> }) => row.original.status,
   },
 ];
 
@@ -29,33 +44,31 @@ export default function AddProducts({
   collectionId,
   selectedProducts,
   refetchProducts,
-}) {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const domain = useParams().domain;
-  // Mutation handling with optimistic updates
-  const [deleteProduct] = useOptimisticMutation(
-    DELETE_PRODUCTS_FROM_COLLECTION,
-    {
-      optimisticUpdate: (variables) => {
-        // Add optimistic UI update logic here
-      },
-      onError: (error) => {
-        toast.error(`Operation failed: ${error.message}`);
-      },
-      onSuccess: () => {
-        toast.success("Product removed successfully!");
-        refetchProducts();
-      },
-    }
-  );
+}: AddProductsProps): JSX.Element {
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const { domain } = useParams() as { domain: string };
 
-  const handleRemove = async (productId) => {
+  // Using Apollo's useMutation instead of useOptimisticMutation
+  const [deleteProductMutation] = useMutation(DELETE_PRODUCTS_FROM_COLLECTION, {
+    onError: (error: any) => {
+      toast.error(`Operation failed: ${error.message}`);
+    },
+    onCompleted: () => {
+      toast.success("Product removed successfully!");
+      refetchProducts();
+    },
+  });
+
+  // Function to handle product removal
+  const handleRemove = async (productId: string): Promise<void> => {
     setIsProcessing(true);
     try {
-      await deleteProduct({
-        collectionId,
-        productIds: [productId],
-        domain: domain,
+      await deleteProductMutation({
+        variables: {
+          collectionId,
+          productIds: [productId],
+          domain: domain,
+        },
       });
     } finally {
       setIsProcessing(false);
@@ -83,7 +96,8 @@ export default function AddProducts({
               ...productColumns,
               {
                 id: "actions",
-                cell: ({ row }) => (
+                header: "Actions",
+                cell: ({ row }: { row: Record<string, any> }) => (
                   <Button
                     variant="destructive"
                     size="sm"
@@ -95,12 +109,6 @@ export default function AddProducts({
               },
             ]}
             data={selectedProducts}
-            emptyState={
-              <div className="text-center py-4">
-                <TbDatabaseExclamation className="mx-auto text-4xl mb-2" />
-                <p>No products found in this collection</p>
-              </div>
-            }
           />
         )}
       </CardContent>

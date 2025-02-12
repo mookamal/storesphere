@@ -5,6 +5,7 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -15,21 +16,44 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-function DataTable({ columns, data, actions }) {
-  const table = useReactTable({
+// Define interface for table actions
+export interface TableAction<T> {
+  // Action type, e.g. "edit" or "delete"
+  type: "edit" | "delete" | string;
+  // Label to display on the action button
+  label: string;
+  // Callback function when the action button is clicked, receiving the row data
+  onClick: (row: T) => void;
+}
+
+// Define interface for DataTable component props with a generic type T
+export interface DataTableProps<T> {
+  // Array of column definitions for the table
+  columns: ColumnDef<T, any>[];
+  // Array of data rows to display in the table
+  data: T[];
+  // Optional actions to be appended as an extra column
+  actions?: TableAction<T>[];
+}
+
+function DataTable<T>({ columns, data, actions }: DataTableProps<T>): JSX.Element {
+  // Create the table instance using TanStack React Table
+  const table = useReactTable<T>({
     data,
     columns: [
       ...columns,
+      // If actions are provided, append an extra "actions" column
       ...(actions
         ? [
             {
               id: "actions",
               header: "Actions",
-              cell: ({ row }) => (
+              cell: ({ row }: { row: any }) => (
                 <div className="flex gap-2">
                   {actions.map((action, index) => (
                     <button
                       key={index}
+                      // Styling based on the action type
                       className={`px-3 py-1 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                         action.type === "edit"
                           ? "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-300 dark:bg-blue-700 dark:hover:bg-blue-800 dark:focus:ring-blue-500"
@@ -98,7 +122,8 @@ function DataTable({ columns, data, actions }) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  // If actions exist, add 1 to the colSpan
+                  colSpan={columns.length + (actions ? 1 : 0)}
                   className="h-24 text-center text-gray-500 dark:text-gray-400"
                 >
                   No results.
