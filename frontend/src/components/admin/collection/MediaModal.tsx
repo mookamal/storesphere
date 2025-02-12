@@ -21,22 +21,14 @@ import LoadingElement from "@/components/LoadingElement";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLazyQuery } from "@apollo/client";
+import { Image, PageInfo } from "@/types";
 
 
-interface MediaImage {
-  id: string;
-  imageId: string;
-  image: string;
-}
 
 interface MediaEdge {
-  node: MediaImage;
+  node: Image;
 }
 
-interface PageInfo {
-  endCursor: string;
-  hasNextPage: boolean;
-}
 
 interface MediaImagesData {
   allMediaImages: {
@@ -46,7 +38,7 @@ interface MediaImagesData {
 }
 
 interface MediaModalProps {
-  setImage: (image: MediaImage) => void;
+  setImage: (image: Image) => void;
 }
 
 export default function MediaModal({ setImage }: MediaModalProps): JSX.Element {
@@ -65,7 +57,7 @@ export default function MediaModal({ setImage }: MediaModalProps): JSX.Element {
         const allMediaImages = result.allMediaImages;
         setData(allMediaImages.edges);
         setEndCursor(allMediaImages.pageInfo.endCursor || "");
-        setHasNextPage(allMediaImages.pageInfo.hasNextPage);
+        setHasNextPage(allMediaImages.pageInfo.hasNextPage || false);
       },
       onError: (error) => {
         console.error("Error fetching media images:", error);
@@ -125,7 +117,7 @@ export default function MediaModal({ setImage }: MediaModalProps): JSX.Element {
   }, [open]);
 
 
-  const handleCheckboxChange = (image: MediaImage): void => {
+  const handleCheckboxChange = (image: Image): void => {
     setImage(image);
     setOpen(false);
   };
