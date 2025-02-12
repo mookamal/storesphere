@@ -31,7 +31,7 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
   });
 
 
-  const image = watch("image");
+  const image = watch("image") ?? null;
 
   const handleBlur = () => {
     const title = watch("title");

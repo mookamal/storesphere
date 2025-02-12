@@ -6,13 +6,27 @@ import Image from "next/image";
 import MediaModal from "./MediaModal";
 import { Button } from "@/components/ui/button";
 import { cardVariants } from "@/utils/cardVariants";
+import React from "react";
+import { Image as MediaImage  } from "@/types";
+
+
+
+// Define interface for component props
+interface GeneralInputsProps {
+  register: any;
+  handleBlur: React.FocusEventHandler<HTMLInputElement>;
+  setImage: (image: MediaImage | null) => void;
+  image: MediaImage | null;
+  errors?: any;
+}
+
 export default function GeneralInputs({
   register,
   handleBlur,
   setImage,
   image,
   errors = {},
-}) {
+}: GeneralInputsProps): JSX.Element {
   return (
     <Card className={`${cardVariants.base} w-full md:w-[60%]`}>
       <CardHeader className={cardVariants.header}>
@@ -22,11 +36,11 @@ export default function GeneralInputs({
         <div>
           <div>
             <div className="mb">
+              {/* Label for the title input */}
               <Label htmlFor="title">Title</Label>
             </div>
             <Input
               id="title"
-              size="sm"
               type="text"
               {...register("title")}
               onBlur={handleBlur}
@@ -38,11 +52,11 @@ export default function GeneralInputs({
           </div>
           <div>
             <div className="mb">
+              {/* Label for the description textarea */}
               <Label htmlFor="description">Description</Label>
             </div>
             <Textarea
               id="description"
-              size="sm"
               {...register("description")}
               placeholder="Description"
             />
@@ -55,6 +69,7 @@ export default function GeneralInputs({
         <div className="mx-auto w-[120px] h-[100px] border rounded mt-4 flex justify-center items-center shadow-md relative group">
           {image ? (
             <>
+              {/* Display the selected image */}
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/media/${image.image}`}
                 width={120}
@@ -72,6 +87,7 @@ export default function GeneralInputs({
               </Button>
             </>
           ) : (
+            // If no image is selected, show the MediaModal component
             <MediaModal setImage={setImage} />
           )}
         </div>

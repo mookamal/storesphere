@@ -15,6 +15,7 @@ interface CreateCollectionPayload {
   domain: string;
   collectionInputs: {
     title: string;
+    description?: string;
     handle: string;
     imageId?: string;
     seo: {
@@ -61,6 +62,7 @@ const CreateCollection: FC = () => {
       domain,
       collectionInputs: {
         title: data.title,
+        description: data.description || '',
         handle: data.handle || generateHandle(data.title),
         imageId: image?.imageId,
         seo: {
