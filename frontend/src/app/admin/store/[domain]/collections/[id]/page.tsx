@@ -125,6 +125,7 @@ export default function UpdateCollection(): JSX.Element {
     setImage,
     watch,
     reset,
+    handle,
     formState: { isDirty, dirtyFields },
   } = useCollectionForm(initialFormValuesRef.current);
 
@@ -138,7 +139,7 @@ export default function UpdateCollection(): JSX.Element {
     }
   }, [data, reset]);
 
-  const handle = watch("handle");
+  
 
   const handleDeleteCollection = async (): Promise<void> => {
     const confirmation: boolean = await swal({

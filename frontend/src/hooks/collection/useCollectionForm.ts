@@ -32,12 +32,11 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
 
 
   const image = watch("image") ?? null;
+  const title = watch("title");
+  const handle: string = watch("handle") ?? "";
+  const seoTitle = watch("seo.title");
 
   const handleBlur = () => {
-    const title = watch("title");
-    const handle = watch("handle");
-    const seoTitle = watch("seo.title");
-
     if (title) {
       if (!handle) {
         setValue("handle", title.replace(/\s+/g, "-").toLowerCase());
@@ -60,6 +59,7 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
     watch,
     reset,
     control,
+    handle,
     formState: { isDirty, dirtyFields },
   };
 }

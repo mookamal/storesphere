@@ -46,7 +46,8 @@ const CreateCollection: FC = () => {
     handleBlur, 
     watch, 
     setImage,
-    errors 
+    errors,
+    handle,
   } = useCollectionForm();
 
   const generateHandle = (title: string): string =>
@@ -95,7 +96,7 @@ const CreateCollection: FC = () => {
           <SeoInputs 
             register={register} 
             domain={domain} 
-            handle={watch('handle')} 
+            handle={handle} 
           />
         </div>
       </div>
