@@ -16,7 +16,7 @@ import { MdEditNote } from "react-icons/md";
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Select from "react-select";
-import { UPDATE_STORE_CURRENCY } from "@/graphql/mutations";
+import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMutation } from '@apollo/client';
@@ -33,7 +33,7 @@ export default function StoreCurrencyModel({ currencyCode, refreshData }) {
     } : null
   );
 
-  const [updateStoreCurrency, { loading }] = useMutation(UPDATE_STORE_CURRENCY, {
+  const [updateStoreCurrency, { loading }] = useMutation(UPDATE_STORE_PROFILE, {
     onCompleted: () => {
       refreshData();
       toast.success("Store currency updated successfully!");
