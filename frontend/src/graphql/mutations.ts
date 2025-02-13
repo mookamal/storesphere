@@ -54,8 +54,8 @@ export const CREATE_PRODUCT_VARIANT = gql`
 `;
 
 export const UPDATE_PRODUCT_VARIANT = gql`
-  mutation UpdateProductVariantMutation($variantInputs: ProductVariantInput!) {
-    updateProductVariant(variantInputs: $variantInputs  ) {
+  mutation UpdateProductVariantMutation($variantInputs: ProductVariantInput!,$defaultDomain: String!) {
+    updateProductVariant(variantInputs: $variantInputs, defaultDomain: $defaultDomain) {
       productVariant {
         variantId
       }
@@ -93,8 +93,8 @@ export const REMOVE_MEDIA_IMAGES_PRODUCT = gql`
 }`;
 
 export const PERFORM_ACTION_ON_VARIANTS = gql`
-  mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]!) {
-    performActionOnVariants(action: $action, variantIds: $variantIds) {
+  mutation PerformActionOnVariants($action: VariantActions!, $variantIds: [ID!]!, $defaultDomain: String!) {
+    performActionOnVariants(action: $action, variantIds: $variantIds, defaultDomain: $defaultDomain) {
       success
       message
       errors
