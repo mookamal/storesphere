@@ -20,14 +20,14 @@ import swal from "sweetalert";
 import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-import type { Collection, PageInfo } from "@/types";
+import type { Collection, PageInfo, Product } from "@/types";
 import Admin404 from "@/components/admin/404";
 import usePreventNavigation from "@/hooks/usePreventNavigation";
 
 interface ProductsByCollectionData {
   productsByCollection: {
     edges: {
-      node: any;
+      node: Product;
     }[];
   };
 }
