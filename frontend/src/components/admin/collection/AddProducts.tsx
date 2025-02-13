@@ -10,23 +10,18 @@ import { useMutation } from "@apollo/client";
 import { useParams } from "next/navigation";
 import DataTable from "@/components/common/CustomDataTable";
 import { ColumnDef } from "@tanstack/react-table";
+import { IProduct } from "@/types";
 
-// Define the Product interface
-interface Product {
-  title: string;
-  status: string;
-  productId: string;
-}
 
 // Define the props for AddProducts component
 interface AddProductsProps {
   collectionId: string;
-  selectedProducts: Product[];
+  selectedProducts: IProduct[];
   refetchProducts: () => void;
 }
 
 // Define product columns for the DataTable
-const productColumns: ColumnDef<Product, any>[] = [
+const productColumns: ColumnDef<IProduct, any>[] = [
   {
     id: "title",
     header: "Product Name",
