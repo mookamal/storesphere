@@ -43,7 +43,6 @@ export default function AddProducts({
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { domain } = useParams() as { domain: string };
 
-  // Using Apollo's useMutation instead of useOptimisticMutation
   const [deleteProductMutation] = useMutation(DELETE_PRODUCTS_FROM_COLLECTION, {
     onError: (error: any) => {
       toast.error(`Operation failed: ${error.message}`);
