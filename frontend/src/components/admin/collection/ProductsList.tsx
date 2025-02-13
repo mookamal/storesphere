@@ -21,7 +21,7 @@ import {
   DELETE_PRODUCTS_FROM_COLLECTION,
 } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
-import { Product } from "@/types";
+import { Product } from "@/types"; // Product interface with productId as number
 
 // Generic debounce hook to reduce unnecessary queries during search
 function useDebounce<T>(value: T, delay: number): T {
@@ -50,17 +50,22 @@ export default function ProductsList({
   const debouncedSearchTerm = useDebounce<string>(searchTerm, 300);
   const { domain } = useParams() as { domain: string };
 
-  // Compute initial set of selected product IDs for comparison
+  // Compute initial set of selected product IDs (as numbers)
   const initialSelectedIds = useMemo(
-    () => new Set(selectedProducts.map((p) => p.productId)),
+    () => new Set(selectedProducts.map((p) => p.productId!)),
     [selectedProducts]
   );
 
-  // Local state for selected product IDs
-  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(initialSelectedIds as Set<string>);
+  // Local state for selected product IDs as a Set<number>
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(initialSelectedIds);
+
+  // Effect to update selectedProductIds when selectedProducts changes
+  useEffect(() => {
+    setSelectedProductIds(new Set(selectedProducts.map((p) => p.productId!)));
+  }, [selectedProducts]);
 
   // Query to fetch products for the collection with search filtering
-  const { data, loading, refetch } = useQuery<any>(ADMIN_PRODUCT_RESOURCE_COLLECTION, {
+  const { data, loading } = useQuery<any>(ADMIN_PRODUCT_RESOURCE_COLLECTION, {
     variables: {
       collectionId,
       search: debouncedSearchTerm,
@@ -74,7 +79,7 @@ export default function ProductsList({
   const [removeProducts] = useMutation<any>(DELETE_PRODUCTS_FROM_COLLECTION);
 
   // Function to perform bulk update (add/remove) of products
-  const handleBulkUpdate = async (productsToAdd: string[], productsToRemove: string[]): Promise<void> => {
+  const handleBulkUpdate = async (productsToAdd: number[], productsToRemove: number[]): Promise<void> => {
     try {
       const promises: Promise<any>[] = [];
       if (productsToAdd.length > 0) {
@@ -139,8 +144,8 @@ export default function ProductsList({
               <ProductItem
                 key={node.productId}
                 product={node}
-                isSelected={selectedProductIds.has(node.productId as string)}
-                onToggle={(productId: string, isSelected: boolean) => {
+                isSelected={selectedProductIds.has(node.productId!)}
+                onToggle={(productId: number, isSelected: boolean) => {
                   setSelectedProductIds((prev) => {
                     const next = new Set(prev);
                     isSelected ? next.add(productId) : next.delete(productId);
@@ -158,16 +163,16 @@ export default function ProductsList({
               const currentIds = Array.from(selectedProductIds);
               const initialIds = Array.from(initialSelectedIds);
               const toAdd = currentIds.filter((id) => !initialIds.includes(id));
-              const toRemove = initialIds.filter((id) => !currentIds.includes(id as string));
-              handleBulkUpdate(toAdd, toRemove as string[]);
+              const toRemove = initialIds.filter((id) => !currentIds.includes(id));
+              handleBulkUpdate(toAdd, toRemove);
             }}
             disabled={
               (() => {
                 const currentIds = Array.from(selectedProductIds);
                 const initialIds = Array.from(initialSelectedIds);
                 return (
-                  currentIds.filter((id) => !initialIds.includes(id as string)).length === 0 &&
-                  initialIds.filter((id) => !currentIds.includes(id as string)).length === 0
+                  currentIds.filter((id) => !initialIds.includes(id)).length === 0 &&
+                  initialIds.filter((id) => !currentIds.includes(id)).length === 0
                 );
               })()
             }
@@ -184,7 +189,7 @@ export default function ProductsList({
 interface ProductItemProps {
   product: Product;
   isSelected: boolean;
-  onToggle: (productId: string, isSelected: boolean) => void;
+  onToggle: (productId: number, isSelected: boolean) => void;
 }
 
 // Sub-component to render individual product items with a checkbox
@@ -192,7 +197,7 @@ const ProductItem = ({ product, isSelected, onToggle }: ProductItemProps): JSX.E
   <div className="flex items-center gap-3 p-2 border rounded">
     <Checkbox
       checked={isSelected}
-      onCheckedChange={(checked: boolean) => onToggle(product.productId as string, checked)}
+      onCheckedChange={(checked: boolean) => onToggle(product.productId!, checked)}
     />
     <div className="flex-1">
       <p className="font-medium">{product.title}</p>

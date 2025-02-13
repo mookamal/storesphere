@@ -1,6 +1,6 @@
 export interface Product {
     id?: string
-    productId?: string
+    productId?: number
     title: string
     description?: string
     status?: string
