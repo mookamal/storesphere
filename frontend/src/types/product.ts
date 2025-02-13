@@ -1,4 +1,4 @@
-export interface IProduct {
+export interface Product {
     id?: string
     productId?: string
     title: string
