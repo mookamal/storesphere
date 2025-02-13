@@ -32,16 +32,6 @@ export const UPDATE_STORE_ADDRESS = gql`
   }
 `;
 
-export const UPDATE_STORE_CURRENCY = gql`
-  mutation UpdateStoreProfile($input: StoreInput!, $defaultDomain: String!) {
-    updateStoreProfile(input: $input, defaultDomain: $defaultDomain) {
-      store {
-        currencyCode
-      }
-    }
-  }
-`;
-
 export const CREATE_PRODUCT = gql`
   mutation CreateProductMutation($product: ProductInput!, $defaultDomain: String!) {
     createProduct(product: $product, defaultDomain: $defaultDomain) {
