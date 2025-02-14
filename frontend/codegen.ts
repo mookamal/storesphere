@@ -12,7 +12,7 @@ const config: CodegenConfig = {
       },
     documents: ["src/graphql/**/*.ts"],
     generates: {
-        "./src/graphql/": {
+        "./src/codegen/": {
             // TODO
             preset: "client",
             presetConfig: {
@@ -20,7 +20,7 @@ const config: CodegenConfig = {
                 gqlTagName: "gql",
             },
         },
-        "./src/graphql/types.ts": {
+        "./src/codegen/types.ts": {
             // TODO
             plugins: ["typescript", "typescript-operations"],
         },
