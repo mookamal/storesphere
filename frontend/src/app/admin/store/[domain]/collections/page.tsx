@@ -21,14 +21,33 @@ function CollectionsContent() {
   const domain = useParams().domain as string;
   
   const { data, loading, error, fetchMore } = useAdminCollectionsListQuery({
-    variables: { domain:domain, first: 10, after: "" },
+    variables: { domain:domain, first: 2, after: "" },
   });
   
   const pageInfo = data?.allCollections?.pageInfo || { hasNextPage: false, endCursor: '' };
   const { hasNextPage, endCursor } = pageInfo;
   const handleLoadMore = () => {
     if (hasNextPage) {
-
+      fetchMore({
+        variables: {
+          after: endCursor,
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.allCollections) return prevResult;
+  
+          return {
+            ...prevResult,
+            allCollections: {
+              ...fetchMoreResult.allCollections,
+              edges: [
+                ...(prevResult.allCollections?.edges || []),
+                ...(fetchMoreResult.allCollections.edges || [])
+              ],
+              pageInfo: fetchMoreResult.allCollections.pageInfo
+            }
+          };
+        }
+      });
     }
   };
 
