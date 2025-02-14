@@ -13,7 +13,8 @@ import {
 import { Package, Loader2 } from 'lucide-react'
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ApolloError } from '@apollo/client';
-import { useAdminCollectionsListQuery } from '@/codegen/types';
+import { useAdminCollectionsListQuery } from "@/codegen/generated";
+
 
 function CollectionsContent() {
   const router = useRouter();
@@ -23,7 +24,7 @@ function CollectionsContent() {
   const { data, loading, error, fetchMore } = useAdminCollectionsListQuery({
     variables: { domain:domain, first: 2, after: "" },
   });
-  
+
   const pageInfo = data?.allCollections?.pageInfo || { hasNextPage: false, endCursor: '' };
   const { hasNextPage, endCursor } = pageInfo;
   const handleLoadMore = () => {

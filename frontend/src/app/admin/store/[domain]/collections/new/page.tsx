@@ -8,7 +8,7 @@ import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import SubmitButton from "@/components/common/SubmitButton";
 import { Collection } from "@/types";
 import { toast } from 'react-toastify';
-import { useAdminCreateCollectionMutation } from "@/codegen/types";
+import { useAdminCreateCollectionMutation } from "@/codegen/generated";
 
 interface CreateCollectionPayload {
   domain: string;

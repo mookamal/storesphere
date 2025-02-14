@@ -4,28 +4,27 @@ const token: string = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoi
 const config: CodegenConfig = {
     overwrite: true,
     schema: {
-        'http://api.nour.com/graphql': {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+      'http://api.nour.com/graphql': {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       },
+    },
     documents: ["src/graphql/**/*.ts"],
     generates: {
-        "./src/codegen/": {
-            // TODO
-            preset: "client",
-            presetConfig: {
-                // TODO
-                gqlTagName: "gql",
-            },
+      "./src/codegen/generated.tsx": {
+        plugins: [
+          "typescript",
+          "typescript-operations",
+          "typescript-react-apollo"
+        ],
+        config: {
+          withHooks: true,
+          gqlTagName: "gql",
         },
-        "./src/codegen/types.ts": {
-            // TODO
-            plugins: ["typescript", "typescript-operations","typescript-react-apollo"],
-        },
+      },
     },
-};
-
-export default config;
+  };
+  
+  export default config;
