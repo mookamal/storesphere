@@ -7,9 +7,8 @@ import SeoInputs from "@/components/admin/collection/SeoInputs";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import SubmitButton from "@/components/common/SubmitButton";
 import { Collection } from "@/types";
-import { useMutation } from '@apollo/client';
-import { ADMIN_CREATE_COLLECTION } from '@/graphql/mutations';
 import { toast } from 'react-toastify';
+import { useAdminCreateCollectionMutation } from "@/codegen/types";
 
 interface CreateCollectionPayload {
   domain: string;
@@ -29,16 +28,17 @@ const CreateCollection: FC = () => {
   const { domain } = useParams() as { domain: string };
   const router = useRouter();
 
-  const [createCollection, { loading }] = useMutation(ADMIN_CREATE_COLLECTION, {
-    onCompleted: (data) => {
-      toast.success('Collection created successfully');
-      router.push(`/store/${domain}/collections/${data.createCollection.collection.collectionId}`);
-    },
-    onError: (error) => {
-      toast.error(error.message);
+  const [createCollection, { loading }] = useAdminCreateCollectionMutation(
+    {
+      onCompleted: (data) => {
+        toast.success('Collection created successfully');
+        router.push(`/store/${domain}/collections/${data.createCollection?.collection?.collectionId}`);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      }
     }
-  });
-
+  );
   const { 
     image, 
     register, 
