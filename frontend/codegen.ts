@@ -25,7 +25,6 @@ const config: CodegenConfig = {
             plugins: ["typescript", "typescript-operations"],
         },
     },
-    ignoreNoDocuments: true,
 };
 
 export default config;
