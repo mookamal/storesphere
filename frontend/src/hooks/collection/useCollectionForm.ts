@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { collectionSchema } from "@/schemas";
-import { CollectionInputs } from "@/codegen/generated";
+import { CollectionInputs, ImageInput } from "@/codegen/generated";
 
 type InitialValuesType = Partial<CollectionInputs>;
 
 export function useCollectionForm(initialValues: InitialValuesType = {}) {
-  const handleSetImage = (newImage: any) => {
+  const handleSetImage = (newImage: ImageInput) => {
     setValue("image", newImage, {
       shouldValidate: true,
       shouldDirty: true,
