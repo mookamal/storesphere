@@ -6,75 +6,67 @@ import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import SubmitButton from "@/components/common/SubmitButton";
-import { Collection } from "@/types";
-import { toast } from 'react-toastify';
-import { useAdminCreateCollectionMutation } from "@/codegen/generated";
-
-interface CreateCollectionPayload {
-  domain: string;
-  collectionInputs: {
-    title: string;
-    description?: string;
-    handle: string;
-    imageId?: string;
-    seo: {
-      title?: string;
-      description?: string;
-    };
-  };
-}
+import { toast } from "react-toastify";
+import { Collection } from "@/types/collection"; // Adjust the import path as necessary
+import {
+  useAdminCreateCollectionMutation,
+  AdminCreateCollectionMutationVariables,
+} from "@/codegen/generated";
 
 const CreateCollection: FC = () => {
   const { domain } = useParams() as { domain: string };
   const router = useRouter();
 
-  const [createCollection, { loading }] = useAdminCreateCollectionMutation(
-    {
-      onCompleted: (data) => {
-        toast.success('Collection created successfully');
-        router.push(`/store/${domain}/collections/${data.createCollection?.collection?.collectionId}`);
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      }
-    }
-  );
-  const { 
-    image, 
-    register, 
-    handleSubmit, 
-    handleBlur, 
-    watch, 
+  const [createCollection, { loading }] = useAdminCreateCollectionMutation({
+    onCompleted: (data) => {
+      toast.success("Collection created successfully");
+      router.push(
+        `/store/${domain}/collections/${data.createCollection?.collection?.collectionId}`
+      );
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  const {
+    image,
+    register,
+    handleSubmit,
+    handleBlur,
+    watch,
     setImage,
     errors,
     handle,
   } = useCollectionForm();
 
   const generateHandle = (title: string): string =>
-    title.replace(/\s+/g, '-').toLowerCase() || '';
+    title.replace(/\s+/g, "-").toLowerCase() || "";
 
-  const onSubmit = useCallback((data: Partial<Collection>) => {
-    if (!data.title) {
-      console.error("Title is required");
-      return;
-    }
+  const onSubmit = useCallback(
+    (data: Partial<Collection>) => {
+      if (!data.title) {
+        console.error("Title is required");
+        return;
+      }
 
-    const payload: CreateCollectionPayload = {
-      domain,
-      collectionInputs: {
-        title: data.title,
-        description: data.description || '',
-        handle: data.handle || generateHandle(data.title),
-        imageId: image?.imageId,
-        seo: {
-          title: data.seo?.title,
-          description: data.seo?.description,
+      const payload: AdminCreateCollectionMutationVariables = {
+        domain,
+        collectionInputs: {
+          title: data.title,
+          description: data.description || "",
+          handle: data.handle || generateHandle(data.title),
+          imageId: image?.imageId,
+          seo: {
+            title: data.seo?.title,
+            description: data.seo?.description,
+          },
         },
-      },
-    };
+      };
 
-    createCollection({ variables: payload });
-  }, [image, domain, createCollection]);
+      createCollection({ variables: payload });
+    },
+    [image, domain, createCollection]
+  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -93,11 +85,7 @@ const CreateCollection: FC = () => {
             You need to save before adding products
           </h2>
 
-          <SeoInputs 
-            register={register} 
-            domain={domain} 
-            handle={handle} 
-          />
+          <SeoInputs register={register} domain={domain} handle={handle} />
         </div>
       </div>
       <SubmitButton loading={loading} />
