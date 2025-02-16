@@ -7,16 +7,13 @@ import MediaModal from "./MediaModal";
 import { Button } from "@/components/ui/button";
 import { cardVariants } from "@/utils/cardVariants";
 import React from "react";
-import { Image as MediaImage  } from "@/types";
-
-
 
 // Define interface for component props
 interface GeneralInputsProps {
   register: any;
   handleBlur: React.FocusEventHandler<HTMLInputElement>;
-  setImage: (image: MediaImage | null) => void;
-  image: MediaImage | null;
+  setImage: (image: any) => void;
+  image: any;
   errors?: any;
 }
 
@@ -61,7 +58,9 @@ export default function GeneralInputs({
               placeholder="Description"
             />
             {errors.description && (
-              <p className="text-red-500 text-sm">{errors.description.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.description.message}
+              </p>
             )}
           </div>
         </div>

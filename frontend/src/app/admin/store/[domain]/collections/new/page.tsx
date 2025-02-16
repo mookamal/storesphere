@@ -7,10 +7,11 @@ import SeoInputs from "@/components/admin/collection/SeoInputs";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import SubmitButton from "@/components/common/SubmitButton";
 import { toast } from "react-toastify";
-import { Collection } from "@/types/collection"; // Adjust the import path as necessary
+
 import {
   useAdminCreateCollectionMutation,
   AdminCreateCollectionMutationVariables,
+  CollectionInputs,
 } from "@/codegen/generated";
 
 const CreateCollection: FC = () => {
@@ -33,7 +34,6 @@ const CreateCollection: FC = () => {
     register,
     handleSubmit,
     handleBlur,
-    watch,
     setImage,
     errors,
     handle,
@@ -43,7 +43,7 @@ const CreateCollection: FC = () => {
     title.replace(/\s+/g, "-").toLowerCase() || "";
 
   const onSubmit = useCallback(
-    (data: Partial<Collection>) => {
+    (data: Partial<CollectionInputs>) => {
       if (!data.title) {
         console.error("Title is required");
         return;

@@ -1,21 +1,17 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Collection, Image } from "@/types"
 import { collectionSchema } from "@/schemas";
+import { CollectionInputs } from "@/codegen/generated";
 
-
-type InitialValuesType = Partial<Collection>;
+type InitialValuesType = Partial<CollectionInputs>;
 
 export function useCollectionForm(initialValues: InitialValuesType = {}) {
-
-
-  const handleSetImage = (newImage: Image | null) => {
+  const handleSetImage = (newImage: any) => {
     setValue("image", newImage, {
       shouldValidate: true,
       shouldDirty: true,
     });
   };
-
 
   const {
     register,
@@ -29,7 +25,6 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
     resolver: zodResolver(collectionSchema),
     defaultValues: initialValues,
   });
-
 
   const image = watch("image") ?? null;
   const title = watch("title");
@@ -46,7 +41,6 @@ export function useCollectionForm(initialValues: InitialValuesType = {}) {
       }
     }
   };
-
 
   return {
     image,
