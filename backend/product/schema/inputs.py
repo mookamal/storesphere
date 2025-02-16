@@ -79,6 +79,20 @@ class ProductVariantInput(graphene.InputObjectType):
     option_values = graphene.List(graphene.ID)
 
 
+class ImageInput(graphene.InputObjectType):
+    """
+    Input type for image fields.
+    
+    Represents an image with its URL and alternative text.
+    
+    Attributes:
+        image (graphene.String): Required URL of the image.
+        alt_text (graphene.String): Optional alternative text for the image.
+    """
+    image = graphene.String(required=True, description='URL of the image.')
+    image_id = graphene.ID()
+    alt_text = graphene.String(description='Alternative text for the image.')
+
 class CollectionInputs(graphene.InputObjectType):
     """
     Input type for creating or updating product collections.
@@ -97,6 +111,7 @@ class CollectionInputs(graphene.InputObjectType):
     handle = graphene.String()
     image_id = graphene.ID()
     seo = SEOInput()
+    image = ImageInput()
 
 
 class ProductInput(graphene.InputObjectType):

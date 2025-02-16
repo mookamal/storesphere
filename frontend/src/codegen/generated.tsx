@@ -99,6 +99,7 @@ export type AddressType = {
 export type CollectionInputs = {
   description?: InputMaybe<Scalars['String']['input']>;
   handle?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<ImageInput>;
   imageId?: InputMaybe<Scalars['ID']['input']>;
   seo?: InputMaybe<SeoInput>;
   title: Scalars['String']['input'];
@@ -347,6 +348,23 @@ export type DeleteCustomerPayload = {
 export type DeleteProductsFromCollection = {
   __typename?: 'DeleteProductsFromCollection';
   success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+/**
+ * Input type for image fields.
+ *
+ * Represents an image with its URL and alternative text.
+ *
+ * Attributes:
+ *     image (graphene.String): Required URL of the image.
+ *     alt_text (graphene.String): Optional alternative text for the image.
+ */
+export type ImageInput = {
+  /** Alternative text for the image. */
+  altText?: InputMaybe<Scalars['String']['input']>;
+  /** URL of the image. */
+  image: Scalars['String']['input'];
+  imageId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 /**
