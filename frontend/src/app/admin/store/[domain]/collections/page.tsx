@@ -10,22 +10,24 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
-import { Package, Loader2 } from 'lucide-react'
+import { Package, Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ApolloError } from '@apollo/client';
+import { ApolloError } from "@apollo/client";
 import { useAdminCollectionsListQuery } from "@/codegen/generated";
-
 
 function CollectionsContent() {
   const router = useRouter();
   const currentPath = usePathname();
   const domain = useParams().domain as string;
-  
+
   const { data, loading, error, fetchMore } = useAdminCollectionsListQuery({
-    variables: { domain:domain, first: 2, after: "" },
+    variables: { domain: domain, first: 10, after: "" },
   });
 
-  const pageInfo = data?.allCollections?.pageInfo || { hasNextPage: false, endCursor: '' };
+  const pageInfo = data?.allCollections?.pageInfo || {
+    hasNextPage: false,
+    endCursor: "",
+  };
   const { hasNextPage, endCursor } = pageInfo;
   const handleLoadMore = () => {
     if (hasNextPage) {
@@ -35,19 +37,19 @@ function CollectionsContent() {
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult?.allCollections) return prevResult;
-  
+
           return {
             ...prevResult,
             allCollections: {
               ...fetchMoreResult.allCollections,
               edges: [
                 ...(prevResult.allCollections?.edges || []),
-                ...(fetchMoreResult.allCollections.edges || [])
+                ...(fetchMoreResult.allCollections.edges || []),
               ],
-              pageInfo: fetchMoreResult.allCollections.pageInfo
-            }
+              pageInfo: fetchMoreResult.allCollections.pageInfo,
+            },
           };
-        }
+        },
       });
     }
   };
@@ -90,14 +92,16 @@ function CollectionsContent() {
           </p>
           <Button
             variant="outline"
-            onClick={() => router.push(`/admin/store/${domain}/collections/new`)}
+            onClick={() =>
+              router.push(`/admin/store/${domain}/collections/new`)
+            }
           >
             Create Collection
           </Button>
         </div>
       )}
 
-      {data?.allCollections?.edges?.length  && (
+      {data?.allCollections?.edges?.length && (
         <div className="border rounded mt-4 shadow">
           <Table>
             <TableHeader>
@@ -133,7 +137,7 @@ function CollectionsContent() {
                     {loading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      'Load more'
+                      "Load more"
                     )}
                   </Button>
                 </TableCell>
