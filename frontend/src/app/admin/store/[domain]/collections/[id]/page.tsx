@@ -20,20 +20,20 @@ import swal from "sweetalert";
 import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-import type { Collection, PageInfo, Product } from "@/types";
+import type { PageInfo, Product } from "@/types";
 import Admin404 from "@/components/admin/404";
 import usePreventNavigation from "@/hooks/usePreventNavigation";
-
+import {
+  CollectionInputs,
+  useAdminDeleteCollectionsMutation,
+  useUpdateCollectionMutation,
+} from "@/codegen/generated";
 interface ProductsByCollectionData {
   productsByCollection: {
     edges: {
       node: Product;
     }[];
   };
-}
-
-interface CollectionByIdData {
-  collectionById: Collection;
 }
 
 export default function UpdateCollection(): JSX.Element {
@@ -44,9 +44,8 @@ export default function UpdateCollection(): JSX.Element {
     domain: string;
   };
 
-  const [updateCollection, { loading: updateLoading }] = useMutation<any>(
-    ADMIN_UPDATE_COLLECTION,
-    {
+  const [updateCollection, { loading: updateLoading }] =
+    useUpdateCollectionMutation({
       onCompleted: () => {
         toast.success("Collection updated successfully!");
         refetch();
@@ -55,10 +54,9 @@ export default function UpdateCollection(): JSX.Element {
         console.error("Update Collection Error:", error);
         toast.error(`Failed to update collection: ${error.message}`);
       },
-    }
-  );
+    });
 
-  const [deleteCollection] = useMutation<any>(DELETE_COLLECTIONS, {
+  const [deleteCollection] = useAdminDeleteCollectionsMutation({
     onCompleted: (data) => {
       if (data?.deleteCollections?.success) {
         toast.success("Collection deleted successfully");
@@ -90,30 +88,30 @@ export default function UpdateCollection(): JSX.Element {
 
         cache.gc();
       }
-    }
-
-
-
+    },
   });
 
-  const [pagination, setPagination] = useState<Partial<PageInfo>>({ first: 10, after: "" });
+  const [pagination, setPagination] = useState<Partial<PageInfo>>({
+    first: 10,
+    after: "",
+  });
 
-  const { data: productsData, refetch: refetchProducts } = useQuery<ProductsByCollectionData>(
-    ADMIN_PRODUCTS_BY_COLLECTION_ID,
-    {
+  const { data: productsData, refetch: refetchProducts } =
+    useQuery<ProductsByCollectionData>(ADMIN_PRODUCTS_BY_COLLECTION_ID, {
       variables: { collectionId, ...pagination },
       skip: !collectionId,
+    });
+
+  const { data, loading, error, refetch } = useQuery<any>(
+    ADMIN_COLLECTION_BY_ID,
+    {
+      variables: { id: collectionId },
+      fetchPolicy: "cache-and-network",
     }
   );
 
-  const { data, loading, error, refetch } = useQuery<CollectionByIdData>(ADMIN_COLLECTION_BY_ID, {
-    variables: { id: collectionId },
-    fetchPolicy: "cache-and-network",
-  });
-
-
-  const initialFormValuesRef = useRef<Partial<Collection> | undefined>(
-    data ? removeTypename(data.collectionById) : undefined
+  const initialFormValuesRef = useRef<Partial<CollectionInputs>>(
+    data ? removeTypename(data.collectionById) : {}
   );
 
   const {
@@ -139,8 +137,6 @@ export default function UpdateCollection(): JSX.Element {
     }
   }, [data, reset]);
 
-  
-
   const handleDeleteCollection = async (): Promise<void> => {
     const confirmation: boolean = await swal({
       title: "Are you sure?",
@@ -156,7 +152,9 @@ export default function UpdateCollection(): JSX.Element {
     }
   };
 
-  const onSubmit = async (formData: Partial<Collection>): Promise<void> => {
+  const onSubmit = async (
+    formData: Partial<CollectionInputs>
+  ): Promise<void> => {
     try {
       const input = {
         ...removeTypename(formData),
@@ -179,7 +177,6 @@ export default function UpdateCollection(): JSX.Element {
     return <Admin404 />;
   }
 
-
   if (loading) {
     return <div className="text-center mt-24">Loading...</div>;
   }
@@ -189,7 +186,11 @@ export default function UpdateCollection(): JSX.Element {
       <div className="p-5">
         <div className="flex justify-between">
           <h1 className="h1">Update Collection</h1>
-          <Button type="button" variant="destructive" onClick={handleDeleteCollection}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDeleteCollection}
+          >
             Delete
           </Button>
         </div>
@@ -204,7 +205,9 @@ export default function UpdateCollection(): JSX.Element {
           <AddProducts
             collectionId={collectionId}
             selectedProducts={
-              productsData?.productsByCollection?.edges?.map((edge) => edge.node) || []
+              productsData?.productsByCollection?.edges?.map(
+                (edge) => edge.node
+              ) || []
             }
             refetchProducts={refetchProducts}
           />
@@ -220,7 +223,6 @@ export default function UpdateCollection(): JSX.Element {
         {updateLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
         Update
       </Button>
-
     </form>
   );
 }
