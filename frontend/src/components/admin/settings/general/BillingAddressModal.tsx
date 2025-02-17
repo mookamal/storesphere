@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { MdEditNote } from "react-icons/md";
-import FormField from '@/components/common/FormField';
+import FormField from "@/components/common/FormField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
@@ -19,42 +19,61 @@ import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { UPDATE_STORE_ADDRESS } from "@/graphql/mutations";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useMutation } from '@apollo/client';
-import ButtonIcon from '@/components/common/ButtonIcon';
+import ButtonIcon from "@/components/common/ButtonIcon";
+import { useUpdateStoreAddressMutation } from "@/codegen/generated";
+
 countries.registerLocale(enLocale);
 
-const initialFormState = {
-  company: '',
-  address1: '',
-  address2: '',
-  city: '',
-  zip: '',
-  country: { name: '', code: '' }
+interface BillingAddressFormState {
+  company: string;
+  address1: string;
+  address2: string;
+  city: string;
+  zip: string;
+  country: { name: string; code: string };
+}
+
+interface BillingAddressModalProps {
+  data: any;
+  refreshData: () => void;
+}
+
+const initialFormState: BillingAddressFormState = {
+  company: "",
+  address1: "",
+  address2: "",
+  city: "",
+  zip: "",
+  country: { name: "", code: "" },
 };
 
-const sanitizeData = (data) => ({
-  company: data?.company || '',
-  address1: data?.address1 || '',
-  address2: data?.address2 || '',
-  city: data?.city || '',
-  zip: data?.zip || '',
+const sanitizeData = (data: any): BillingAddressFormState => ({
+  company: data?.company || "",
+  address1: data?.address1 || "",
+  address2: data?.address2 || "",
+  city: data?.city || "",
+  zip: data?.zip || "",
   country: {
-    name: data?.country?.name || '',
-    code: data?.country?.code || ''
-  }
+    name: data?.country?.name || "",
+    code: data?.country?.code || "",
+  },
 });
 
-export default function BillingAddressModal({ data, refreshData }) {
-  const { domain } = useParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const [formState, setFormState] = useState(() => ({
+export default function BillingAddressModal({
+  data,
+  refreshData,
+}: BillingAddressModalProps): JSX.Element {
+  // Get domain from URL parameters
+  const { domain } = useParams() as { domain: string };
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [formState, setFormState] = useState<BillingAddressFormState>(() => ({
     ...initialFormState,
-    ...sanitizeData(data)
+    ...sanitizeData(data),
   }));
 
-  const [updateStoreAddress, { loading }] = useMutation(UPDATE_STORE_ADDRESS, {
+  const [updateStoreAddress, { loading }] = useUpdateStoreAddressMutation({
     onCompleted: () => {
       refreshData();
       toast.success("Billing details updated successfully!");
@@ -63,17 +82,19 @@ export default function BillingAddressModal({ data, refreshData }) {
     onError: (error) => {
       toast.error(`Update failed: ${error.message}`);
       console.error("Update error:", error);
-    }
+    },
   });
 
+  // Build country options for the select component
   const countryOptions = useMemo(() => {
     const countryNames = countries.getNames("en", { select: "official" });
     return Object.entries(countryNames).map(([code, name]) => ({
       value: code,
-      label: name
+      label: name,
     }));
   }, []);
 
+  // Check if any changes were made compared to the original data
   const hasChanges = useMemo(() => {
     const originalData = sanitizeData(data);
     return (
@@ -86,40 +107,40 @@ export default function BillingAddressModal({ data, refreshData }) {
     );
   }, [formState, data]);
 
-  const handleFieldChange = (field) => (value) => {
-    setFormState(prev => ({
-      ...prev,
-      [field]: field === 'country' 
-        ? { name: value?.label || '', code: value?.value || '' }
-        : value || ''
-    }));
-  };
+  // Handle field changes; for country, update both name and code
+  const handleFieldChange =
+    (field: keyof BillingAddressFormState) => (value: any) => {
+      setFormState((prev) => ({
+        ...prev,
+        [field]:
+          field === "country"
+            ? { name: value?.label || "", code: value?.value || "" }
+            : value || "",
+      }));
+    };
 
+  // Submit the form by calling the mutation
   const handleSubmit = () => {
     updateStoreAddress({
       variables: {
         input: {
           ...formState,
           country: {
-            name: formState.country.name || '',
-            code: formState.country.code || ''
-          }
+            name: formState.country.name || "",
+            code: formState.country.code || "",
+          },
         },
-        defaultDomain: domain
-      }
+        defaultDomain: domain,
+      },
     });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <ButtonIcon
-          icon={MdEditNote}
-          label="Edit settings"
-          variant="default"
-        />
+        <ButtonIcon icon={MdEditNote} label="Edit settings" variant="default" />
       </DialogTrigger>
-      
+
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Billing Information</DialogTitle>
@@ -135,7 +156,10 @@ export default function BillingAddressModal({ data, refreshData }) {
             label="Legal business name"
             id="company"
             value={formState.company}
-            onChange={handleFieldChange('company')}
+            onChange={handleFieldChange("company")}
+            required={false}
+            className=""
+            error={null}
           />
 
           <div className="w-full">
@@ -144,10 +168,10 @@ export default function BillingAddressModal({ data, refreshData }) {
               id="country"
               options={countryOptions}
               value={{
-                value: formState.country.code || '',
-                label: formState.country.name || 'Select a country'
+                value: formState.country.code || "",
+                label: formState.country.name || "Select a country",
               }}
-              onChange={handleFieldChange('country')}
+              onChange={handleFieldChange("country")}
               className="react-select-container mt-2"
               classNamePrefix="react-select"
               isSearchable
@@ -159,40 +183,50 @@ export default function BillingAddressModal({ data, refreshData }) {
             label="City"
             id="city"
             value={formState.city}
-            onChange={handleFieldChange('city')}
+            onChange={handleFieldChange("city")}
+            required={false}
+            className=""
+            error={null}
           />
 
           <FormField
             label="Street address"
             id="address1"
             value={formState.address1}
-            onChange={handleFieldChange('address1')}
+            onChange={handleFieldChange("address1")}
+            required={false}
+            className=""
+            error={null}
           />
 
           <FormField
             label="Apartment, suite, etc"
             id="address2"
             value={formState.address2}
-            onChange={handleFieldChange('address2')}
+            onChange={handleFieldChange("address2")}
+            required={false}
+            className=""
+            error={null}
           />
 
           <FormField
             label="Postal code"
             id="zip"
             value={formState.zip}
-            onChange={handleFieldChange('zip')}
+            onChange={handleFieldChange("zip")}
+            required={false}
+            className=""
+            error={null}
           />
         </div>
 
-        <Button 
+        <Button
           onClick={handleSubmit}
           disabled={!hasChanges || loading}
           className="w-full mt-4"
         >
-          {loading ? (
-            <IoReload className="animate-spin mr-2 h-4 w-4" />
-          ) : null}
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? <IoReload className="animate-spin mr-2 h-4 w-4" /> : null}
+          {loading ? "Saving..." : "Save Changes"}
         </Button>
       </DialogContent>
     </Dialog>
