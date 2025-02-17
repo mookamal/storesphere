@@ -159,7 +159,7 @@ export default function BillingAddressModal({
             onChange={handleFieldChange("company")}
             required={false}
             className=""
-            error={null}
+            error=""
           />
 
           <div className="w-full">
@@ -186,7 +186,7 @@ export default function BillingAddressModal({
             onChange={handleFieldChange("city")}
             required={false}
             className=""
-            error={null}
+            error=""
           />
 
           <FormField
@@ -196,7 +196,7 @@ export default function BillingAddressModal({
             onChange={handleFieldChange("address1")}
             required={false}
             className=""
-            error={null}
+            error=""
           />
 
           <FormField
@@ -206,7 +206,7 @@ export default function BillingAddressModal({
             onChange={handleFieldChange("address2")}
             required={false}
             className=""
-            error={null}
+            error=""
           />
 
           <FormField
@@ -216,7 +216,7 @@ export default function BillingAddressModal({
             onChange={handleFieldChange("zip")}
             required={false}
             className=""
-            error={null}
+            error=""
           />
         </div>
 

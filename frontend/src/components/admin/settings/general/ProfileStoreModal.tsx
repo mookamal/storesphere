@@ -11,30 +11,48 @@ import {
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
 import { useState } from "react";
-import { UPDATE_STORE_PROFILE } from "@/graphql/mutations";
 import { useParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { MdEditNote } from "react-icons/md";
-import { useMutation } from '@apollo/client';
 import FormField from "@/components/common/FormField";
-import ButtonIcon from '@/components/common/ButtonIcon';
+import ButtonIcon from "@/components/common/ButtonIcon";
+import { useUpdateStoreProfileMutation } from "@/codegen/generated";
 
-export default function ProfileStoreModal({ data, refreshData }) {
-  const { domain } = useParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const [formState, setFormState] = useState({
+interface ProfileStoreModalProps {
+  data: any;
+  refreshData: () => void;
+}
+
+// Define the state shape for the form
+interface FormState {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export default function ProfileStoreModal({
+  data,
+  refreshData,
+}: ProfileStoreModalProps): JSX.Element {
+  // Cast useParams to include domain of type string
+  const { domain } = useParams() as { domain: string };
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [formState, setFormState] = useState<FormState>({
     name: data?.name || "",
     email: data?.email || "",
-    phone: data?.billingAddress?.phone || ""
+    phone: data?.billingAddress?.phone || "",
   });
 
-  const [updateStoreProfile, { loading }] = useMutation(UPDATE_STORE_PROFILE);
+  const [updateStoreProfile, { loading }] = useUpdateStoreProfileMutation();
 
-  const hasChanges = 
+  // Check if any changes have been made compared to the original data
+  const hasChanges =
     formState.name !== data?.name ||
     formState.email !== data?.email ||
     formState.phone !== data?.billingAddress?.phone;
 
+  // Update the store profile by calling the mutation
   const handleSubmit = async () => {
     try {
       await updateStoreProfile({
@@ -43,13 +61,12 @@ export default function ProfileStoreModal({ data, refreshData }) {
             name: formState.name,
             email: formState.email,
             billingAddress: {
-              phone: formState.phone
-            }
+              phone: formState.phone,
+            },
           },
-          defaultDomain: domain
-        }
+          defaultDomain: domain,
+        },
       });
-
       toast.success("Profile updated successfully!");
       refreshData();
       setIsOpen(false);
@@ -59,27 +76,24 @@ export default function ProfileStoreModal({ data, refreshData }) {
     }
   };
 
-  const handleFieldChange = (field) => (value) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
+  // Generic field change handler for form fields
+  const handleFieldChange = (field: keyof FormState) => (value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <ButtonIcon
-          icon={MdEditNote}
-          label="Edit settings"
-          variant="default"
-        />
+        <ButtonIcon icon={MdEditNote} label="Edit settings" variant="default" />
       </DialogTrigger>
-      
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Store Profile</DialogTitle>
           <hr />
           <DialogDescription>
-            Please be aware that these details might be accessible to the public.
-            Avoid using personal information.
+            Please be aware that these details might be accessible to the
+            public. Avoid using personal information.
           </DialogDescription>
         </DialogHeader>
 
@@ -89,14 +103,14 @@ export default function ProfileStoreModal({ data, refreshData }) {
               label="Store Name"
               id="name"
               value={formState.name}
-              onChange={handleFieldChange('name')}
+              onChange={handleFieldChange("name")}
             />
 
             <FormField
               label="Store Phone"
               id="phone"
               value={formState.phone}
-              onChange={handleFieldChange('phone')}
+              onChange={handleFieldChange("phone")}
             />
           </div>
 
@@ -105,18 +119,20 @@ export default function ProfileStoreModal({ data, refreshData }) {
             id="email"
             type="email"
             value={formState.email}
-            onChange={handleFieldChange('email')}
+            onChange={handleFieldChange("email")}
           />
         </div>
 
-        <Button 
-          onClick={handleSubmit} 
+        <Button
+          onClick={handleSubmit}
           disabled={!hasChanges || loading}
           className="w-full"
         >
           {loading ? (
             <IoReload className="mr-2 h-4 w-4 animate-spin" />
-          ) : 'Save Changes'}
+          ) : (
+            "Save Changes"
+          )}
         </Button>
       </DialogContent>
     </Dialog>

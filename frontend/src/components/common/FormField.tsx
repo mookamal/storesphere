@@ -1,16 +1,27 @@
-import React from 'react';
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const FormField = ({ 
-  label, 
-  id, 
-  value, 
-  onChange, 
-  error, 
-  required, 
-  className, 
-  ...props 
+interface FormFieldProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+  label: string;
+  id: string;
+  value?: string;
+  onChange: (value: string) => void;
+  error?: string;
+  required?: boolean;
+  className?: string;
+}
+
+const FormField: React.FC<FormFieldProps> = ({
+  label,
+  id,
+  value,
+  onChange,
+  error,
+  required,
+  className = "",
+  ...props
 }) => {
   return (
     <div className={`w-full ${className}`}>
@@ -20,9 +31,9 @@ const FormField = ({
       </Label>
       <Input
         id={id}
-        value={value || ''}
+        value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className={`mt-2 ${error ? 'border-red-500' : ''}`}
+        className={`mt-2 ${error ? "border-red-500" : ""}`}
         aria-invalid={!!error}
         {...props}
       />
