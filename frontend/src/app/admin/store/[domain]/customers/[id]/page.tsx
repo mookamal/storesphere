@@ -72,7 +72,7 @@ export default function UpdateCustomer(): JSX.Element {
 
   const onSubmit = async (data: any) => {
     const cleanData = stripTypename(data);
-    const result = await updateCustomer({
+    await updateCustomer({
       variables: {
         id: customerId,
         customerInputs: cleanData,
