@@ -1,41 +1,25 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import AddProducts from "@/components/admin/collection/AddProducts";
 import GeneralInputs from "@/components/admin/collection/GeneralInputs";
 import SeoInputs from "@/components/admin/collection/SeoInputs";
 import { Button } from "@/components/ui/button";
-import {
-  ADMIN_UPDATE_COLLECTION,
-  DELETE_COLLECTIONS,
-} from "@/graphql/mutations";
-import {
-  ADMIN_COLLECTION_BY_ID,
-  ADMIN_PRODUCTS_BY_COLLECTION_ID,
-} from "@/graphql/queries";
 import { useParams, useRouter } from "next/navigation";
 import { IoReload } from "react-icons/io5";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
-import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-import type { Product } from "@/types";
 import Admin404 from "@/components/admin/404";
 import usePreventNavigation from "@/hooks/usePreventNavigation";
 import {
   CollectionInputs,
+  useAdminCollectionByIdQuery,
   useAdminDeleteCollectionsMutation,
   useAdminProductsByCollectionQuery,
   useUpdateCollectionMutation,
 } from "@/codegen/generated";
-interface ProductsByCollectionData {
-  productsByCollection: {
-    edges: {
-      node: Product;
-    }[];
-  };
-}
 
 export default function UpdateCollection(): JSX.Element {
   const router = useRouter();
@@ -103,13 +87,10 @@ export default function UpdateCollection(): JSX.Element {
       skip: !collectionId,
     });
 
-  const { data, loading, error, refetch } = useQuery<any>(
-    ADMIN_COLLECTION_BY_ID,
-    {
-      variables: { id: collectionId },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const { data, loading, error, refetch } = useAdminCollectionByIdQuery({
+    variables: { id: collectionId },
+    fetchPolicy: "cache-and-network",
+  });
 
   const initialFormValuesRef = useRef<Partial<CollectionInputs>>(
     data ? removeTypename(data.collectionById) : {}
