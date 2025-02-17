@@ -1,21 +1,7 @@
-"use client";
-import { GET_SETTINGS_GENERAL } from "@/graphql/queries";
-import { useQuery } from "@apollo/client";
-import { useParams } from "next/navigation";
+import React from "react";
 
-export default function StoreAdmin() {
-  const { domain } = useParams();
-
-  const { loading, error, data } = useQuery(GET_SETTINGS_GENERAL, {
-    variables: { domain},
-    errorPolicy: "all",
-  });
-  console.log(error);
-  if (loading) return <div>Loading...</div>;
-
-
-  return (
-    <div>
-    </div>
-  );
+function page() {
+  return <div>Home admin store page</div>;
 }
+
+export default page;
