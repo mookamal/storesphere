@@ -93,6 +93,7 @@ export default function UpdateCustomer(): JSX.Element {
       text: "Are you sure you want to delete this customer?",
       icon: "warning",
       dangerMode: true,
+      buttons: ["Cancel", "Delete"],
     });
     if (confirmed) {
       try {
