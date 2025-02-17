@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -8,7 +9,13 @@ export const metadata = {
   description: "Store Management",
 };
 
-export default function AdminLayout({ children }) {
+interface AdminLayoutProps {
+  children: ReactNode;
+}
+
+export default function AdminLayout({
+  children,
+}: AdminLayoutProps): JSX.Element {
   return (
     <SidebarProvider>
       <AdminSidebar />
