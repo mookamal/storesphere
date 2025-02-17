@@ -1,45 +1,58 @@
 "use client";
 
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { IoReload } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import axios from "axios";
-import { CREATE_CUSTOMER } from "@/graphql/mutations";
 import { toast } from "react-toastify";
-export default function CreateCustomer() {
-  const { register, handleSubmit, control, watch, setValue } = useForm();
-  const domain = useParams().domain;
+import { useCreateCustomerMutation } from "@/codegen/generated";
+
+interface CreateCustomerFormValues {
+  fullName: string;
+  email: string;
+  defaultAddress?: {
+    country?: {
+      name: string;
+    };
+    city?: string;
+  };
+  [key: string]: any;
+}
+
+export default function CreateCustomer(): JSX.Element {
+  const { register, handleSubmit, control, watch, setValue } =
+    useForm<CreateCustomerFormValues>();
+
+  const { domain } = useParams() as { domain: string };
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+
+  const [createCustomer, { loading }] = useCreateCustomerMutation();
+
   const watchAddress = watch("defaultAddress");
-  const onSubmit = async (data) => {
-    setLoading(true);
+
+  const onSubmit: SubmitHandler<CreateCustomerFormValues> = async (data) => {
     try {
-      const response = await axios.post("/api/set-data", {
-        query: CREATE_CUSTOMER,
+      const result = await createCustomer({
         variables: {
           defaultDomain: domain,
           customerInputs: data,
         },
       });
-      if (response.data.data.createCustomer.customer.customerId) {
+      if (result.data?.createCustomer?.customer?.customerId) {
         toast.success("Customer created successfully!");
         router.push(
-          `/store/${domain}/customers/${response.data.data.createCustomer.customer.customerId}`
+          `/store/${domain}/customers/${result.data.createCustomer.customer.customerId}`
         );
       }
     } catch (error) {
       console.error("Error creating customer", error);
       toast.error("Failed to create customer!");
-    } finally {
-      setLoading(false);
     }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="p-5">
@@ -60,6 +73,7 @@ export default function CreateCustomer() {
                   register={register}
                   control={control}
                   setValue={setValue}
+                  watchAddress={undefined}
                 />
               </div>
             </CardContent>
