@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { handleGraphQLError } from "@/lib/utilities";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useParams, notFound, useRouter } from "next/navigation";
@@ -36,9 +35,6 @@ export default function UpdateCustomer(): JSX.Element {
   };
   const router = useRouter();
 
-  const [localError, setLocalError] = useState<any>(null);
-  const [customer, setCustomer] = useState<any>(null);
-
   const watchAddress = watch("defaultAddress");
 
   const {
@@ -51,13 +47,20 @@ export default function UpdateCustomer(): JSX.Element {
   });
 
   const [updateCustomer, { loading: updateLoading }] =
-    useUpdateCustomerMutation();
+    useUpdateCustomerMutation({
+      onCompleted: () => {
+        toast.success("Customer updated successfully!");
+        refetch();
+      },
+      onError: (error) => {
+        console.error("Update Customer Error:", error);
+      },
+    });
   const [deleteCustomer, { loading: deleteLoading }] =
     useDeleteCustomerMutation();
 
   useEffect(() => {
     if (data && data.customerDetails) {
-      setCustomer(data.customerDetails);
       reset({
         firstName: data.customerDetails.firstName,
         lastName: data.customerDetails.lastName,
@@ -69,22 +72,12 @@ export default function UpdateCustomer(): JSX.Element {
 
   const onSubmit = async (data: any) => {
     const cleanData = stripTypename(data);
-    try {
-      const result = await updateCustomer({
-        variables: {
-          id: customerId,
-          customerInputs: cleanData,
-        },
-      });
-      if (result.data?.updateCustomer?.customer) {
-        toast.success("Customer updated successfully!");
-        refetch();
-      }
-    } catch (error) {
-      console.error("error", error);
-      const errorDetails = handleGraphQLError(error);
-      setLocalError(errorDetails);
-    }
+    const result = await updateCustomer({
+      variables: {
+        id: customerId,
+        customerInputs: cleanData,
+      },
+    });
   };
 
   const handleDeleteCustomer = async () => {
@@ -111,38 +104,9 @@ export default function UpdateCustomer(): JSX.Element {
   };
 
   const combinedLoading = queryLoading || updateLoading || deleteLoading;
-  const combinedError = localError || queryError;
 
   if (combinedLoading) {
     return <div className="text-center mt-24">Loading...</div>;
-  }
-  if (combinedError) {
-    const errorDetails = handleGraphQLError(combinedError);
-    switch (errorDetails.type) {
-      case "NOT_FOUND":
-        notFound();
-        break;
-      case "UNAUTHORIZED":
-        return (
-          <div className="error-message">
-            You need to log in to access this page.
-          </div>
-        );
-      case "SERVER_ERROR":
-        return (
-          <div className="error-message">
-            An internal server error occurred. Please try again later.
-          </div>
-        );
-      case "NO_RESPONSE":
-        return (
-          <div className="error-message">
-            No response from the server. Check your network.
-          </div>
-        );
-      default:
-        return <div className="error-message">{errorDetails.message}</div>;
-    }
   }
 
   return (
