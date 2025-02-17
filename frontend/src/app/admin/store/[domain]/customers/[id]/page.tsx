@@ -1,137 +1,105 @@
 "use client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { handleGraphQLError } from "@/lib/utilities";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
-import { GET_CUSTOMER_BY_ID } from "@/graphql/queries";
+import { useParams, notFound, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
 import CustomerOverview from "@/components/admin/customer/CustomerOverview";
 import CustomerAddressInputs from "@/components/admin/customer/CustomerAddressInputs";
 import _ from "lodash";
-import { DELETE_CUSTOMER, UPDATE_CUSTOMER } from "@/graphql/mutations";
 import { stripTypename } from "@apollo/client/utilities";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
-import { useRouter } from "next/navigation";
-export default function UpdateCustomer() {
-  const { register, handleSubmit, control, watch, setValue } = useForm();
-  const customerId = useParams().id;
-  const domain = useParams().domain;
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [error, setError] = useState(null);
-  const [customer, setCustomer] = useState(null);
-  const watchAddress = watch("defaultAddress");
-  const watchFirstName = watch("firstName");
-  const watchLastName = watch("lastName");
-  const watchEmail = watch("email");
+import {
+  useUpdateCustomerMutation,
+  useDeleteCustomerMutation,
+  useCustomerDetailsQuery,
+} from "@/codegen/generated";
 
-  const getCustomerById = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: GET_CUSTOMER_BY_ID,
-        variables: { id: customerId },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.error);
-      }
-      if (response.data.customerDetails) {
-        setCustomer(response.data.customerDetails);
-        setValue("firstName", response.data.customerDetails.firstName);
-        setValue("lastName", response.data.customerDetails.lastName);
-        setValue("email", response.data.customerDetails.email);
-        // defaultAddress
-        setValue(
-          "defaultAddress",
-          response.data.customerDetails.defaultAddress
-        );
-        // addresses
-      }
-    } catch (error) {
-      const errorDetails = handleGraphQLError(error);
-      setError(errorDetails);
-    } finally {
-      setLoading(false);
-    }
+export default function UpdateCustomer(): JSX.Element {
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    reset,
+    formState: { isDirty },
+  } = useForm<any>();
+
+  const { id: customerId, domain } = useParams() as {
+    id: string;
+    domain: string;
   };
+  const router = useRouter();
 
-  // handle any change
+  const [localError, setLocalError] = useState<any>(null);
+  const [customer, setCustomer] = useState<any>(null);
+
+  const watchAddress = watch("defaultAddress");
+
+  const {
+    data,
+    loading: queryLoading,
+    error: queryError,
+    refetch,
+  } = useCustomerDetailsQuery({
+    variables: { id: customerId },
+  });
+
+  const [updateCustomer, { loading: updateLoading }] =
+    useUpdateCustomerMutation();
+  const [deleteCustomer, { loading: deleteLoading }] =
+    useDeleteCustomerMutation();
+
   useEffect(() => {
-    if (customer) {
-      const hasPrimaryInfoChanged =
-        watchFirstName !== customer?.firstName ||
-        watchLastName !== customer?.lastName ||
-        watchEmail !== customer?.email;
-
-      const hasAddressChanged = !_.isEqual(
-        watchAddress,
-        customer?.defaultAddress
-      );
-
-      setHasChanges(hasPrimaryInfoChanged || hasAddressChanged);
+    if (data && data.customerDetails) {
+      setCustomer(data.customerDetails);
+      reset({
+        firstName: data.customerDetails.firstName,
+        lastName: data.customerDetails.lastName,
+        email: data.customerDetails.email,
+        defaultAddress: data.customerDetails.defaultAddress,
+      });
     }
-  }, [
-    watchFirstName,
-    watchLastName,
-    watchEmail,
-    watchAddress?.address1,
-    watchAddress?.address2,
-    watchAddress?.country,
-    watchAddress?.phone,
-    watchAddress?.zip,
-    watchAddress?.city,
-    watchAddress?.company,
-  ]);
+  }, [data, reset]);
 
-  useEffect(() => {
-    getCustomerById();
-  }, []);
-
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     const cleanData = stripTypename(data);
-    setLoading(true);
     try {
-      const response = await axios.post("/api/set-data", {
-        query: UPDATE_CUSTOMER,
+      const result = await updateCustomer({
         variables: {
           id: customerId,
           customerInputs: cleanData,
         },
       });
-      if (response.data.data.updateCustomer.customer) {
+      if (result.data?.updateCustomer?.customer) {
         toast.success("Customer updated successfully!");
-        await getCustomerById();
+        refetch();
       }
     } catch (error) {
       console.error("error", error);
-
       const errorDetails = handleGraphQLError(error);
-      setError(errorDetails);
-    } finally {
-      setLoading(false);
+      setLocalError(errorDetails);
     }
   };
+
   const handleDeleteCustomer = async () => {
     const confirmed = await swal({
       title: "Delete Customer?",
       text: "Are you sure you want to delete this customer?",
       icon: "warning",
-      buttons: true,
       dangerMode: true,
     });
     if (confirmed) {
       try {
-        setLoading(true);
-        const response = await axios.post("/api/set-data", {
-          query: DELETE_CUSTOMER,
+        const result = await deleteCustomer({
           variables: { id: customerId },
         });
-        if (response.data.data.deleteCustomer.success) {
+        if (result.data?.deleteCustomer?.success) {
           toast.success("Customer deleted successfully.");
           router.push(`/store/${domain}/customers`);
         }
@@ -140,11 +108,16 @@ export default function UpdateCustomer() {
       }
     }
   };
-  if (loading) {
+
+  const combinedLoading = queryLoading || updateLoading || deleteLoading;
+  const combinedError = localError || queryError;
+
+  if (combinedLoading) {
     return <div className="text-center mt-24">Loading...</div>;
   }
-  if (error) {
-    switch (error.type) {
+  if (combinedError) {
+    const errorDetails = handleGraphQLError(combinedError);
+    switch (errorDetails.type) {
       case "NOT_FOUND":
         notFound();
         break;
@@ -167,7 +140,7 @@ export default function UpdateCustomer() {
           </div>
         );
       default:
-        return <div className="error-message">{error.message}</div>;
+        return <div className="error-message">{errorDetails.message}</div>;
     }
   }
 
@@ -211,9 +184,9 @@ export default function UpdateCustomer() {
         size="lg"
         type="submit"
         className="fixed bottom-5 right-5 rounded-full shadow-md"
-        disabled={!hasChanges}
+        disabled={!isDirty}
       >
-        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        {updateLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
         Update
       </Button>
     </form>
