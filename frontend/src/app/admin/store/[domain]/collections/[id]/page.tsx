@@ -20,12 +20,13 @@ import swal from "sweetalert";
 import { useQuery, useMutation } from "@apollo/client";
 import useCollectionForm from "@/hooks/collection/useCollectionForm";
 import { removeTypename } from "@/lib/utils";
-import type { PageInfo, Product } from "@/types";
+import type { Product } from "@/types";
 import Admin404 from "@/components/admin/404";
 import usePreventNavigation from "@/hooks/usePreventNavigation";
 import {
   CollectionInputs,
   useAdminDeleteCollectionsMutation,
+  useAdminProductsByCollectionQuery,
   useUpdateCollectionMutation,
 } from "@/codegen/generated";
 interface ProductsByCollectionData {
@@ -91,13 +92,13 @@ export default function UpdateCollection(): JSX.Element {
     },
   });
 
-  const [pagination, setPagination] = useState<Partial<PageInfo>>({
+  const pagination = {
     first: 10,
     after: "",
-  });
+  };
 
   const { data: productsData, refetch: refetchProducts } =
-    useQuery<ProductsByCollectionData>(ADMIN_PRODUCTS_BY_COLLECTION_ID, {
+    useAdminProductsByCollectionQuery({
       variables: { collectionId, ...pagination },
       skip: !collectionId,
     });
@@ -205,8 +206,8 @@ export default function UpdateCollection(): JSX.Element {
           <AddProducts
             collectionId={collectionId}
             selectedProducts={
-              productsData?.productsByCollection?.edges?.map(
-                (edge) => edge.node
+              productsData?.productsByCollection?.edges.map(
+                (node) => node?.node
               ) || []
             }
             refetchProducts={refetchProducts}

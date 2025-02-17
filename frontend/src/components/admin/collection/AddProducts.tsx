@@ -12,11 +12,10 @@ import DataTable from "@/components/common/CustomDataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Product } from "@/types";
 
-
 // Define the props for AddProducts component
 interface AddProductsProps {
   collectionId: string;
-  selectedProducts: Product[];
+  selectedProducts: any[];
   refetchProducts: () => void;
 }
 
