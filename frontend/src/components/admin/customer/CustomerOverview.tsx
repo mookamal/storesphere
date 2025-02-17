@@ -2,7 +2,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-export default function CustomerOverview({ register }) {
+
+export default function CustomerOverview({ register }: any) {
   return (
     <Card className="card w-full md:w-[60%] lg:w-[40%]">
       <CardHeader>

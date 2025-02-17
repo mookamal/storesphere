@@ -17,19 +17,28 @@ import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import Select from "react-select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-countries.registerLocale(enLocale);
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { useState } from "react";
+
+countries.registerLocale(enLocale);
+
+interface CustomerAddressInputsProps {
+  register: any;
+  control: any;
+  setValue: any;
+  watchAddress: any;
+}
+
 export default function CustomerAddressInputs({
   register,
   control,
   setValue,
   watchAddress,
-}) {
-  const [error, setError] = useState(null);
+}: CustomerAddressInputsProps): JSX.Element {
+  const [error, setError] = useState<string | null>(null);
   const countryObj = countries.getNames("en", { select: "official" });
   const countryList = Object.entries(countryObj);
-  const optionCountries = [];
+  const optionCountries: any[] = [];
   for (let i = 0; i < countryList.length; i++) {
     optionCountries.push({
       value: countryList[i][0],
@@ -37,7 +46,7 @@ export default function CustomerAddressInputs({
     });
   }
 
-  const handlePhoneNumber = (number) => {
+  const handlePhoneNumber = (number: any) => {
     if (number) {
       setError(null);
       if (isValidPhoneNumber(number)) {
@@ -77,19 +86,18 @@ export default function CustomerAddressInputs({
             <Controller
               control={control}
               name="defaultAddress.country"
-              render={({ field }) => (
+              render={({ field }: any) => (
                 <Select
-                  inputRef={field.ref}
                   options={optionCountries}
                   id="country"
                   value={optionCountries.find(
                     (option) => option.value === field.value?.code
                   )}
-                  onChange={(e) =>
+                  onChange={(e: any) =>
                     field.onChange({ name: e.label, code: e.value })
                   }
                   classNames={{
-                    option: ({ isFocused, isSelected }) =>
+                    option: ({ isFocused, isSelected }: any) =>
                       `${isFocused ? "dark:bg-blue-100" : ""} ${
                         isSelected ? "dark:bg-blue-500 dark:text-white" : ""
                       } dark:text-gray-800`,
@@ -113,7 +121,6 @@ export default function CustomerAddressInputs({
             <Input id="address1" {...register("defaultAddress.address1")} />
           </div>
           {/* address2 */}
-
           <div>
             <div className="mb-2">
               <Label htmlFor="address2">Apartment, suite, etc</Label>
