@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {cardVariants } from "@/utils/cardVariants";
+import { cardVariants } from "@/utils/cardVariants";
 export default function PriceInput({ register, currencyCode, price, compare }) {
   const showWarning = price > 0 && compare > 0 && price >= compare;
 
@@ -25,7 +25,7 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
                 type="number"
                 placeholder="0.00"
                 step="0.01"
-                {...register("price")}
+                {...register("firstVariant.price")}
               />
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
                 type="number"
                 placeholder="0.00"
                 step="0.01"
-                {...register("compare")}
+                {...register("firstVariant.compareAtPrice")}
               />
             </div>
           </div>
@@ -65,7 +65,10 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
             size="sm"
             type="number"
             placeholder="0"
-            {...register("stock")}
+            {...register("firstVariant.stock", {
+              valueAsNumber: true,
+              defaultValue: 0
+            })}
           />
         </div>
       </CardContent>

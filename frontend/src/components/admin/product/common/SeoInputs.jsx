@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {cardVariants } from "@/utils/cardVariants";
+import { cardVariants } from "@/utils/cardVariants";
 export default function SeoInputs({ register, domain, handle }) {
   return (
     <Card className={cardVariants.base}>
@@ -19,7 +19,7 @@ export default function SeoInputs({ register, domain, handle }) {
             id="seoTitle"
             size="sm"
             type="text"
-            {...register("seoTitle")}
+            {...register("seo.title")}
             placeholder="seo title"
           />
         </div>
@@ -31,7 +31,7 @@ export default function SeoInputs({ register, domain, handle }) {
           <Textarea
             id="seoDescription"
             size="sm"
-            {...register("seoDescription")}
+            {...register("seo.description")}
             placeholder="seo description"
           />
         </div>
