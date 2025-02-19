@@ -3,11 +3,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { ADMIN_COLLECTIONS_FIND } from "@/graphql/queries";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { CiCircleRemove } from "react-icons/ci";
-import {cardVariants } from "@/utils/cardVariants";
+import { cardVariants } from "@/utils/cardVariants";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -22,18 +20,37 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronsUpDown } from "lucide-react";
+import {
+  CollectionNode,
+  useAdminCollectionsFindQuery,
+} from "@/codegen/generated";
+
+// Define the props for the ProductOrganization component.
+interface ProductOrganizationProps {
+  domain: string;
+  selectedCollections: Partial<CollectionNode>[];
+  setSelectedCollections: React.Dispatch<
+    React.SetStateAction<Partial<CollectionNode>[]>
+  >;
+}
 
 export default function ProductOrganization({
   domain,
   selectedCollections,
   setSelectedCollections,
-}) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [collections, setCollections] = useState([]);
-  const [open, setOpen] = useState(false);
+}: ProductOrganizationProps) {
+  // State to manage loading status.
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // State to manage the search input.
+  const [search, setSearch] = useState<string>("");
+  // State to manage the open state of the popover.
+  const [open, setOpen] = useState<boolean>(false);
 
-  const handleSelectedCollection = (checked, collection) => {
+  // Handles selection and deselection of a collection.
+  const handleSelectedCollection = (
+    checked: boolean,
+    collection: Partial<CollectionNode>
+  ): void => {
     setSelectedCollections((prev) => {
       if (checked) {
         return [...prev, collection];
@@ -43,29 +60,22 @@ export default function ProductOrganization({
     });
   };
 
-  const fetchCollections = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post("/api/get-data", {
-        query: ADMIN_COLLECTIONS_FIND,
-        variables: {
-          domain: domain,
-          search: search,
-          first: 10,
-        },
-      });
-      if (response.data.collectionsFind) {
-        setCollections(response.data.collectionsFind.edges);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Fetch collections from the API.
+  const {
+    data: collectionsData,
+    error: collectionsError,
+    refetch,
+  } = useAdminCollectionsFindQuery({
+    variables: {
+      domain: domain,
+      search: search,
+      first: 10,
+    },
+  });
 
+  // Re-fetch collections whenever the search query changes.
   useEffect(() => {
-    fetchCollections();
+    refetch();
   }, [search]);
 
   return (
@@ -75,7 +85,6 @@ export default function ProductOrganization({
       </CardHeader>
       <CardContent className={cardVariants.content}>
         <div className="md:w-2/4 mx-auto">
-          {" "}
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -92,26 +101,38 @@ export default function ProductOrganization({
                 <Input
                   type="text"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearch(e.target.value)
+                  }
                 />
                 <CommandList>
                   <CommandEmpty>
                     {isLoading ? "Loading.." : "No collection found."}
                   </CommandEmpty>
                   <CommandGroup>
-                    {collections.map(({ node }) => (
-                      <CommandItem key={node.collectionId} value={node.title}>
-                        <Checkbox
-                          checked={selectedCollections.some(
-                            (c) => c.collectionId === node.collectionId
-                          )}
-                          onCheckedChange={(checked) =>
-                            handleSelectedCollection(checked, node)
-                          }
-                        />
-                        {node.title}
-                      </CommandItem>
-                    ))}
+                    {collectionsData?.collectionsFind?.edges.map(
+                      (edge) =>
+                        edge?.node && (
+                          <CommandItem
+                            key={edge.node.collectionId}
+                            value={edge.node.title}
+                          >
+                            <Checkbox
+                              checked={selectedCollections.some(
+                                (c) =>
+                                  c.collectionId === edge.node?.collectionId
+                              )}
+                              onCheckedChange={(checked: boolean) => {
+                                handleSelectedCollection(
+                                  checked,
+                                  edge.node as Partial<CollectionNode>
+                                );
+                              }}
+                            />
+                            {edge.node.title}
+                          </CommandItem>
+                        )
+                    )}
                   </CommandGroup>
                 </CommandList>
               </Command>

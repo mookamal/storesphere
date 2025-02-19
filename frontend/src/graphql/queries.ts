@@ -268,6 +268,7 @@ export const ADMIN_COLLECTIONS_FIND = gql`
     ) {
       edges {
         node {
+          id
           title
           collectionId
         }

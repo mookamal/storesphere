@@ -28,7 +28,7 @@ export default function AddProduct(): JSX.Element {
   // Casting useParams to expected shape; adjust if necessary.
   const { domain } = useParams() as { domain: string };
   const [selectedCollections, setSelectedCollections] = useState<
-    CollectionNode[]
+    Partial<CollectionNode>[]
   >([]);
   const [selectedImages, setSelectedImages] = useState<any>([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);

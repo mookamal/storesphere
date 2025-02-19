@@ -1673,7 +1673,7 @@ export type AdminCollectionsFindQueryVariables = Exact<{
 }>;
 
 
-export type AdminCollectionsFindQuery = { __typename?: 'Query', collectionsFind?: { __typename?: 'CollectionNodeConnection', edges: Array<{ __typename?: 'CollectionNodeEdge', node?: { __typename?: 'CollectionNode', title: string, collectionId?: number | null } | null } | null> } | null };
+export type AdminCollectionsFindQuery = { __typename?: 'Query', collectionsFind?: { __typename?: 'CollectionNodeConnection', edges: Array<{ __typename?: 'CollectionNodeEdge', node?: { __typename?: 'CollectionNode', id: string, title: string, collectionId?: number | null } | null } | null> } | null };
 
 export type CustomerListAdminQueryVariables = Exact<{
   domain: Scalars['String']['input'];
@@ -2932,6 +2932,7 @@ export const AdminCollectionsFindDocument = gql`
   collectionsFind(defaultDomain: $domain, title_Icontains: $search, first: $first) {
     edges {
       node {
+        id
         title
         collectionId
       }
