@@ -14,6 +14,7 @@ import MediaInputs from "@/components/admin/product/common/MediaInputs";
 import { Button } from "@/components/ui/button";
 import ProductOrganization from "@/components/admin/product/common/ProductOrganization";
 import {
+  CollectionNode,
   CreateProductMutationMutationVariables,
   ProductInput,
   ProductProductStatusChoices,
@@ -22,18 +23,13 @@ import {
   useSettingsGeneralQuery,
 } from "@/codegen/generated";
 
-// Interface for a collection item
-interface ICollection {
-  collectionId: string;
-}
-
 export default function AddProduct(): JSX.Element {
   const router = useRouter();
   // Casting useParams to expected shape; adjust if necessary.
   const { domain } = useParams() as { domain: string };
-  const [selectedCollections, setSelectedCollections] = useState<ICollection[]>(
-    []
-  );
+  const [selectedCollections, setSelectedCollections] = useState<
+    CollectionNode[]
+  >([]);
   const [selectedImages, setSelectedImages] = useState<any>([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
 
@@ -53,13 +49,13 @@ export default function AddProduct(): JSX.Element {
       description: JSON.stringify({
         time: Date.now(),
         blocks: [],
-        version: "2.31.0-rc.7"
+        version: "2.31.0-rc.7",
       }),
       firstVariant: {
         price: "0.00",
         compareAtPrice: "0.00",
         optionValues: [],
-        stock: 0
+        stock: 0,
       },
       status: ProductProductStatusChoices.Draft,
       seo: {
@@ -67,8 +63,8 @@ export default function AddProduct(): JSX.Element {
         description: "",
       },
       options: [],
-      collectionIds: []
-    }
+      collectionIds: [],
+    },
   });
 
   const description = watch("description");
@@ -157,9 +153,13 @@ export default function AddProduct(): JSX.Element {
   });
   // Form submission handler
   const onSubmit: SubmitHandler<ProductInput> = async (data) => {
-    if (typeof data.description === 'object') {
+    if (typeof data.description === "object") {
       data.description = JSON.stringify(data.description);
     }
+    // add list of selected collections to the product
+    data.collectionIds = selectedCollections
+      .map((collection) => collection.collectionId?.toString())
+      .filter((id): id is string => id !== undefined);
     const variables: CreateProductMutationMutationVariables = {
       defaultDomain: domain,
       product: data,
