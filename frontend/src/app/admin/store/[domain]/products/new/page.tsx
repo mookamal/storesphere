@@ -16,6 +16,7 @@ import ProductOrganization from "@/components/admin/product/common/ProductOrgani
 import {
   CollectionNode,
   CreateProductMutationMutationVariables,
+  ImageNode,
   ProductInput,
   ProductProductStatusChoices,
   useAddMediaImagesProductMutation,
@@ -31,7 +32,9 @@ export default function AddProduct(): JSX.Element {
     Partial<CollectionNode>[]
   >([]);
   const [selectedImages, setSelectedImages] = useState<any>([]);
-  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState<
+    Partial<ImageNode>[]
+  >([]);
 
   const {
     register,
@@ -184,7 +187,7 @@ export default function AddProduct(): JSX.Element {
             setSelectedImages={setSelectedImages}
             selectedRemoveImages={selectedRemoveImages}
             setSelectedRemoveImages={setSelectedRemoveImages}
-            removeSelectedImagesUpdate={() => {}}
+            removeSelectedImagesUpdate={async () => {}}
           />
           {/* Price input */}
           <PriceInput

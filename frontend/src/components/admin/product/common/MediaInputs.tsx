@@ -1,14 +1,39 @@
 "use client";
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Trash2, ImagePlus } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Trash2, ImagePlus } from "lucide-react";
 import { cardVariants } from "@/utils/cardVariants";
 import MediaModal from "@/components/admin/product/common/MediaModal";
+import { ImageNode } from "@/codegen/generated";
+
+// Define the props for MediaInputs.
+interface MediaInputsProps {
+  selectedImages: Partial<ImageNode>[];
+  setSelectedImages: React.Dispatch<React.SetStateAction<Partial<ImageNode>[]>>;
+  selectedRemoveImages: Partial<ImageNode>[];
+  setSelectedRemoveImages: React.Dispatch<
+    React.SetStateAction<Partial<ImageNode>[]>
+  >;
+  isEditMode?: boolean;
+  removeSelectedImagesUpdate?: () => Promise<void>;
+  maxImages?: number;
+}
 
 export default function MediaInputs({
   selectedImages = [],
@@ -17,29 +42,44 @@ export default function MediaInputs({
   setSelectedRemoveImages,
   isEditMode = false,
   removeSelectedImagesUpdate,
-  maxImages = 10
-}) {
-  const handleSelectRemoveImages = useCallback((image, isChecked) => {
-    setSelectedRemoveImages(prev => 
-      isChecked 
-        ? [...prev, image]
-        : prev.filter(item => item.id !== image.id)
-    );
-  }, [setSelectedRemoveImages]);
+  maxImages = 10,
+}: MediaInputsProps): JSX.Element {
+  // Callback to handle selection or deselection of images for removal.
+  const handleSelectRemoveImages = useCallback(
+    (image: Partial<ImageNode>, isChecked: boolean) => {
+      setSelectedRemoveImages((prev) =>
+        isChecked
+          ? [...prev, image]
+          : prev.filter((item) => item.id !== image.id)
+      );
+    },
+    [setSelectedRemoveImages]
+  );
 
-  const removeSelectedImages = useCallback(async () => {
+  // Callback to remove the selected images.
+  const removeSelectedImages = useCallback(async (): Promise<void> => {
     if (isEditMode && removeSelectedImagesUpdate) {
       await removeSelectedImagesUpdate();
     } else {
-      setSelectedImages(prev => 
-        prev.filter(item => !selectedRemoveImages.some(remove => remove.id === item.id))
+      setSelectedImages((prev) =>
+        prev.filter(
+          (item) =>
+            !selectedRemoveImages.some((remove) => remove.id === item.id)
+        )
       );
     }
     setSelectedRemoveImages([]);
-  }, [isEditMode, removeSelectedImagesUpdate, selectedRemoveImages, setSelectedImages, setSelectedRemoveImages]);
+  }, [
+    isEditMode,
+    removeSelectedImagesUpdate,
+    selectedRemoveImages,
+    setSelectedImages,
+    setSelectedRemoveImages,
+  ]);
 
-  const canAddMoreImages = useMemo(() => 
-    selectedImages.length < maxImages, 
+  // Determine if more images can be added.
+  const canAddMoreImages = useMemo(
+    () => selectedImages.length < maxImages,
     [selectedImages, maxImages]
   );
 
@@ -55,9 +95,9 @@ export default function MediaInputs({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={removeSelectedImages}
                       className="flex items-center gap-2"
                     >
@@ -81,6 +121,7 @@ export default function MediaInputs({
                       selectedImages={selectedImages}
                       setSelectedImages={setSelectedImages}
                       disabled={!canAddMoreImages}
+                      externalLoading={false}
                     />
                   </TooltipTrigger>
                   {!canAddMoreImages && (
@@ -103,35 +144,37 @@ export default function MediaInputs({
           </div>
         ) : (
           <div className="flex justify-center">
-            <Carousel
-              opts={{ align: "start" }}
-              className="w-full max-w-sm"
-            >
+            <Carousel opts={{ align: "start" }} className="w-full max-w-sm">
               <CarouselContent>
                 {selectedImages.map((image) => (
-                  <CarouselItem 
-                    key={image.id || image.imageId} 
+                  <CarouselItem
+                    key={image.id || image.imageId}
                     className="basis-1/2 lg:basis-1/3"
                   >
                     <div className="p-1 group">
                       <div
                         className={`
-                          flex flex-col items-center gap-2 p-2 rounded-lg transition-all 
-                          ${selectedRemoveImages.some(selectedImage => 
-                            selectedImage.id === image.id || 
-                            selectedImage.id === image.imageId
-                          ) 
-                            ? 'border-2 border-red-400 bg-red-50/20 dark:bg-red-950/20' 
-                            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                          flex flex-col items-center gap-2 p-2 rounded-lg transition-all
+                          ${
+                            selectedRemoveImages.some(
+                              (selectedImage) =>
+                                selectedImage.id === image.id ||
+                                selectedImage.id === image.imageId
+                            )
+                              ? "border-2 border-red-400 bg-red-50/20 dark:bg-red-950/20"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-800"
                           }
                         `}
                       >
                         <Checkbox
                           id={`remove-${image.id || image.imageId}`}
-                          onCheckedChange={(checked) => handleSelectRemoveImages(image, checked)}
-                          checked={selectedRemoveImages.some(selectedImage => 
-                            selectedImage.id === image.id || 
-                            selectedImage.id === image.imageId
+                          onCheckedChange={(checked: boolean) =>
+                            handleSelectRemoveImages(image, checked)
+                          }
+                          checked={selectedRemoveImages.some(
+                            (selectedImage) =>
+                              selectedImage.id === image.id ||
+                              selectedImage.id === image.imageId
                           )}
                         />
                         <img
