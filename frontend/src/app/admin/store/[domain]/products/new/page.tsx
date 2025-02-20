@@ -129,7 +129,7 @@ export default function AddProduct(): JSX.Element {
 
   const [createProduct, { loading }] = useCreateProductMutationMutation({
     onCompleted: (data) => {
-      if (data.createProduct?.product?.productId) {
+      if (data.createProduct?.product?.productId && selectedImages.length > 0) {
         addImages({
           variables: {
             productId: data.createProduct.product.productId.toString(),
@@ -139,13 +139,11 @@ export default function AddProduct(): JSX.Element {
             defaultDomain: domain,
           },
         });
-        router.push(
-          `/store/${domain}/products/${data.createProduct.product.productId}`
-        );
-        toast.success("Product created successfully!");
-      } else {
-        toast.error("Failed to create product!");
       }
+      router.push(
+        `/store/${domain}/products/${data?.createProduct?.product?.productId}`
+      );
+      toast.success("Product created successfully!");
     },
     onError: () => {
       toast.error("Failed to create product!");
@@ -219,9 +217,12 @@ export default function AddProduct(): JSX.Element {
         size="lg"
         type="submit"
         className="fixed bottom-5 right-5 rounded-full shadow-md"
-        disabled={loading}
+        disabled={loading || addImagesLoading}
       >
-        {loading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        {loading ||
+          (addImagesLoading && (
+            <IoReload className="mr-2 h-4 w-4 animate-spin" />
+          ))}
         Add
       </Button>
     </form>
