@@ -39,8 +39,6 @@ export default function ProductOrganization({
   selectedCollections,
   setSelectedCollections,
 }: ProductOrganizationProps) {
-  // State to manage loading status.
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   // State to manage the search input.
   const [search, setSearch] = useState<string>("");
   // State to manage the open state of the popover.
@@ -64,6 +62,7 @@ export default function ProductOrganization({
   const {
     data: collectionsData,
     error: collectionsError,
+    loading: collectionsLoading,
     refetch,
   } = useAdminCollectionsFindQuery({
     variables: {
@@ -107,7 +106,7 @@ export default function ProductOrganization({
                 />
                 <CommandList>
                   <CommandEmpty>
-                    {isLoading ? "Loading.." : "No collection found."}
+                    {collectionsLoading ? "Loading.." : "No collection found."}
                   </CommandEmpty>
                   <CommandGroup>
                     {collectionsData?.collectionsFind?.edges.map(
