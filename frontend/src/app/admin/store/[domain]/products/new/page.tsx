@@ -192,7 +192,7 @@ export default function AddProduct(): JSX.Element {
           {/* Price input */}
           <PriceInput
             register={register}
-            currencyCode={storeData?.store?.currencyCode}
+            currencyCode={storeData?.store?.currencyCode ?? "USD"}
             price={price}
             compare={compare}
           />

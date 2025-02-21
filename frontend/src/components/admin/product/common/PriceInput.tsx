@@ -1,9 +1,27 @@
 "use client";
+
+import { ProductInput } from "@/codegen/generated";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cardVariants } from "@/utils/cardVariants";
-export default function PriceInput({ register, currencyCode, price, compare }) {
+import type { UseFormRegister } from "react-hook-form";
+
+// Define props for the PriceInput component.
+interface PriceInputProps {
+  register: UseFormRegister<ProductInput>; // Adjust the generic type if you have a specific form type.
+  currencyCode: string;
+  price: number;
+  compare: number;
+}
+
+export default function PriceInput({
+  register,
+  currencyCode,
+  price,
+  compare,
+}: PriceInputProps): JSX.Element {
+  // Show warning if price is greater than or equal to compare-at price.
   const showWarning = price > 0 && compare > 0 && price >= compare;
 
   return (
@@ -21,7 +39,6 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
               <span>{currencyCode}</span>
               <Input
                 id="price"
-                size="sm"
                 type="number"
                 placeholder="0.00"
                 step="0.01"
@@ -37,7 +54,6 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
               <span>{currencyCode}</span>
               <Input
                 id="compare"
-                size="sm"
                 type="number"
                 placeholder="0.00"
                 step="0.01"
@@ -59,16 +75,11 @@ export default function PriceInput({ register, currencyCode, price, compare }) {
           <div className="mb-2">
             <Label htmlFor="stock">Stock Quantity</Label>
           </div>
-
           <Input
             id="stock"
-            size="sm"
             type="number"
             placeholder="0"
-            {...register("firstVariant.stock", {
-              valueAsNumber: true,
-              defaultValue: 0
-            })}
+            {...register("firstVariant.stock", { valueAsNumber: true })}
           />
         </div>
       </CardContent>
