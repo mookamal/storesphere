@@ -15,8 +15,8 @@ export default function EditableOption({
   toggleEdit,
   control,
   remove,
+  isEditing,
 }) {
-  const isEditing = watch(`options.${index}.isEditing`);
   const optionName = watch(`options.${index}.name`);
   const optionValues = watch(`options.${index}.values`);
   return (
