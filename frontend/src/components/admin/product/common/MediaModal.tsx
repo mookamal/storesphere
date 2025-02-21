@@ -50,7 +50,7 @@ export default function MediaModal({
     fetchMore,
     refetch,
   } = useGetMediaImagesQuery({
-    variables: { domain, first: 2, after: "" },
+    variables: { domain, first: 10, after: "" },
   });
 
   // Compute current endCursor and hasNextPage from the query data.
@@ -136,6 +136,24 @@ export default function MediaModal({
     if (fetchMore) {
       await fetchMore({
         variables: { after: currentEndCursor },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (
+            !previousResult?.allMediaImages ||
+            !fetchMoreResult?.allMediaImages
+          ) {
+            return previousResult;
+          }
+          return {
+            allMediaImages: {
+              __typename: previousResult.allMediaImages.__typename,
+              edges: [
+                ...previousResult.allMediaImages.edges,
+                ...fetchMoreResult.allMediaImages.edges,
+              ],
+              pageInfo: fetchMoreResult.allMediaImages.pageInfo,
+            },
+          };
+        },
       });
     }
   };
