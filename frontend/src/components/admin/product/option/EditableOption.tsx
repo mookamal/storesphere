@@ -1,9 +1,36 @@
+"use client";
+
 import OptionValues from "@/components/admin/product/option/OptionValues";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { BiEdit } from "react-icons/bi";
 import { Badge } from "@/components/ui/badge";
+import type {
+  Control,
+  FieldErrors,
+  UseFormRegister,
+  UseFormTrigger,
+  UseFormWatch,
+  UseFormGetValues,
+} from "react-hook-form";
+import type { ProductInput } from "@/codegen/generated";
+
+// You can further refine the type for field using FieldArrayWithId<ProductInput, "id">
+interface EditableOptionProps {
+  field: any;
+  index: number;
+  register: UseFormRegister<ProductInput>;
+  errors: FieldErrors<ProductInput>;
+  trigger: UseFormTrigger<ProductInput>;
+  watch: UseFormWatch<ProductInput>;
+  getValues: UseFormGetValues<ProductInput>;
+  toggleEdit: (index: number) => void;
+  control: Control<ProductInput>;
+  remove: (index: number) => void;
+  isEditing: boolean;
+}
+
 export default function EditableOption({
   field,
   index,
@@ -16,9 +43,12 @@ export default function EditableOption({
   control,
   remove,
   isEditing,
-}) {
-  const optionName = watch(`options.${index}.name`);
-  const optionValues = watch(`options.${index}.values`);
+}: EditableOptionProps): JSX.Element {
+  const optionName = watch(`options.${index}.name`) as string;
+  const optionValues = watch(`options.${index}.values`) as Array<{
+    name: string;
+  }>;
+
   return (
     <>
       {isEditing ? (
@@ -32,10 +62,9 @@ export default function EditableOption({
               {...register(`options.${index}.name`, {
                 required: "Option name is required",
                 validate: {
-                  unique: (value) => {
-                    const values = getValues().options.map(
-                      (option) => option.name
-                    );
+                  unique: (value: string) => {
+                    const options = getValues().options ?? [];
+                    const values = options.map((option) => option?.name ?? "");
                     const isDuplicate =
                       values.filter((v) => v === value).length > 1;
                     return !isDuplicate || "This value must be unique";
@@ -43,7 +72,6 @@ export default function EditableOption({
                 },
               })}
               placeholder="Size"
-              control={control}
               color={
                 errors.options && errors.options[index] ? "failure" : "gray"
               }
@@ -51,7 +79,7 @@ export default function EditableOption({
             />
             {errors.options && errors.options[index]?.name && (
               <span className="text-red-500 text-sm">
-                {errors.options[index].name.message}
+                {errors.options[index].name?.message}
               </span>
             )}
           </div>
@@ -99,12 +127,12 @@ export default function EditableOption({
             </Button>
           </div>
           <div className="flex gap-1">
-            {/* for on optionValues to show value not use input */}
-            {optionValues.map((value, valueIndex) => (
-              <div key={valueIndex}>
-                <Badge variant="outline">{value.name}</Badge>
-              </div>
-            ))}
+            {Array.isArray(optionValues) &&
+              optionValues.map((value, valueIndex) => (
+                <div key={valueIndex}>
+                  <Badge variant="outline">{value.name}</Badge>
+                </div>
+              ))}
           </div>
         </div>
       )}
