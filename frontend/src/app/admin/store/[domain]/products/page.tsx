@@ -137,6 +137,10 @@ function ProductsPageContent(): JSX.Element {
         <h1 className="text-2xl font-bold tracking-tight dark:text-white">
           Products Management
         </h1>
+        <Link href={`/store/${params.domain}/products/new`}>
+          <Button variant="outline">Add Product</Button>
+        </Link>
+        {/* Closing the Link component */}
       </div>
 
       <div className="flex items-center space-x-4 mb-6">
