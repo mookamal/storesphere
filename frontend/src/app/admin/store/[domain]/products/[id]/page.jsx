@@ -26,9 +26,14 @@ import MediaInputs from "@/components/admin/product/common/MediaInputs";
 import OptionInputs from "@/components/admin/product/option/OptionInputs";
 import VariantCard from "@/components/admin/product/variant/VariantCard";
 import ProductOrganization from "@/components/admin/product/common/ProductOrganization";
-import { processDescription,safeParseNumber,cleanOptionsData,cleanCollections } from "@/utils/dataTransformers";
+import {
+  processDescription,
+  safeParseNumber,
+  cleanOptionsData,
+  cleanCollections,
+} from "@/utils/dataTransformers";
+import { useSettingsGeneralQuery } from "@/codegen/generated";
 export default function UpdateProduct() {
-  const [storeData, setStoreData] = useState(null);
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -69,22 +74,9 @@ export default function UpdateProduct() {
   const [copyMediaImages, setCopyMediaImages] = useState([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
 
-  const getStoreData = async () => {
-    setLoading(true);
-    const dataBody = {
-      query: GET_SETTINGS_GENERAL,
-      variables: {
-        domain: domain,
-      },
-    };
-    try {
-      const response = await axios.post("/api/get-data", dataBody);
-      setStoreData(response.data.store);
-    } catch (error) {
-      console.error(error);
-    }
-    setLoading(false);
-  };
+  const { data: storeData } = useSettingsGeneralQuery({
+    variables: { domain },
+  });
 
   const removeSelectedImages = async () => {
     setLoading(true);
@@ -122,35 +114,39 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     // Ensure all comparisons are safe and handle potential undefined values
-    const hasBasicChanges = 
+    const hasBasicChanges =
       title !== product?.title ||
-      processDescription(description) !== processDescription(product?.description) ||
+      processDescription(description) !==
+        processDescription(product?.description) ||
       status !== product?.status ||
       handle !== product?.handle ||
       seoTitle !== product?.seo?.title ||
       seoDescription !== product?.seo?.description ||
-      safeParseNumber(price) !== safeParseNumber(product?.firstVariant?.pricing?.amount) ||
-      safeParseNumber(compare) !== safeParseNumber(product?.firstVariant?.compareAtPrice) ||
-      safeParseNumber(stock) !== safeParseNumber(product?.firstVariant?.stock) ||
-      JSON.stringify(cleanOptionsData(options)) !== 
+      safeParseNumber(price) !==
+        safeParseNumber(product?.firstVariant?.pricing?.amount) ||
+      safeParseNumber(compare) !==
+        safeParseNumber(product?.firstVariant?.compareAtPrice) ||
+      safeParseNumber(stock) !==
+        safeParseNumber(product?.firstVariant?.stock) ||
+      JSON.stringify(cleanOptionsData(options)) !==
         JSON.stringify(cleanOptionsData(product?.options || [])) ||
-      JSON.stringify(cleanCollections(selectedCollections)) !== 
+      JSON.stringify(cleanCollections(selectedCollections)) !==
         JSON.stringify(cleanCollections(product?.collections || []));
-  
+
     setHasChanges(hasBasicChanges);
   }, [
-    title, 
-    description, 
-    status, 
-    handle, 
-    seoTitle, 
-    seoDescription, 
-    price, 
-    compare, 
-    stock, 
-    options, 
+    title,
+    description,
+    status,
+    handle,
+    seoTitle,
+    seoDescription,
+    price,
+    compare,
+    stock,
+    options,
     selectedCollections,
-    product
+    product,
   ]);
 
   const addImages = async (productId) => {
@@ -194,7 +190,6 @@ export default function UpdateProduct() {
   }, [title, description]);
 
   useEffect(() => {
-    getStoreData();
     getProductById();
     getMediaProduct();
   }, []);
@@ -354,7 +349,7 @@ export default function UpdateProduct() {
           {/* price input */}
           <PriceInput
             register={register}
-            currencyCode={storeData?.currencyCode}
+            currencyCode={storeData?.store?.currencyCode}
             price={price}
             compare={compare}
           />
@@ -377,7 +372,10 @@ export default function UpdateProduct() {
             setValue={setValue}
           />
           {/* Variant card */}
-          <VariantCard watch={watch} currencyCode={storeData?.currencyCode} />
+          <VariantCard
+            watch={watch}
+            currencyCode={storeData?.store?.currencyCode}
+          />
         </div>
       </div>
       <Button
