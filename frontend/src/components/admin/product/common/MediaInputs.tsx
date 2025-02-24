@@ -98,6 +98,7 @@ export default function MediaInputs({
                     <Button
                       variant="destructive"
                       size="sm"
+                      type="button"
                       onClick={removeSelectedImages}
                       className="flex items-center gap-2"
                     >

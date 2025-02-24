@@ -91,9 +91,15 @@ export default function UpdateProduct() {
   const [removeImages, { loading: removeImagesLoading }] =
     useRemoveMediaImagesProductMutation({
       onCompleted: () => {
+        const updatedImages = mediaImages.filter(
+          (img) =>
+            !selectedRemoveImages.some((removed) => removed.id === img.id)
+        );
+        setMediaImages(updatedImages);
+        setCopyMediaImages(updatedImages);
+        setSelectedRemoveImages([]);
         toast.success("Media images removed successfully!");
         refetchMedia();
-        setSelectedRemoveImages([]);
       },
       onError: (error) => {
         toast.error("Failed to remove media images from the product.");
