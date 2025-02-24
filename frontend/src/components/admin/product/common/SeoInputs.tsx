@@ -1,10 +1,25 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cardVariants } from "@/utils/cardVariants";
-export default function SeoInputs({ register, domain, handle }) {
+import type { UseFormRegister } from "react-hook-form";
+import type { ProductInput } from "@/codegen/generated";
+
+interface SeoInputsProps {
+  register: UseFormRegister<ProductInput>;
+  domain: string;
+  handle: string;
+}
+
+export default function SeoInputs({
+  register,
+  domain,
+  handle,
+}: SeoInputsProps): JSX.Element {
   return (
     <Card className={cardVariants.base}>
       <CardHeader className={cardVariants.header}>
@@ -17,7 +32,6 @@ export default function SeoInputs({ register, domain, handle }) {
           </div>
           <Input
             id="seoTitle"
-            size="sm"
             type="text"
             {...register("seo.title")}
             placeholder="seo title"
@@ -30,7 +44,6 @@ export default function SeoInputs({ register, domain, handle }) {
           </div>
           <Textarea
             id="seoDescription"
-            size="sm"
             {...register("seo.description")}
             placeholder="seo description"
           />
@@ -39,11 +52,11 @@ export default function SeoInputs({ register, domain, handle }) {
         <div className="my-2">
           <div className="mb-2">
             <h2>URL handle</h2>
-            <Badge size="xs" className="my-3">
+            <Badge className="my-3">
               https://{domain}.my-store.com/{handle}
             </Badge>
           </div>
-          <Input size="sm" {...register("handle")} />
+          <Input {...register("handle")} />
         </div>
       </CardContent>
     </Card>

@@ -203,7 +203,11 @@ export default function AddProduct(): JSX.Element {
             setSelectedCollections={setSelectedCollections}
           />
           {/* SEO inputs */}
-          <SeoInputs register={register} domain={domain} handle={handleValue} />
+          <SeoInputs
+            register={register}
+            domain={domain}
+            handle={handleValue as string}
+          />
           {/* Option inputs */}
           <OptionInputs
             register={register}
