@@ -32,7 +32,18 @@ import {
   cleanOptionsData,
   cleanCollections,
 } from "@/utils/dataTransformers";
-import { useSettingsGeneralQuery } from "@/codegen/generated";
+import {
+  useSettingsGeneralQuery,
+  useGetMediaProductQuery,
+  useRemoveMediaImagesProductMutation,
+  useUpdateProductMutation,
+  ProductNode,
+  ImageNode,
+  CollectionNode,
+  ProductInput,
+  ProductProductStatusChoices,
+  useAddMediaImagesProductMutation,
+} from "@/codegen/generated";
 export default function UpdateProduct() {
   const domain = useParams().domain;
   const [loading, setLoading] = useState(false);
@@ -77,30 +88,28 @@ export default function UpdateProduct() {
   const { data: storeData } = useSettingsGeneralQuery({
     variables: { domain },
   });
-
+  const [removeImages, { loading: removeImagesLoading }] =
+    useRemoveMediaImagesProductMutation({
+      onCompleted: () => {
+        toast.success("Media images removed successfully!");
+        refetchMedia();
+        setSelectedRemoveImages([]);
+      },
+      onError: (error) => {
+        toast.error("Failed to remove media images from the product.");
+        console.error("Remove images error:", error);
+      },
+    });
   const removeSelectedImages = async () => {
-    setLoading(true);
     if (selectedRemoveImages.length > 0) {
-      const dataBody = {
-        query: REMOVE_MEDIA_IMAGES_PRODUCT,
+      await removeImages({
         variables: {
-          productId: productId,
+          productId,
           imageIds: selectedRemoveImages.map((item) => item.id),
           defaultDomain: domain,
         },
-      };
-      try {
-        const response = await axios.post("/api/set-data", dataBody);
-        if (response.data.data.removeImagesProduct.product.id) {
-          toast.success("Media images removed successfully!");
-          getMediaProduct();
-          setSelectedRemoveImages([]);
-        }
-      } catch (error) {
-        toast.error("Failed to remove media images from the product.");
-      }
+      });
     }
-    setLoading(false);
   };
 
   const handleBlur = () => {
@@ -149,28 +158,28 @@ export default function UpdateProduct() {
     product,
   ]);
 
+  const [addMediaImages, { loading: addImagesLoading }] =
+    useAddMediaImagesProductMutation({
+      onCompleted: () => {
+        toast.success("Media images added successfully!");
+        refetchMedia();
+      },
+      onError: (error) => {
+        toast.error("Failed to add media images to the product.");
+        console.error("Add images error:", error);
+      },
+    });
+
   const addImages = async (productId) => {
-    setLoading(true);
-    if (productId || mediaImages.length > 0) {
-      const dataBody = {
-        query: ADD_MEDIA_IMAGES_PRODUCT,
+    if (productId && mediaImages.length > 0) {
+      await addMediaImages({
         variables: {
-          productId: productId,
+          productId,
           imageIds: mediaImages.map((item) => item.id),
           defaultDomain: domain,
         },
-      };
-      try {
-        const response = await axios.post("/api/set-data", dataBody);
-        if (response.data.data.addImagesProduct.product.id) {
-          toast.success("Media images added successfully!");
-          getMediaProduct();
-        }
-      } catch (error) {
-        toast.error("Failed to add media images to the product.");
-      }
+      });
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -191,36 +200,35 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     getProductById();
-    getMediaProduct();
   }, []);
 
-  const getMediaProduct = async () => {
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: GET_MEDIA_PRODUCT,
-        variables: { productId: productId, after: "" },
-      });
-      if (response.data.error) {
-        throw new Error(response.data.error);
+  const {
+    data: mediaData,
+    loading: mediaLoading,
+    refetch: refetchMedia,
+  } = useGetMediaProductQuery({
+    variables: {
+      productId: productId,
+      domain: domain,
+      after: "",
+    },
+    skip: !productId || !domain,
+    onCompleted: (data) => {
+      if (data?.getImagesProduct?.edges) {
+        const formattedImages = data.getImagesProduct.edges.map((edge) => ({
+          id: edge.node.imageId,
+          imageId: edge.node.imageId,
+          image: edge.node.image,
+        }));
+        setMediaImages(formattedImages);
+        setCopyMediaImages(formattedImages);
       }
-      if (response.data.getImagesProduct.edges) {
-        setMediaImages(
-          response.data.getImagesProduct.edges.map((edge) => ({
-            id: edge.node.imageId,
-            image: edge.node.image,
-          }))
-        );
-        setCopyMediaImages([
-          ...response.data.getImagesProduct.edges.map((edge) => ({
-            id: edge.node.imageId,
-            image: edge.node.image,
-          })),
-        ]);
-      }
-    } catch (e) {
-      toast.error("Failed to fetch media images");
-    }
-  };
+    },
+    onError: (error) => {
+      toast.error("Failed to fetch product media");
+      console.error("Media fetch error:", error);
+    },
+  });
 
   const getProductById = async () => {
     try {
