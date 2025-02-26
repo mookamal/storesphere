@@ -22,23 +22,30 @@ import {
 import { ChevronsUpDown } from "lucide-react";
 import {
   CollectionNode,
+  ProductInput,
   useAdminCollectionsFindQuery,
 } from "@/codegen/generated";
+import {
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch,
+} from "react-hook-form";
 
 // Define the props for the ProductOrganization component.
 interface ProductOrganizationProps {
   domain: string;
-  selectedCollections: Partial<CollectionNode>[];
-  setSelectedCollections: React.Dispatch<
-    React.SetStateAction<Partial<CollectionNode>[]>
-  >;
+  register: UseFormRegister<ProductInput>;
+  setValue: UseFormSetValue<ProductInput>;
+  watch: UseFormWatch<ProductInput>;
 }
 
 export default function ProductOrganization({
   domain,
-  selectedCollections,
-  setSelectedCollections,
+  setValue,
+  watch,
+  register,
 }: ProductOrganizationProps) {
+  const selectedIds = watch("collectionIds") || ([] as string[]);
   // State to manage the search input.
   const [search, setSearch] = useState<string>("");
   // State to manage the open state of the popover.
@@ -49,13 +56,18 @@ export default function ProductOrganization({
     checked: boolean,
     collection: Partial<CollectionNode>
   ): void => {
-    setSelectedCollections((prev) => {
-      if (checked) {
-        return [...prev, collection];
-      } else {
-        return prev.filter((c) => collection.collectionId !== c.collectionId);
-      }
-    });
+    const collectionId = String(collection.collectionId);
+    if (checked) {
+      setValue("collectionIds", [...selectedIds, collectionId], {
+        shouldDirty: true,
+      });
+    } else {
+      setValue(
+        "collectionIds",
+        selectedIds.filter((id) => id !== collectionId),
+        { shouldDirty: true }
+      );
+    }
   };
 
   // Fetch collections from the API.
@@ -109,29 +121,27 @@ export default function ProductOrganization({
                     {collectionsLoading ? "Loading.." : "No collection found."}
                   </CommandEmpty>
                   <CommandGroup>
-                    {collectionsData?.collectionsFind?.edges.map(
-                      (edge) =>
-                        edge?.node && (
-                          <CommandItem
-                            key={edge.node.collectionId}
-                            value={edge.node.title}
-                          >
-                            <Checkbox
-                              checked={selectedCollections.some(
-                                (c) =>
-                                  c.collectionId === edge.node?.collectionId
-                              )}
-                              onCheckedChange={(checked: boolean) => {
-                                handleSelectedCollection(
-                                  checked,
-                                  edge.node as Partial<CollectionNode>
-                                );
-                              }}
-                            />
-                            {edge.node.title}
-                          </CommandItem>
-                        )
-                    )}
+                    {collectionsData?.collectionsFind?.edges.map((edge) => {
+                      const collection = edge?.node;
+                      if (!collection) return null;
+
+                      return (
+                        <CommandItem
+                          key={collection.collectionId}
+                          value={collection.title}
+                        >
+                          <Checkbox
+                            checked={selectedIds.includes(
+                              String(collection.collectionId)
+                            )}
+                            onCheckedChange={(checked: boolean) => {
+                              handleSelectedCollection(checked, collection);
+                            }}
+                          />
+                          {collection.title}
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </CommandList>
               </Command>
@@ -140,8 +150,15 @@ export default function ProductOrganization({
         </div>
 
         <div className="flex mt-2 gap-1">
-          {selectedCollections.length > 0 &&
-            selectedCollections.map((collection) => (
+          {collectionsData?.collectionsFind?.edges.map((edge) => {
+            const collection = edge?.node;
+            if (
+              !collection ||
+              !selectedIds.includes(String(collection.collectionId))
+            )
+              return null;
+
+            return (
               <span
                 key={collection.collectionId}
                 className="text-sm bg-purple-100 rounded p-1 flex items-center gap-1"
@@ -149,16 +166,19 @@ export default function ProductOrganization({
                 {collection.title}
                 <CiCircleRemove
                   onClick={() => {
-                    setSelectedCollections(
-                      selectedCollections.filter(
-                        (c) => c.collectionId !== collection.collectionId
-                      )
+                    setValue(
+                      "collectionIds",
+                      selectedIds.filter(
+                        (id) => id !== collection.collectionId
+                      ),
+                      { shouldDirty: true }
                     );
                   }}
                   className="text-sm hover:text-red-500"
                 />
               </span>
-            ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

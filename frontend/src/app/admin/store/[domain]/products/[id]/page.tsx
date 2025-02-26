@@ -42,9 +42,7 @@ export default function UpdateProduct() {
   const domain = params.domain;
   const productId = params.id;
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
-  const [selectedCollections, setSelectedCollections] = useState<
-    Partial<CollectionNode>[]
-  >([]);
+
   const {
     register,
     handleSubmit,
@@ -213,6 +211,10 @@ export default function UpdateProduct() {
             compareAtPrice: data.product.firstVariant?.compareAtPrice || 0,
             stock: data.product.firstVariant?.stock || 0,
           },
+          collectionIds:
+            data.product.collections?.map((collection) =>
+              String(collection?.collectionId)
+            ) || [],
         });
       }
     },
@@ -290,9 +292,10 @@ export default function UpdateProduct() {
             compare={compare}
           />
           <ProductOrganization
-            selectedCollections={selectedCollections}
-            setSelectedCollections={setSelectedCollections}
             domain={domain}
+            register={register}
+            setValue={setValue}
+            watch={watch}
           />
           {/* seo inputs */}
           <SeoInputs
