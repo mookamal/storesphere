@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useState, useEffect,useMemo  } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, notFound } from "next/navigation";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
@@ -47,7 +47,7 @@ export default function UpdateProduct() {
     getValues,
     trigger,
     control,
-    formState: { errors,isDirty, dirtyFields },
+    formState: { errors, isDirty, dirtyFields },
     watch,
   } = useForm();
   const description = watch("description");
@@ -111,8 +111,6 @@ export default function UpdateProduct() {
     }
   };
 
-
-
   const [addMediaImages, { loading: addImagesLoading }] =
     useAddMediaImagesProductMutation({
       onCompleted: () => {
@@ -153,8 +151,6 @@ export default function UpdateProduct() {
     };
   }, [title, description]);
 
-
-
   const {
     data: mediaData,
     loading: mediaLoading,
@@ -182,8 +178,12 @@ export default function UpdateProduct() {
       console.error("Media fetch error:", error);
     },
   });
-// Get product data using the generated hook
-  const { data: product, loading: productLoading,refetch } = useGetProductByIdQuery({
+  // Get product data using the generated hook
+  const {
+    data: product,
+    loading: productLoading,
+    refetch,
+  } = useGetProductByIdQuery({
     variables: {
       id: productId,
       domain: domain,
@@ -198,7 +198,7 @@ export default function UpdateProduct() {
           status: data.product.status || ProductProductStatusChoices.Draft,
           handle: data.product.handle || "",
           options: data.product.options || [],
-          seo:  {
+          seo: {
             title: data.product.seo?.title || "",
             description: data.product.seo?.description || "",
           },
@@ -214,21 +214,22 @@ export default function UpdateProduct() {
       toast.error("Failed to fetch product details");
       setIsNotFound(true);
       console.error("Product fetch error:", error);
-    }
+    },
   });
 
   // Update product mutation hook
-  const [updateProduct, { loading: updateLoading }] = useProductSaveUpdateMutation({
-    onCompleted: () => {
-      toast.success("Product updated successfully!");
-      reset(getValues());
-      refetch();
-    },
-    onError: (error) => {
-      toast.error("Failed to update product");
-      console.error("Update error:", error);
-    },
-  });
+  const [updateProduct, { loading: updateLoading }] =
+    useProductSaveUpdateMutation({
+      onCompleted: () => {
+        toast.success("Product updated successfully!");
+        reset(getValues());
+        refetch();
+      },
+      onError: (error) => {
+        toast.error("Failed to update product");
+        console.error("Update error:", error);
+      },
+    });
 
   // Handle form submission
   const onSubmit = async (data) => {
@@ -244,13 +245,11 @@ export default function UpdateProduct() {
   };
 
   const isLoading = useMemo(() => {
-    return removeImagesLoading || 
-           addImagesLoading || 
-           productLoading || 
-           updateLoading;
+    return (
+      removeImagesLoading || addImagesLoading || productLoading || updateLoading
+    );
   }, [removeImagesLoading, addImagesLoading, productLoading, updateLoading]);
 
- 
   if (isNotFound) return notFound();
 
   // if (!data) {
@@ -324,7 +323,7 @@ export default function UpdateProduct() {
         className="fixed bottom-5 right-5 rounded-full shadow-md"
         disabled={!isDirty}
       >
-        {isLoading  && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
+        {isLoading && <IoReload className="mr-2 h-4 w-4 animate-spin" />}
         Update
       </Button>
     </form>
