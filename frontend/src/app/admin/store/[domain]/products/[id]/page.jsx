@@ -252,14 +252,6 @@ export default function UpdateProduct() {
 
   if (isNotFound) return notFound();
 
-  // if (!data) {
-  //   return (
-  //     <div className="flex justify-center items-center h-full">
-  //       <IoReload className="mr-2 h-4 w-4 animate-spin" />
-  //     </div>
-  //   );
-  // }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <LoadingElement />}
