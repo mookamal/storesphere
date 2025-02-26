@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { IoReload } from "react-icons/io5";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { useState, useEffect, useMemo } from "react";
 import { useParams, notFound } from "next/navigation";
 import { debounce } from "lodash";
@@ -33,12 +33,18 @@ import {
   useAddMediaImagesProductMutation,
   useGetProductByIdQuery,
   useProductSaveUpdateMutation,
+  GetMediaProductQueryVariables,
+  GetProductByIdQueryVariables,
 } from "@/codegen/generated";
+import { stripTypename } from "@apollo/client/utilities";
 export default function UpdateProduct() {
-  const domain = useParams().domain;
-  const [isNotFound, setIsNotFound] = useState(false);
-  const productId = useParams().id;
-  const [selectedCollections, setSelectedCollections] = useState([]);
+  const params = useParams() as { domain: string; id: string };
+  const domain = params.domain;
+  const productId = params.id;
+  const [isNotFound, setIsNotFound] = useState<boolean>(false);
+  const [selectedCollections, setSelectedCollections] = useState<
+    Partial<CollectionNode>[]
+  >([]);
   const {
     register,
     handleSubmit,
@@ -47,9 +53,9 @@ export default function UpdateProduct() {
     getValues,
     trigger,
     control,
-    formState: { errors, isDirty, dirtyFields },
+    formState: { errors, isDirty },
     watch,
-  } = useForm();
+  } = useForm<ProductInput>();
   const description = watch("description");
   const title = watch("title");
   const handle = watch("handle");
@@ -63,11 +69,11 @@ export default function UpdateProduct() {
   });
   const controlledFieldOptions = fields.map((field, index) => ({
     ...field,
-    ...options[index],
+    ...(options?.[index] || {}),
   }));
-  const [mediaImages, setMediaImages] = useState([]);
-  const [copyMediaImages, setCopyMediaImages] = useState([]);
-  const [selectedRemoveImages, setSelectedRemoveImages] = useState([]);
+  const [mediaImages, setMediaImages] = useState<any>([]);
+  const [copyMediaImages, setCopyMediaImages] = useState<any>([]);
+  const [selectedRemoveImages, setSelectedRemoveImages] = useState<any>([]);
 
   const { data: storeData } = useSettingsGeneralQuery({
     variables: { domain },
@@ -76,8 +82,8 @@ export default function UpdateProduct() {
     useRemoveMediaImagesProductMutation({
       onCompleted: () => {
         const updatedImages = mediaImages.filter(
-          (img) =>
-            !selectedRemoveImages.some((removed) => removed.id === img.id)
+          (img: any) =>
+            !selectedRemoveImages.some((removed: any) => removed.id === img.id)
         );
         setMediaImages(updatedImages);
         setCopyMediaImages(updatedImages);
@@ -95,7 +101,7 @@ export default function UpdateProduct() {
       await removeImages({
         variables: {
           productId,
-          imageIds: selectedRemoveImages.map((item) => item.id),
+          imageIds: selectedRemoveImages.map((item: any) => item.id),
           defaultDomain: domain,
         },
       });
@@ -123,12 +129,12 @@ export default function UpdateProduct() {
       },
     });
 
-  const addImages = async (productId) => {
+  const addImages = async (productId: string) => {
     if (productId && mediaImages.length > 0) {
       await addMediaImages({
         variables: {
           productId,
-          imageIds: mediaImages.map((item) => item.id),
+          imageIds: mediaImages.map((item: any) => item.id),
           defaultDomain: domain,
         },
       });
@@ -160,14 +166,14 @@ export default function UpdateProduct() {
       productId: productId,
       domain: domain,
       after: "",
-    },
+    } as GetMediaProductQueryVariables,
     skip: !productId || !domain,
     onCompleted: (data) => {
       if (data?.getImagesProduct?.edges) {
-        const formattedImages = data.getImagesProduct.edges.map((edge) => ({
-          id: edge.node.imageId,
-          imageId: edge.node.imageId,
-          image: edge.node.image,
+        const formattedImages = data.getImagesProduct.edges?.map((edge) => ({
+          id: edge?.node?.imageId,
+          imageId: edge?.node?.imageId,
+          image: edge?.node?.image,
         }));
         setMediaImages(formattedImages);
         setCopyMediaImages(formattedImages);
@@ -187,7 +193,7 @@ export default function UpdateProduct() {
     variables: {
       id: productId,
       domain: domain,
-    },
+    } as GetProductByIdQueryVariables,
     skip: !productId || !domain,
     onCompleted: (data) => {
       // set product to form
@@ -197,7 +203,7 @@ export default function UpdateProduct() {
           description: data.product.description || "",
           status: data.product.status || ProductProductStatusChoices.Draft,
           handle: data.product.handle || "",
-          options: data.product.options || [],
+          options: stripTypename(data.product.options) || [],
           seo: {
             title: data.product.seo?.title || "",
             description: data.product.seo?.description || "",
@@ -232,7 +238,8 @@ export default function UpdateProduct() {
     });
 
   // Handle form submission
-  const onSubmit = async (data) => {
+  const onSubmit: SubmitHandler<ProductInput> = async (data) => {
+    console.log("data", data);
     if (typeof data.description === "object") {
       data.description = JSON.stringify(data.description);
     }
@@ -270,7 +277,6 @@ export default function UpdateProduct() {
           <MediaInputs
             selectedImages={mediaImages}
             setSelectedImages={setMediaImages}
-            externalLoading={isLoading}
             selectedRemoveImages={selectedRemoveImages}
             setSelectedRemoveImages={setSelectedRemoveImages}
             isEditMode={true}
@@ -280,7 +286,7 @@ export default function UpdateProduct() {
           {/* price input */}
           <PriceInput
             register={register}
-            currencyCode={storeData?.store?.currencyCode}
+            currencyCode={storeData?.store?.currencyCode as string}
             price={price}
             compare={compare}
           />
@@ -290,7 +296,11 @@ export default function UpdateProduct() {
             domain={domain}
           />
           {/* seo inputs */}
-          <SeoInputs register={register} domain={domain} handle={handle} />
+          <SeoInputs
+            register={register}
+            domain={domain}
+            handle={handle as string}
+          />
 
           {/* variant inputs */}
           <OptionInputs
