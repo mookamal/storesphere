@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cardVariants } from "@/utils/cardVariants";
+import { Controller } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,7 @@ interface GeneralInputsProps {
   handleBlur: React.FocusEventHandler<HTMLInputElement>;
   setValue: UseFormSetValue<ProductInput>;
   description: string;
+  control: any;
 }
 
 export default function GeneralInputs({
@@ -31,6 +33,7 @@ export default function GeneralInputs({
   handleBlur,
   setValue,
   description,
+  control,
 }: GeneralInputsProps): JSX.Element {
   // Handle changes from the custom editor.
   const handleEditorChange = (content: string): void => {
@@ -44,15 +47,24 @@ export default function GeneralInputs({
           <CardTitle className={cardVariants.title}>
             General Information
           </CardTitle>
-          <Select {...register("status")} defaultValue="ACTIVE">
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-            </SelectContent>
-          </Select>
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="DRAFT">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </CardHeader>
       <CardContent className={cardVariants.content}>

@@ -180,6 +180,7 @@ export default function AddProduct(): JSX.Element {
             handleBlur={handleBlur}
             description={description}
             setValue={setValue}
+            control={control}
           />
           {/* Images input */}
           <MediaInputs
