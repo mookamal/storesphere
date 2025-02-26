@@ -28,9 +28,6 @@ export default function AddProduct(): JSX.Element {
   const router = useRouter();
   // Casting useParams to expected shape; adjust if necessary.
   const { domain } = useParams() as { domain: string };
-  const [selectedCollections, setSelectedCollections] = useState<
-    Partial<CollectionNode>[]
-  >([]);
   const [selectedImages, setSelectedImages] = useState<any>([]);
   const [selectedRemoveImages, setSelectedRemoveImages] = useState<
     Partial<ImageNode>[]
@@ -157,10 +154,7 @@ export default function AddProduct(): JSX.Element {
     if (typeof data.description === "object") {
       data.description = JSON.stringify(data.description);
     }
-    // add list of selected collections to the product
-    data.collectionIds = selectedCollections
-      .map((collection) => collection.collectionId?.toString())
-      .filter((id): id is string => id !== undefined);
+
     const variables: CreateProductMutationMutationVariables = {
       defaultDomain: domain,
       product: data,
@@ -200,8 +194,9 @@ export default function AddProduct(): JSX.Element {
           {/* Product organization */}
           <ProductOrganization
             domain={domain}
-            selectedCollections={selectedCollections}
-            setSelectedCollections={setSelectedCollections}
+            register={register}
+            setValue={setValue}
+            watch={watch}
           />
           {/* SEO inputs */}
           <SeoInputs

@@ -166,11 +166,10 @@ export default function ProductOrganization({
                 {collection.title}
                 <CiCircleRemove
                   onClick={() => {
+                    const collectionId = String(collection.collectionId);
                     setValue(
                       "collectionIds",
-                      selectedIds.filter(
-                        (id) => id !== collection.collectionId
-                      ),
+                      selectedIds.filter((id) => id !== collectionId),
                       { shouldDirty: true }
                     );
                   }}
