@@ -239,7 +239,6 @@ export default function UpdateProduct() {
 
   // Handle form submission
   const onSubmit: SubmitHandler<ProductInput> = async (data) => {
-    console.log("data", data);
     if (typeof data.description === "object") {
       data.description = JSON.stringify(data.description);
     }
