@@ -4,10 +4,27 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import VariantForm from "./VariantForm";
 import VariantsTable from "./VariantsTable";
 import { useState } from "react";
-export default function VariantCard({ watch, currencyCode }) {
-  const options = watch("options");
-  const hasValidOptions = options && options.some((option) => option.id);
-  const [shouldRefetch, setShouldRefetch] = useState(false);
+import { useWatch } from "react-hook-form";
+
+interface VariantCardProps {
+  control: any;
+  currencyCode: string;
+}
+
+export default function VariantCard({
+  control,
+  currencyCode,
+}: VariantCardProps): JSX.Element {
+  const options = useWatch({
+    control,
+    name: "options",
+    defaultValue: [],
+  });
+
+  const hasValidOptions =
+    options && options.some((option) => option?.id != null);
+
+  const [shouldRefetch, setShouldRefetch] = useState<boolean>(false);
 
   return (
     <Card className="card">
@@ -17,7 +34,7 @@ export default function VariantCard({ watch, currencyCode }) {
           {hasValidOptions && (
             <VariantForm
               currencyCode={currencyCode}
-              watch={watch}
+              control={control}
               onVariantAdded={() => setShouldRefetch(true)}
             />
           )}

@@ -28,7 +28,8 @@ import {
 import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 import { safeParseNumber } from "@/utils/dataTransformers";
-export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
+import { useWatch } from "react-hook-form";
+export default function VariantForm({ currencyCode, control, onVariantAdded }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
@@ -37,7 +38,11 @@ export default function VariantForm({ currencyCode, watch, onVariantAdded }) {
   const domain = useParams().domain;
   const [error, setError] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState({});
-  const options = watch("options");
+  const options = useWatch({
+    control,
+    name: "options",
+    defaultValue: [],
+  });
 
   const handleSubmit = async () => {
     if (Object.keys(selectedOptions).length === 0) {

@@ -316,8 +316,8 @@ export default function UpdateProduct() {
           />
           {/* Variant card */}
           <VariantCard
-            watch={watch}
-            currencyCode={storeData?.store?.currencyCode}
+            currencyCode={storeData?.store?.currencyCode as string}
+            control={control}
           />
         </div>
       </div>
