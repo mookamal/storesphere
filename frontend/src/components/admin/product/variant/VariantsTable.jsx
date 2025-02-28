@@ -1,7 +1,5 @@
 "use client";
-import axios from "axios";
 import { useParams } from "next/navigation";
-import { ADMIN_PRODUCT_DETAILS_VARIANTS } from "@/graphql/queries";
 import { useState, useEffect } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 import {
@@ -26,6 +24,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import DeleteVariantsDialog from "./DeleteVariantsDialog";
+import { useAdminProductDetailsVariantsQuery } from "@/codegen/generated";
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
@@ -33,8 +32,6 @@ export default function VariantsTable({
   setShouldRefetch,
 }) {
   const productId = useParams().id;
-  const [variants, setVariants] = useState();
-  const [loading, setLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [countVariant, setCountVariant] = useState(5);
   const [selectedVariantIDs, setSelectedVariantIDs] = useState([]);
@@ -53,43 +50,20 @@ export default function VariantsTable({
     }
   };
 
-  const getVariantsByProductID = async () => {
-    setLoading(true);
-    const variables = {
+  const {
+    data: variants,
+    loading,
+    refetch: refetchVariants,
+  } = useAdminProductDetailsVariantsQuery({
+    variables: {
       productId: productId,
       first: countVariant,
       after: "",
-    };
-    try {
-      const response = await axios.post("/api/get-data", {
-        query: ADMIN_PRODUCT_DETAILS_VARIANTS,
-        variables: variables,
-      });
-      if (response.statusText === "OK") {
-        if (response.data.productDetailsVariants.edges.length > 0) {
-          setVariants(response.data.productDetailsVariants.edges);
-          setHasNextPage(
-            response.data.productDetailsVariants.pageInfo.hasNextPage
-          );
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (shouldRefetch || countVariant) {
-        await getVariantsByProductID();
-        if (shouldRefetch && onRefetchHandled) {
-          onRefetchHandled();
-        }
-      }
-    };
-    fetchData();
+    refetchVariants();
   }, [shouldRefetch, countVariant]);
 
   if (loading) return <div>Loading...</div>;
@@ -148,7 +122,7 @@ export default function VariantsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variants.map(({ node }) => (
+            {variants?.productDetailsVariants?.edges?.map(({ node }) => (
               <TableRow key={node.id}>
                 <TableCell>
                   <Checkbox
