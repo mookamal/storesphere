@@ -1,6 +1,6 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
 require('dotenv').config();
-const token: string = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwMDM4NzQzLCJpYXQiOjE3Mzk0MzM5NDMsImp0aSI6ImE4ODc3OTZiNDQwNDRkZDY5YWVkNTg4YzAwOGI4ZjMxIiwidXNlcl9pZCI6Mn0.wezrfM7drM601GD6eRee5yMTkRzMduRZgMSJF5DCuA4" 
+const token: string = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQxMzY0OTE1LCJpYXQiOjE3NDA3NjAxMTUsImp0aSI6ImEzZGU4ZTA4YWVjYzQyMjE5NGJjOTdmYWIwMjljMjcyIiwidXNlcl9pZCI6Mn0.wzssoscsJuq4pr4rJy-syI7njG2wPngZeaedvLkE_gE" 
 const config: CodegenConfig = {
     overwrite: true,
     schema: {

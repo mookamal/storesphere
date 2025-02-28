@@ -44,7 +44,7 @@ export const CREATE_PRODUCT = gql`
 `;
 
 export const CREATE_PRODUCT_VARIANT = gql`
-  mutation CreateProductVariantMutation($productId: ID!,$variantInputs: ProductVariantInput!, $defaultDomain: String!) {
+  mutation CreateProductVariant($productId: ID!,$variantInputs: ProductVariantInput!, $defaultDomain: String!) {
     createProductVariant(productId: $productId,variantInputs: $variantInputs, defaultDomain: $defaultDomain) {
       productVariant {
         id

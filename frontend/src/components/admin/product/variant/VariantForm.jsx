@@ -29,9 +29,9 @@ import { CREATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 import { safeParseNumber } from "@/utils/dataTransformers";
 import { useWatch } from "react-hook-form";
+import { useCreateProductVariantMutation } from "@/codegen/generated";
 export default function VariantForm({ currencyCode, control, onVariantAdded }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [variantPrice, setVariantPrice] = useState(0.0);
   const [variantStock, setVariantStock] = useState(0);
   const productId = useParams().id;
@@ -43,14 +43,24 @@ export default function VariantForm({ currencyCode, control, onVariantAdded }) {
     name: "options",
     defaultValue: [],
   });
-
+  const [createProductVariant, { loading }] = useCreateProductVariantMutation({
+    onCompleted: () => {
+      onVariantAdded();
+      toast.success("Variant created successfully!");
+      setVariantPrice(0.0);
+      setSelectedOptions({});
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Operation failed: ${error.message}`);
+    },
+  });
   const handleSubmit = async () => {
     if (Object.keys(selectedOptions).length === 0) {
       setError("Please select options");
       return;
     }
-    setError("");
-    setLoading(true);
+
     const variables = {
       productId: productId,
       variantInputs: {
@@ -60,24 +70,9 @@ export default function VariantForm({ currencyCode, control, onVariantAdded }) {
       },
       defaultDomain: domain,
     };
-    try {
-      const response = await axios.post("/api/set-data", {
-        query: CREATE_PRODUCT_VARIANT,
-        variables: variables,
-      });
-      if (response.data.data.createProductVariant.productVariant) {
-        onVariantAdded();
-        toast.success("Variant created successfully!");
-        setVariantPrice(0.0);
-        setError(null);
-        setSelectedOptions({});
-        setOpen(false);
-      }
-    } catch (error) {
-      toast.error(error.response.data.error);
-      setError(error.response.data.error);
-    }
-    setLoading(false);
+    createProductVariant({
+      variables,
+    });
   };
   const handleOptionChange = (optionId, value) => {
     setSelectedOptions((prevSelectedOptions) => ({
