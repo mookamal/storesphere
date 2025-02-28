@@ -25,22 +25,32 @@ import EditVariantModal from "./EditVariantModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import DeleteVariantsDialog from "./DeleteVariantsDialog";
 import { useAdminProductDetailsVariantsQuery } from "@/codegen/generated";
+
+interface VariantsTableProps {
+  currencyCode: string;
+  shouldRefetch: boolean;
+  onRefetchHandled: () => void;
+  setShouldRefetch: (value: boolean) => void;
+}
+
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
   onRefetchHandled,
   setShouldRefetch,
-}) {
-  const productId = useParams().id;
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [countVariant, setCountVariant] = useState(5);
-  const [selectedVariantIDs, setSelectedVariantIDs] = useState([]);
+}: VariantsTableProps): JSX.Element {
+  const { id: productId } = useParams() as { id: string };
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+  const [countVariant, setCountVariant] = useState<number>(5);
+  const [selectedVariantIDs, setSelectedVariantIDs] = useState<
+    Array<string | number>
+  >([]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = (): void => {
     setCountVariant(countVariant + 5);
   };
 
-  const handleSelectVariantIDS = (variantId) => {
+  const handleSelectVariantIDS = (variantId: string | number): void => {
     if (selectedVariantIDs.includes(variantId)) {
       setSelectedVariantIDs(
         selectedVariantIDs.filter((id) => id !== variantId)
@@ -64,7 +74,7 @@ export default function VariantsTable({
 
   useEffect(() => {
     refetchVariants();
-  }, [shouldRefetch, countVariant]);
+  }, [shouldRefetch, countVariant, refetchVariants]);
 
   if (loading) return <div>Loading...</div>;
   return (
@@ -122,39 +132,41 @@ export default function VariantsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variants?.productDetailsVariants?.edges?.map(({ node }) => (
-              <TableRow key={node.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedVariantIDs.includes(node.variantId)}
-                    onCheckedChange={(checked) =>
-                      handleSelectVariantIDS(node.variantId)
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{currencyCode}</Badge>
-                  {node.pricing.amount}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    {node.selectedOptions.map((value) => (
-                      <Badge key={`${value.name}-${value.id}`}>
-                        {value.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>{node.stock}</TableCell>
-                <TableCell>
-                  <EditVariantModal
-                    variant={node}
-                    currencyCode={currencyCode}
-                    onRefetch={() => setShouldRefetch(true)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+            {variants?.productDetailsVariants?.edges?.map(({ node }) => {
+              return (
+                <TableRow key={node.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedVariantIDs.includes(node.variantId)}
+                      onCheckedChange={(checked) =>
+                        handleSelectVariantIDS(node.variantId)
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{currencyCode}</Badge>
+                    {node.pricing.amount}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      {node.selectedOptions.map((value) => (
+                        <Badge key={`${value.name}-${value.id}`}>
+                          {value.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>{node.stock}</TableCell>
+                  <TableCell>
+                    <EditVariantModal
+                      variant={node}
+                      currencyCode={currencyCode}
+                      onRefetch={() => setShouldRefetch(true)}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       ) : (
