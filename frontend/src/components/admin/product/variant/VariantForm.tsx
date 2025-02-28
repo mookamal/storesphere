@@ -69,9 +69,8 @@ export default function VariantForm({
       setOpen(false);
     },
     onError: (error) => {
-      const err = error?.graphQLErrors?.[0]?.message;
-      toast.error(err);
-      setError(err);
+      toast.error(error.message);
+      setError(error.message);
     },
   });
 
