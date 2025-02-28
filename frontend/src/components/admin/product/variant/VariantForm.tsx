@@ -69,7 +69,9 @@ export default function VariantForm({
       setOpen(false);
     },
     onError: (error) => {
-      toast.error(`Operation failed: ${error.message}`);
+      const err = error?.graphQLErrors?.[0]?.message;
+      toast.error(err);
+      setError(err);
     },
   });
 
