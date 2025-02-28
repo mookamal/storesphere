@@ -6,7 +6,7 @@ import VariantsTable from "./VariantsTable";
 import { useState } from "react";
 import { Control, useWatch } from "react-hook-form";
 import { ProductInput } from "@/codegen/generated";
-
+import { cardVariants } from "@/utils/cardVariants";
 interface VariantCardProps {
   control: Control<ProductInput>;
   currencyCode: string;
@@ -30,9 +30,9 @@ export default function VariantCard({
   const [shouldRefetch, setShouldRefetch] = useState<boolean>(false);
 
   return (
-    <Card className="card">
-      <CardHeader>
-        <div className="flex justify-between items-center">
+    <Card className={cardVariants.base}>
+      <CardHeader className={cardVariants.header}>
+        <div className="flex justify-between items-center w-full">
           <h3 className="text-lg font-semibold">Variants</h3>
           {optionsState.hasValidOptions && (
             <VariantForm
@@ -43,7 +43,7 @@ export default function VariantCard({
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cardVariants.content}>
         {optionsState.isEmpty ? (
           <div className="text-center p-4 bg-gray-50 rounded-md">
             <p className="text-gray-600">
