@@ -186,7 +186,7 @@ export default function UpdateProduct() {
   const {
     data: product,
     loading: productLoading,
-    refetch,
+    refetch: refetchProduct,
   } = useGetProductByIdQuery({
     variables: {
       id: productId,
@@ -230,8 +230,10 @@ export default function UpdateProduct() {
     useProductSaveUpdateMutation({
       onCompleted: () => {
         toast.success("Product updated successfully!");
-        reset(getValues());
-        refetch();
+        refetchProduct().then((result) => {
+          const updatedOptions = result.data?.product?.options || [];
+          setValue("options", updatedOptions);
+        });
       },
       onError: (error) => {
         toast.error("Failed to update product");

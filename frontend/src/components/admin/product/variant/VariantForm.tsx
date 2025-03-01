@@ -153,9 +153,9 @@ export default function VariantForm({
           </div>
           {/* Option selectors */}
           <div className="flex flex-col gap-2 items-center justify-center">
-            {options?.map((option) => (
+            {options?.map((option, index) => (
               <InputSelectOption
-                key={option?.id}
+                key={option?.id ?? index}
                 option={option as ProductOptionType}
                 onOptionChange={handleOptionChange}
               />
@@ -200,8 +200,8 @@ function InputSelectOption({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>{option.name}</SelectLabel>
-            {option.values?.map((value) => (
-              <SelectItem key={value?.id} value={String(value?.id)}>
+            {option.values?.map((value, index) => (
+              <SelectItem key={value?.id ?? index} value={String(value?.id)}>
                 {value?.name}
               </SelectItem>
             ))}
