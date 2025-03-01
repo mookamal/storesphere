@@ -18,37 +18,39 @@ import { BiEdit } from "react-icons/bi";
 import axios from "axios";
 import { UPDATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
+import { useUpdateProductVariantMutation } from "@/codegen/generated";
+import { useParams } from "next/navigation";
 export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
+  const params = useParams();
+  const domain = params.domain;
+  const productId = params.id;
   const [loading, setLoading] = useState(false);
   const [hasChange, setHasChange] = useState(false);
   const [variantPrice, setVariantPrice] = useState(variant.pricing.amount);
   const [variantStock, setVariantStock] = useState(variant.stock);
+
+  const [updateProductVariant, { loading: updateProductVariantLoading }] =
+    useUpdateProductVariantMutation({
+      onCompleted: () => {
+        toast.success("Variant updated successfully");
+        onRefetch();
+      },
+      onError: (error) => {
+        toast.error("Failed to update variant");
+      },
+    });
+
   const handleSave = async () => {
-    setLoading(true);
     const variables = {
       variantInputs: {
         variantId: variant.variantId,
         price: variantPrice,
         stock: parseInt(variantStock),
       },
+      defaultDomain: domain,
+      productId: productId,
     };
-    try {
-      // Update variant
-      const response = await axios.post("/api/set-data", {
-        query: UPDATE_PRODUCT_VARIANT,
-        variables: variables,
-      });
-      if (response.data.data.updateProductVariant.productVariant) {
-        toast.success("Variant updated successfully!");
-        // refetch variants
-        onRefetch();
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update variant");
-    } finally {
-      setLoading(false);
-    }
+    updateProductVariant({ variables });
   };
 
   useEffect(() => {
