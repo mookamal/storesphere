@@ -43,7 +43,6 @@ export default function VariantsTable({
   setShouldRefetch,
 }: VariantsTableProps): JSX.Element {
   const { id: productId } = useParams() as { id: string };
-  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [countVariant, setCountVariant] = useState<number>(5);
   const [selectedVariantIDs, setSelectedVariantIDs] = useState<
     Array<string | number>
@@ -74,6 +73,8 @@ export default function VariantsTable({
       after: "",
     },
   });
+
+  const hasNextPage = variants?.productDetailsVariants?.pageInfo.hasNextPage;
 
   useEffect(() => {
     refetchVariants();
