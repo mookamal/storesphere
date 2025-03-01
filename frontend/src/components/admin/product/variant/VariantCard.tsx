@@ -55,7 +55,6 @@ export default function VariantCard({
           <VariantsTable
             currencyCode={currencyCode}
             shouldRefetch={shouldRefetch}
-            onRefetchHandled={() => setShouldRefetch(false)}
             setShouldRefetch={setShouldRefetch}
           />
         ) : (
