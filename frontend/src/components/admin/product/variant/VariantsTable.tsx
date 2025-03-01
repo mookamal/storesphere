@@ -32,14 +32,12 @@ import {
 interface VariantsTableProps {
   currencyCode: string;
   shouldRefetch: boolean;
-  onRefetchHandled: () => void;
   setShouldRefetch: (value: boolean) => void;
 }
 
 export default function VariantsTable({
   currencyCode,
   shouldRefetch,
-  onRefetchHandled,
   setShouldRefetch,
 }: VariantsTableProps): JSX.Element {
   const { id: productId } = useParams() as { id: string };
