@@ -24,7 +24,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import EditVariantModal from "./EditVariantModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import DeleteVariantsDialog from "./DeleteVariantsDialog";
-import { useAdminProductDetailsVariantsQuery } from "@/codegen/generated";
+import {
+  OptionValueType,
+  useAdminProductDetailsVariantsQuery,
+} from "@/codegen/generated";
 
 interface VariantsTableProps {
   currencyCode: string;
@@ -132,28 +135,35 @@ export default function VariantsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variants?.productDetailsVariants?.edges?.map(({ node }) => {
+            {variants?.productDetailsVariants?.edges?.map((edge) => {
+              if (!edge?.node) return null;
+              const node = edge.node;
               return (
                 <TableRow key={node.id}>
                   <TableCell>
                     <Checkbox
-                      checked={selectedVariantIDs.includes(node.variantId)}
+                      checked={selectedVariantIDs.includes(
+                        node.variantId ?? ""
+                      )}
                       onCheckedChange={(checked) =>
-                        handleSelectVariantIDS(node.variantId)
+                        handleSelectVariantIDS(node.variantId ?? "")
                       }
                     />
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{currencyCode}</Badge>
-                    {node.pricing.amount}
+                    {node?.pricing?.amount}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      {node.selectedOptions.map((value) => (
-                        <Badge key={`${value.name}-${value.id}`}>
-                          {value.name}
-                        </Badge>
-                      ))}
+                      {node.selectedOptions?.filter(Boolean).map((value) => {
+                        const option = value as OptionValueType;
+                        return (
+                          <Badge key={`${option.name}-${option.id}`}>
+                            {option.name}
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </TableCell>
                   <TableCell>{node.stock}</TableCell>
