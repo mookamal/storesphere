@@ -14,11 +14,7 @@ import {
 import { toast } from "react-toastify";
 import { useState } from "react";
 import LoadingElement from "@/components/LoadingElement";
-import {
-  PERFORM_ACTION_ON_VARIANTS,
-  VariantActions,
-} from "@/graphql/mutations";
-import axios from "axios";
+import { VariantActions } from "@/graphql/mutations";
 import { usePerformActionOnVariantsMutation } from "@/codegen/generated";
 import { useParams } from "next/navigation";
 export default function DeleteVariantsDialog({
