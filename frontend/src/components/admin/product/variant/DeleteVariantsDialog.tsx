@@ -14,16 +14,27 @@ import {
 import { toast } from "react-toastify";
 import { useState } from "react";
 import LoadingElement from "@/components/LoadingElement";
-import { VariantActions } from "@/graphql/mutations";
-import { usePerformActionOnVariantsMutation } from "@/codegen/generated";
+import {
+  usePerformActionOnVariantsMutation,
+  VariantActions,
+} from "@/codegen/generated";
 import { useParams } from "next/navigation";
+import React from "react";
+
+interface DeleteVariantsDialogProps {
+  variantIDs: string[];
+  onRefetch: () => void;
+  clearSelectedVariantIDs: () => void;
+}
+
 export default function DeleteVariantsDialog({
   variantIDs,
   onRefetch,
   clearSelectedVariantIDs,
-}) {
-  const [open, setOpen] = useState(false);
-  const domain = useParams().domain;
+}: DeleteVariantsDialogProps): JSX.Element {
+  const [open, setOpen] = useState<boolean>(false);
+  const params = useParams() as { domain: string };
+  const domain = params.domain;
 
   const [performActionOnVariants, { loading }] =
     usePerformActionOnVariantsMutation({
@@ -37,17 +48,19 @@ export default function DeleteVariantsDialog({
         toast.error("Failed to delete variants");
       },
     });
-  const handleDeleteClick = async (e) => {
+
+  const handleDeleteClick = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> => {
     e.preventDefault();
     const variables = {
       variantIds: variantIDs,
-      action: VariantActions.DELETE,
+      action: VariantActions.Delete,
       defaultDomain: domain,
     };
-    performActionOnVariants({
-      variables: variables,
-    });
+    await performActionOnVariants({ variables });
   };
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger>Delete</AlertDialogTrigger>
@@ -62,7 +75,7 @@ export default function DeleteVariantsDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={(e) => handleDeleteClick(e)}>
+          <AlertDialogAction onClick={handleDeleteClick}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
