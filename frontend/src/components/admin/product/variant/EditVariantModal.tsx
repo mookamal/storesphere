@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -11,39 +12,55 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LoadingElement from "@/components/LoadingElement";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { BiEdit } from "react-icons/bi";
 import { toast } from "react-toastify";
-import { useUpdateProductVariantMutation } from "@/codegen/generated";
+import {
+  ProductVariantNode,
+  useUpdateProductVariantMutation,
+} from "@/codegen/generated";
 import { useParams } from "next/navigation";
-export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
-  const params = useParams();
+import LoadingElement from "@/components/LoadingElement";
+
+interface EditVariantModalProps {
+  variant: ProductVariantNode;
+  currencyCode: string;
+  onRefetch: () => void;
+}
+
+export default function EditVariantModal({
+  variant,
+  currencyCode,
+  onRefetch,
+}: EditVariantModalProps): JSX.Element {
+  const params = useParams() as { domain: string; id: string };
   const domain = params.domain;
   const productId = params.id;
-  const [loading, setLoading] = useState(false);
-  const [hasChange, setHasChange] = useState(false);
-  const [variantPrice, setVariantPrice] = useState(variant.pricing.amount);
-  const [variantStock, setVariantStock] = useState(variant.stock);
 
-  const [updateProductVariant, { loading: updateProductVariantLoading }] =
-    useUpdateProductVariantMutation({
-      onCompleted: () => {
-        toast.success("Variant updated successfully");
-        onRefetch();
-      },
-      onError: (error) => {
-        toast.error("Failed to update variant");
-      },
-    });
+  const [variantPrice, setVariantPrice] = useState<number>(
+    variant.pricing?.amount ?? 0
+  );
+  const [variantStock, setVariantStock] = useState<number>(variant.stock);
+  const [hasChange, setHasChange] = useState<boolean>(false);
+
+  const [updateProductVariant, { loading }] = useUpdateProductVariantMutation({
+    onCompleted: () => {
+      toast.success("Variant updated successfully");
+      onRefetch();
+      setHasChange(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to update variant");
+    },
+  });
 
   const handleSave = async () => {
     const variables = {
       variantInputs: {
-        variantId: variant.variantId,
+        variantId: variant.variantId ? variant.variantId.toString() : "",
         price: variantPrice,
-        stock: parseInt(variantStock),
+        stock: variantStock,
       },
       defaultDomain: domain,
       productId: productId,
@@ -52,12 +69,15 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
   };
 
   useEffect(() => {
-    if (variantPrice !== variant.price || variantStock !== variant.stock) {
+    if (
+      variantPrice !== (variant.pricing?.amount ?? 0) ||
+      variantStock !== variant.stock
+    ) {
       setHasChange(true);
     } else {
       setHasChange(false);
     }
-  }, [variantPrice, variantStock]);
+  }, [variantPrice, variantStock, variant.pricing, variant.stock]);
 
   return (
     <Dialog>
@@ -67,7 +87,6 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        {loading && <LoadingElement />}
         <DialogHeader>
           <DialogTitle>Edit for ({variant.variantId}) ID</DialogTitle>
           <hr />
@@ -77,7 +96,8 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        {/* v-price */}
+        {loading && <LoadingElement size="sm" />}
+        {/* Price input */}
         <div>
           <div className="mb-2">
             <Label htmlFor="v-price">Price</Label>
@@ -87,26 +107,28 @@ export default function EditVariantModal({ variant, currencyCode, onRefetch }) {
             <Input
               id="v-price"
               name="v-price"
-              size="sm"
               type="number"
               step="0.01"
-              value={variantPrice}
-              onChange={(e) => setVariantPrice(e.target.value)}
+              value={variantPrice.toString()}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setVariantPrice(parseFloat(e.target.value))
+              }
             />
           </div>
         </div>
+        {/* Stock input */}
         <div>
           <div className="mb-2">
             <Label htmlFor="v-stock">Stock</Label>
           </div>
-
           <Input
             id="v-stock"
             name="v-stock"
-            size="sm"
             type="number"
-            value={variantStock}
-            onChange={(e) => setVariantStock(e.target.value)}
+            value={variantStock.toString()}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setVariantStock(parseInt(e.target.value, 10))
+            }
           />
         </div>
         <DialogFooter>
