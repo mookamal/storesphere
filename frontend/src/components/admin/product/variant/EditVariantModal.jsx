@@ -15,8 +15,6 @@ import LoadingElement from "@/components/LoadingElement";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { BiEdit } from "react-icons/bi";
-import axios from "axios";
-import { UPDATE_PRODUCT_VARIANT } from "@/graphql/mutations";
 import { toast } from "react-toastify";
 import { useUpdateProductVariantMutation } from "@/codegen/generated";
 import { useParams } from "next/navigation";
