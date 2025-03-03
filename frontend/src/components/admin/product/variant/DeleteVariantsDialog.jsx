@@ -19,37 +19,38 @@ import {
   VariantActions,
 } from "@/graphql/mutations";
 import axios from "axios";
+import { usePerformActionOnVariantsMutation } from "@/codegen/generated";
+import { useParams } from "next/navigation";
 export default function DeleteVariantsDialog({
   variantIDs,
   onRefetch,
   clearSelectedVariantIDs,
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const domain = useParams().domain;
+
+  const [performActionOnVariants, { loading }] =
+    usePerformActionOnVariantsMutation({
+      onCompleted: () => {
+        toast.success("Variants deleted successfully");
+        onRefetch();
+        clearSelectedVariantIDs();
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error("Failed to delete variants");
+      },
+    });
   const handleDeleteClick = async (e) => {
     e.preventDefault();
-    setLoading(true);
     const variables = {
       variantIds: variantIDs,
       action: VariantActions.DELETE,
+      defaultDomain: domain,
     };
-    try {
-      // send request to server
-      const response = await axios.post("/api/set-data", {
-        query: PERFORM_ACTION_ON_VARIANTS,
-        variables: variables,
-      });
-      if (response.data.data.performActionOnVariants.success) {
-        toast.success(response.data.data.performActionOnVariants.message);
-        onRefetch();
-        setOpen(false);
-        clearSelectedVariantIDs();
-      }
-    } catch (error) {
-      toast.error("Failed to delete variants");
-    } finally {
-      setLoading(false);
-    }
+    performActionOnVariants({
+      variables: variables,
+    });
   };
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
