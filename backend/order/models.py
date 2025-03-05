@@ -23,9 +23,8 @@ class Order(ModelWithExternalReference):
     created_at = models.DateTimeField(default=now, editable=False)
     updated_at = models.DateTimeField(
         auto_now=True, editable=False, db_index=True)
-    currency = models.CharField(
-        max_length=settings.DEFAULT_CURRENCY_CODE_LENGTH,
-    )
+    completed_at = models.DateTimeField(null=True, blank=True)
+    canceled_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=32, default=OrderStatus.OPEN, choices=OrderStatus.CHOICES
     )
@@ -54,6 +53,7 @@ class Order(ModelWithExternalReference):
         null=True,
         on_delete=models.SET_NULL,
     )
+    shipping_method = models.CharField(max_length=255, blank=True, null=True)
     currency = models.CharField(
         max_length=settings.DEFAULT_CURRENCY_CODE_LENGTH,
     )
