@@ -128,7 +128,7 @@ class Store(models.Model):
     default_domain = models.CharField(
         max_length=255, default=generate_unique_subdomain, unique=True, editable=False)
     primary_domain = models.OneToOneField(
-        Domain, on_delete=models.CASCADE, null=True, blank=True)
+        Domain, on_delete=models.SET_NULL, null=True, blank=True, related_name='store')
     currency_code = models.CharField(max_length=5, default='USD')
     enabled_presentment_currencies = models.JSONField(null=True, blank=True)
 
