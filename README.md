@@ -68,4 +68,4 @@ A Django 5–based backend with Next.js frontend, supporting subdomain-based mul
 
 ## 📬 Contact
 
-Mohamed kamal • [GitHub](https://github.com/mookamal) • [your.email@example.com](mailto:your.email@example.com)
+Mohamed kamal • [GitHub](https://github.com/mookamal) • mohamed.kamal1996158@gmail.com
