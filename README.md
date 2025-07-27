@@ -57,20 +57,6 @@ A Django 5–based backend with Next.js frontend, supporting subdomain-based mul
 
 ---
 
-## 📂 Project Structure
-
-```
-storesphere/
-├─ backend/        # Django project
-│  ├─ project/
-│  │  ├─ settings.py   # subdomain, auth, CORS, JWT
-│  │  └─ hosts.py      # Host patterns
-│  └─ apps/           # accounts, stores, product...
-└─ frontend/       # Next.js + Tailwind
-   ├─ middleware.js  # subdomain logic
-   └─ pages/         # routes
-```
-
 ---
 
 ## 🛑 Status & Notes
